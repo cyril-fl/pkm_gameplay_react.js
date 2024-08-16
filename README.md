@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Pokemon Gameplay React
 
-## Getting Started
+[//]: # (![Screenshot of Application Form]&#40;./public/assets/webp/screenshoot.webp&#41;)
 
-First, run the development server:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Description
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**Pokemon Gameplay React** is a text-based gameplay loop inspired by the Pokémon universe. Create your character, choose your Pokémon, and embark on an adventure in this interactive game.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Key Features
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+#### Pkm Center
+- **Revive Pokémon**: Restore your Pokémon's health.
+- **View Logs**: Check activity logs of your Pokémon.
 
-## Learn More
+#### Team
+- **Heal**: Heal your team.
+- **Rename**: Change the names of your Pokémon.
+- **Release**: Release a Pokémon into the wild.
 
-To learn more about Next.js, take a look at the following resources:
+#### Adventure
+- **Random Battle**: Engage in random battles with wild Pokémon.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Technologies
+#### Frontend
+- **React.js**: A JavaScript library for building user interfaces, particularly single-page applications.
+- **TypeScript**: A typed superset of JavaScript that helps catch errors early through type-checking.
+#### Backend
+- **Next.js**: A React framework that enables server-side rendering and the creation of static websites.
+- **SQLite**: A lightweight, serverless, self-contained SQL database engine, perfect for small to medium-sized applications.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+### Installation
+#### Prerequisites
+- Ensure that **SQLite** and **Node.js** are installed on your machine.
 
-## Deploy on Vercel
+### Installation Instructions
+To install and run the project locally, follow these steps:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. **Clone the repository to your local machine:**
+   ```sh
+   git clone git@github.com:cyril-fl/pkm_gamplay_react.js.git
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+2. **Navigate to the project directory:**
+   ```sh
+   cd project
+   ```
+
+3. **Install the necessary dependencies:**
+   ```sh
+   npm install
+   ```
+
+4. **Start the application in development mode:**
+   ```sh
+   npm run dev
+   ```
+
+### Contribution & License
+#### License
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
+#### Contribution
+No contributions are needed as this project is for educational purposes only.
+
+### Disclaimer
+Some French may appear in the code, mainly in comments. The frontend is intentionally in French as it is my mother tongue, and this project helps me track my internship applications.
