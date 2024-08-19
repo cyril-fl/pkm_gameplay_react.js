@@ -15,7 +15,7 @@ export const DialoguesCard = () => {
   }, [ui.dialogues]);
 
   return (
-    <article className="flex grow flex-col gap-4">
+    <article className="flex grow flex-col gap-4 text-2xl">
       {dialogues.map((text: string, index: number) => (
         <p key={index}>{text}</p>
       ))}

@@ -18,7 +18,7 @@ export class PlayerModel {
 
   /* SET */
   setName(name: string) {
-      this.name = name;
+    this.name = name;
   }
 
   /*  GET */

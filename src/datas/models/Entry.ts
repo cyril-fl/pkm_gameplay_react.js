@@ -1,8 +1,8 @@
 export class Entry {
   content: string;
 
-  constructor(entry: string) {
-    this.content = entry;
+  constructor(entry: string = "Red") {
+    this.content = entry.trim();
   }
 
   public htmlSpecialChars() {

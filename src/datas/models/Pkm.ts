@@ -1,10 +1,10 @@
-import {PkdDexEntry} from "@models/PkmDex";
+import { PkdDexEntry } from "@models/PkmDex";
 
 const NEUTRAL_POKEMON = {
   name: "Neutral",
   id: 0,
   description: "Neutral",
-  types: [{id:1, name: "Neutral" }],
+  types: [{ id: 1, name: "Neutral" }],
   evolution_id: null,
   evolution_level: null,
   atk_min: 0,
@@ -59,8 +59,8 @@ export class PkmModel {
     });
     this.hp = this.hp_max;
     this.spd = this.getRandomNumber({
-        min: pkm.spd_min,
-        max: pkm.spd_max,
+      min: pkm.spd_min,
+      max: pkm.spd_max,
     });
     this.id = ++PkmModel.nativId;
   }
@@ -68,7 +68,6 @@ export class PkmModel {
   getRandomNumber(limit: { min: number; max: number }) {
     return Math.floor(Math.random() * (limit.max - limit.min + 1)) + limit.min;
   }
-
 
   public getName() {
     return this.name;
@@ -92,6 +91,11 @@ export class PkmModel {
       // catchPhrase: this.catchPhrase,
       id: this.id,
     };
+  }
+
+  getTypes() {
+    console.log(this.types);
+    return this.types.map((type) => type.name);
   }
 
   display() {

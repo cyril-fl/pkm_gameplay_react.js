@@ -6,7 +6,7 @@ export class GameUIModel {
 
   constructor() {
     this.dialogues = ["POKEMON"];
-    this.choices = ["Press any key to start"];
+    this.choices = ["*"];
     this.type = "PRESS";
     this.notification = "";
   }
@@ -28,12 +28,16 @@ export class GameUIModel {
   }
 
   // Setters
-  public setDialogues(dialogues: string[]) {
-    this.dialogues = dialogues;
+  public setDialogues(dialogues: string[], push: boolean = false ,reset: boolean = false) {
+    if (reset) {
+      this.dialogues = [];
+    } else if (push) {
+        this.dialogues.push(...dialogues);
+    } else {
+        this.dialogues = dialogues;
+    }
   }
-  public pushDialogues(dialogues: string[]) {
-    this.dialogues.push(...dialogues);
-  }
+
   public setChoices(choices: string[]) {
     this.choices = choices;
   }

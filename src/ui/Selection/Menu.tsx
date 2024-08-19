@@ -30,8 +30,7 @@ export const SelectMenu = () => {
   }, [gameType]);
 
   return (
-    <article className="flex gap-4 grow">
-      {gameType}
+    <article className="flex gap-4 grow justify-center items-center font-jersey-10 text-2xl">
       {renderMenu}
     </article>
   );

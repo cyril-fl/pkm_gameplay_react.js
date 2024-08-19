@@ -46,7 +46,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
         ui: GameUI,
       }}
     >
-      <main className="bg-red-400 w-full h-full border-2 border-black flex flex-col gap-4 justify-between items-center">
+      <main className="w-full h-full border-2 border-black rounded-md flex flex-col gap-4 p-6 justify-between font-jersey-25">
         {children}
       </main>
     </AppContext.Provider>

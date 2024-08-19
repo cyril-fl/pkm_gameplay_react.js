@@ -7,6 +7,7 @@ import React, {
   FormEvent,
   useCallback,
   useMemo,
+  useEffect,
 } from "react";
 import { useAppContext } from "@/hooks/useContext";
 import { GameController } from "@controllers/Game";
@@ -30,12 +31,21 @@ export const FormProvider: React.FC<{ children: ReactNode }> = ({
   const nextAction = useCallback(
     (...args: any) => {
       if (game.data) {
+        // console.log('BEFORE ACTION', game.data.nextAction, args)
         game.data.nextAction(...args);
+        // console.log('AFTER ACTION', game.data.nextAction)
         return game.data;
       }
     },
     [game.data],
   );
+
+  /*  useEffect(()=> {
+    if (game.data && game.data.nextAction) {
+      console.log('ACTION CHANGE')
+      console.log(game.data.nextAction)
+    }
+  }, [game.data])*/
 
   const handleSubmit = (e: any) => {
     e?.preventDefault();
@@ -77,7 +87,7 @@ export const FormProvider: React.FC<{ children: ReactNode }> = ({
       }}
     >
       <form
-        className=" flex w-full h-fit gap-5 justify-center items-center bg-amber-200"
+        className=" flex w-full h-fit gap-5 justify-center items-center"
         ref={formRef}
         onSubmit={handleSubmit}
       >

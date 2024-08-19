@@ -82,12 +82,15 @@ export const ChoiceInput = () => {
 
   console.log("selected", selected);
 
+    const selectedChoiceClass = "bg-GameBoy-black text-GameBoy-white hover:bg-zinc-700";
+    const unselectedChoiceClass = "bg-GameBoy-white text-GameBoy-black hover:bg-zinc-100";
+
   return (
-    <ul className="flex grow gap-4 bg-fuchsia-500">
+    <ul className="flex grow gap-4">
       {choices.map((choice: string, index: number) => (
         <li
           key={index}
-          className={`flex grow cursor-pointer items-center justify-between rounded-sm border-2 bg-fuchsia-600 border-white px-4 py-2 ${choiceClass} ${index === choices.length - 1 && choices.length === 5 ? "basis-full" : ""}`}
+          className={` ${selected === choice ? selectedChoiceClass : unselectedChoiceClass} flex grow cursor-pointer items-center justify-between rounded-sm border-2 border-GameBoy-black px-4 py-2  transition duration-200 ease-in-out  ${choiceClass} ${index === choices.length - 1 && choices.length === 5 ? "basis-full" : ""}`}
           onClick={(e) => handleClick(e, choice)}
         >
           {choice}
