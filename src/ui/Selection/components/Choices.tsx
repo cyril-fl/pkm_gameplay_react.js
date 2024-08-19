@@ -82,8 +82,10 @@ export const ChoiceInput = () => {
 
   console.log("selected", selected);
 
-    const selectedChoiceClass = "bg-GameBoy-black text-GameBoy-white hover:bg-zinc-700";
-    const unselectedChoiceClass = "bg-GameBoy-white text-GameBoy-black hover:bg-zinc-100";
+  const selectedChoiceClass =
+    "bg-GameBoy-black text-GameBoy-white hover:bg-zinc-700";
+  const unselectedChoiceClass =
+    "bg-GameBoy-white text-GameBoy-black hover:bg-zinc-100";
 
   return (
     <ul className="flex grow gap-4">

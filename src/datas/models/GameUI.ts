@@ -28,13 +28,17 @@ export class GameUIModel {
   }
 
   // Setters
-  public setDialogues(dialogues: string[], push: boolean = false ,reset: boolean = false) {
+  public setDialogues(
+    dialogues: string[],
+    push: boolean = false,
+    reset: boolean = false,
+  ) {
     if (reset) {
       this.dialogues = [];
     } else if (push) {
-        this.dialogues.push(...dialogues);
+      this.dialogues.push(...dialogues);
     } else {
-        this.dialogues = dialogues;
+      this.dialogues = dialogues;
     }
   }
 

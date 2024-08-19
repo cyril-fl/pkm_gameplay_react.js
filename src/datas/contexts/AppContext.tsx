@@ -21,7 +21,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
   const { data, loading, error } = useSave();
 
   const initializeGame = useCallback(() => {
-    if (data) {
+    if (data !== null) {
       const newGame = new GameController(data);
       setGame(newGame);
     }

@@ -39,4 +39,12 @@ export class WorldModel {
   public getPlayer(): PlayerModel {
     return this.player;
   }
+
+  /* Tools */
+  public oneDayPasses() {
+    this.day += 1;
+  }
+  public addLog(message: log[]) {
+    message.forEach((m) => this.logs.push(m));
+  }
 }

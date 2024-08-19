@@ -10,10 +10,10 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        "jersey-10": ["var(--jersey-10)"],
-        "jersey-15": ["var(--jersey-15)"],
-        "jersey-20": ["var(--jersey-20)"],
-        "jersey-25": ["var(--jersey-25)"],
+        "jersey-10": ["var(--jersey-10)", "sans-serif"],
+        "jersey-15": ["var(--jersey-15)", "sans-serif"],
+        "jersey-20": ["var(--jersey-20)", "sans-serif"],
+        "jersey-25": ["var(--jersey-25)", "sans-serif"],
       },
 
       backgroundImage: {

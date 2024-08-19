@@ -8,21 +8,28 @@ const jersey10 = Jersey_10({
   subsets: ["latin"],
   weight: "400",
   variable: "--jersey-10",
+  preload: true,
 });
 const jersey15 = Jersey_15({
   subsets: ["latin"],
   weight: "400",
   variable: "--jersey-15",
+  preload: true,
+
 });
 const jersey20 = Jersey_20({
   subsets: ["latin"],
   weight: "400",
   variable: "--jersey-20",
+  preload: true,
+
 });
 const jersey25 = Jersey_25({
   subsets: ["latin"],
   weight: "400",
   variable: "--jersey-25",
+  preload: true,
+
 });
 
 export const metadata: Metadata = {
