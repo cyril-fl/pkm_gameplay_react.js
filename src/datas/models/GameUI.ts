@@ -2,12 +2,14 @@ export class GameUIModel {
   private dialogues: string[];
   private choices: string[];
   private type: string;
+  private style: string;
   private notification: string;
 
   constructor() {
-    this.dialogues = ["POKEMON"];
+    this.dialogues = ["Pokemon"];
     this.choices = ["*"];
     this.type = "PRESS";
+    this.style = "START";
     this.notification = "";
   }
 
@@ -22,6 +24,9 @@ export class GameUIModel {
   }
   public getType() {
     return this.type;
+  }
+  public getStyle() {
+    return this.style;
   }
   public getNotification() {
     return this.notification;
@@ -47,6 +52,9 @@ export class GameUIModel {
   }
   public setType(type: string) {
     this.type = type;
+  }
+  public setStyle(style: string) {
+    this.style = style;
   }
   public setNotification(notification: string) {
     this.notification = notification;

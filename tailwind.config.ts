@@ -14,6 +14,7 @@ const config: Config = {
         "jersey-15": ["var(--jersey-15)", "sans-serif"],
         "jersey-20": ["var(--jersey-20)", "sans-serif"],
         "jersey-25": ["var(--jersey-25)", "sans-serif"],
+        "jacquard-24": ["var(--jacquard-24)", "sans-serif"],
       },
 
       backgroundImage: {

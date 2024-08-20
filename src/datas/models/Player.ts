@@ -13,7 +13,9 @@ export class PlayerModel {
   }
 
   catchPkm(pkm: PkmModel) {
-    this.team.push(pkm);
+    const temp = new PkmModel();
+    Object.assign(temp, pkm);
+    this.team.push(temp);
   }
 
   /* SET */

@@ -10,6 +10,7 @@ import React, {
 import { GameController } from "@controllers/Game";
 import { GameUIModel } from "@models/GameUI";
 import { useSave } from "@/hooks/useSave";
+import { PkmModel } from "@models/Pkm";
 
 export const AppContext = createContext<any>({});
 
@@ -17,11 +18,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [Game, setGame] = useState<GameController | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [GameUI, setGameUI] = useState(new GameUIModel());
   const { data, loading, error } = useSave();
 
   const initializeGame = useCallback(() => {
     if (data !== null) {
+      // Type asign
+      data.player_team = data.player_team.map((pkm: PkmModel) =>
+        Object.assign(new PkmModel(), pkm),
+      );
+
       const newGame = new GameController(data);
       setGame(newGame);
     }
@@ -46,7 +53,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
         ui: GameUI,
       }}
     >
-      <main className="w-full h-full border-2 border-black rounded-md flex flex-col gap-4 p-6 justify-between font-jersey-25">
+      <main className="w-full h-full flex flex-col gap-4 justify-between font-jersey-25">
         {children}
       </main>
     </AppContext.Provider>

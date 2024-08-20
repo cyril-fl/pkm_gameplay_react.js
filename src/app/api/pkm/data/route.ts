@@ -23,8 +23,6 @@ export async function GET() {
       };
     });
 
-    console.log(transformedDex);
-    // Vous pouvez transformer vos données ici si nécessaire
     return NextResponse.json({ response: transformedDex }, { status: 200 });
   } catch (e: any) {
     console.error("Erreur lors du traitement de la requête:", e);

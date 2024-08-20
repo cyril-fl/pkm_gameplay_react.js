@@ -3,14 +3,14 @@
 @tailwind utilities;
 
 :root {
-  --jersey-10: 'Jersey 10', sans-serif;
-  --jersey-15: 'Jersey 15', sans-serif;
-  --jersey-20: 'Jersey 20', sans-serif;
-  --jersey-25: 'Jersey 25', sans-serif;
+  --jersey-10: "Jersey 10", sans-serif;
+  --jersey-15: "Jersey 15", sans-serif;
+  --jersey-20: "Jersey 20", sans-serif;
+  --jersey-25: "Jersey 25", sans-serif;
+  --jacquard-24: "Jacquard 24", sans-serif;
 }
 
 /* Autres styles globaux */
-
 
 .controller__button {
   @apply rounded border-2 border-GameBoy-white text-GameBoy-white;

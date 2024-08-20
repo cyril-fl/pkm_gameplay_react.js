@@ -80,8 +80,6 @@ export const ChoiceInput = () => {
     return "basis-full";
   }, [choices.length]);
 
-  console.log("selected", selected);
-
   const selectedChoiceClass =
     "bg-GameBoy-black text-GameBoy-white hover:bg-zinc-700";
   const unselectedChoiceClass =

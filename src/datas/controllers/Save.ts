@@ -1,40 +1,38 @@
 import { DatabaseController } from "./Database";
 import { SaveModel } from "@models/Save";
-import {json} from "node:stream/consumers";
+import { json } from "node:stream/consumers";
 
 export class SaveController {
   constructor() {}
 
-    private async create() {
-        const defaultSave = new SaveModel();
-        const db = await DatabaseController.connect();
+  private async create() {
+    const defaultSave = new SaveModel();
+    const db = await DatabaseController.connect();
 
-        // Vérifier si une sauvegarde similaire existe déjà
-        const existingSave = await db.get(`SELECT * FROM Save`);
+    // Vérifier si une sauvegarde similaire existe déjà
+    const existingSave = await db.get(`SELECT * FROM Save`);
 
-        if (!existingSave) {
-            // Si aucune sauvegarde existante n'est trouvée, procéder à l'insertion
-            await db.run(
-                `
+    if (!existingSave) {
+      // Si aucune sauvegarde existante n'est trouvée, procéder à l'insertion
+      await db.run(
+        `
             INSERT INTO Save (player_name, player_team, player_bags, world_day, world_location, world_logs)
             VALUES (?, ?, ?, ?, ?, ?)
             `,
-                [
-                    defaultSave.player_name,
-                    JSON.stringify(defaultSave.player_team), // Convertir en JSON string
-                    JSON.stringify(defaultSave.player_bags), // Convertir en JSON string
-                    defaultSave.world_day,
-                    defaultSave.world_location,
-                    JSON.stringify(defaultSave.world_logs), // Convertir en JSON string
-                ]
-            );
-        }
-
-        // Créer une nouvelle instance de SaveModel avec les mêmes valeurs par défaut
-        return new SaveModel(defaultSave);
+        [
+          defaultSave.player_name,
+          JSON.stringify(defaultSave.player_team), // Convertir en JSON string
+          JSON.stringify(defaultSave.player_bags), // Convertir en JSON string
+          defaultSave.world_day,
+          defaultSave.world_location,
+          JSON.stringify(defaultSave.world_logs), // Convertir en JSON string
+        ],
+      );
     }
 
-
+    // Créer une nouvelle instance de SaveModel avec les mêmes valeurs par défaut
+    return new SaveModel(defaultSave);
+  }
 
   public async read() {
     const db = await DatabaseController.connect();

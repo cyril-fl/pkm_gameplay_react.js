@@ -1,15 +1,18 @@
+// noinspection ExceptionCaughtLocallyJS
+
 import { SaveModel } from "@models/Save";
 import { WorldModel } from "@models/World";
 import { GameUIModel } from "@models/GameUI";
-import { Entry } from "@models/Entry";
+import { Entry } from "@services//Entry";
 import { PkmModel } from "@models/Pkm";
 import { PkDexController } from "@controllers/PkmDex";
 import { SaveController } from "@controllers/Save";
-
+import { Loading } from "@services/Loading";
 
 // todo: changer de dossier
 export interface RAM {
   starterChoices?: PkmModel[];
+  renamePkm?: string;
 }
 
 const BOOLEANS_CHOICE = ["Yes", "No"];
@@ -21,14 +24,18 @@ export class GameController {
   public UI: GameUIModel;
   public world: WorldModel;
   public nextAction: (...args: any) => void;
+  private isLoading: Loading;
 
   constructor(data: SaveModel) {
     this.RAM = {};
     this.UI = new GameUIModel();
     this.world = new WorldModel(data);
     this.nextAction = this.startGame;
+    this.isLoading = new Loading();
   }
 
+
+  // Initialisation Phase
   private reset() {
     const newSave = new SaveModel();
     this.RAM = {};
@@ -39,8 +46,7 @@ export class GameController {
 
   private async startGame() {
     const player_team = this.world.getPlayer().getTeam();
-
-    console.log("startGame --");
+    this.UI.setStyle("DEFAULT");
     this.UI.setChoices(BOOLEANS_CHOICE);
     this.UI.setType("CHOICE");
 
@@ -57,24 +63,25 @@ export class GameController {
       await this.starterInit(); // execute starteInit at the end, not to block the rest of the code
     } else {
       this.UI.setDialogues([
-        'PROFESSOR:',
-        'Welcome back !',
-        'You have been gone for a while !',
-        'Are you ready to continue your journey ?',
-        '( If you want to start a new game, chose "No", your previous save will be erased )'
-      ])
-      this.nextAction = this.gameInit
+        "PROFESSOR:",
+        "Welcome back !",
+        "You have been gone for a while !",
+        "Are you ready to continue your journey ?",
+        '( If you want to start a new game, chose "No", your previous save will be erased )',
+      ]);
+      this.nextAction = this.gameInit;
     }
   }
 
   public async gameInit(response: string) {
     switch (response) {
-      case 'Yes':
+      case "Yes":
+        this.nextAction = this.continueGame;
         this.continueGame(); // Assurez-vous que `continueGame` est une fonction asynchrone si elle utilise des promesses
         break;
-      case 'No':
-        await this.eraseGame(); // Assurez-vous que `eraseGame` est terminé avant de réinitialiser
+      case "No":
         this.reset();
+        await this.eraseGame(); // Assurez-vous que `eraseGame` est terminé avant de réinitialiser
         await this.startGame(); // Recommencer le jeu après réinitialisation
         break;
       default:
@@ -83,20 +90,28 @@ export class GameController {
     }
   }
 
-
   private async starterInit() {
-    const dexController = PkDexController.getInstance();
+    if (this.isLoading.state()) {
+      this.isLoading.whileLoading(true, this.starterInit.bind(this));
+      return;
+    }
+
     try {
-      const starterEntries = await dexController.getStarterEntries(); // Attendre que les données soient prêtes
-      this.RAM.starterChoices = starterEntries;
-      console.log(this.RAM);
+      this.isLoading.start();
+
+      const dexController = PkDexController.getInstance();
+      const entries = await dexController.getStarterEntries();
+
+      this.RAM.starterChoices = entries;
     } catch (error) {
       console.error("Error initializing:", error);
+    } finally {
+      this.isLoading.stop();
     }
   }
 
   private playerInit(response: string) {
-    console.log("playerInit", response);
+    // console.log("playerInit", response);
     switch (response) {
       case "Yes":
         this.UI.setDialogues([
@@ -124,7 +139,7 @@ export class GameController {
         const entry = new Entry(response);
         entry.htmlSpecialChars();
 
-        if (entry.inputLength({min: 0, max: 10})) {
+        if (entry.inputLength({ min: 0, max: 10 })) {
           this.world.getPlayer().setName(entry.content);
           this.UI.setDialogues([
             "PROFESSOR:",
@@ -156,13 +171,13 @@ export class GameController {
 
   private starterChoice(response: string) {
     const starterPkm = this.RAM.starterChoices?.map(
-        (entry: any) => new PkmModel(entry, 5),
+      (entry: any) => new PkmModel(entry, 5),
     );
     if (!starterPkm) return;
 
     const starterNames = starterPkm.map((pkm: PkmModel) => pkm.getData().name);
     const choice = starterPkm.find(
-        (pkm: any) => pkm.getData().name === response,
+      (pkm: any) => pkm.getData().name === response,
     );
 
     if (choice) {
@@ -221,7 +236,7 @@ export class GameController {
       default:
         const entry = new Entry(response);
         entry.htmlSpecialChars();
-        if (entry.inputLength({min: 0, max: 10})) {
+        if (entry.inputLength({ min: 0, max: 10 })) {
           const oldName = thisStarter.getName();
           thisStarter.setName(entry.content);
 
@@ -260,7 +275,7 @@ export class GameController {
     this.UI.setChoices(CONTINUE_CHOICE);
     this.UI.setType("PRESS");
 
-    this.saveGame()
+    this.saveGame();
     this.nextAction = this.continueGame;
   }
 
@@ -275,57 +290,314 @@ export class GameController {
     ]);
     this.UI.setChoices(["Team", "PkmCenter", "Go forward"]);
     this.UI.setType("CHOICE");
-    console.log("continueGame response", response);
-    this.nextAction = this.continueGame;
 
     switch (response) {
       case "Team":
-        // this.UI.setDialogues([
-        //   'PROFESSOR:',
-        //   `Here is your team :`,
-        // ])
-        //
-        // const player = this.world.getPlayer();
-        // if (player) {
-        //   player.getTeam().forEach((pkm: PkmModel) => {
-        //     console.log('pkm', pkm)
-        //     this.UI.pushDialogues([pkm.display()]);
-        //   });
-        // } else {
-        //   this.UI.pushDialogues(['You have no pkm in your team!']);
-        // }
-        //
-        // this.UI.setChoices(['Heal', 'Rename', 'Release'])
-        // this.nextAction = this.teamMenu
+        this.UI.setDialogues(["PROFESSOR:", `Here is your team :`]);
+
+        const team = this.world.getPlayer().getTeam();
+        if (team.length > 0) {
+          team.forEach((pkm: PkmModel) => {
+            this.UI.setDialogues([pkm.display()], true);
+          });
+        } else {
+          this.UI.setDialogues(["You have no pkm in your team!"], true);
+        }
+
+        this.UI.setChoices(["Heal", "Rename", "Release"]);
+        this.nextAction = this.menu_team;
         break;
 
       case "PkmCenter":
-        //   this.UI.setDialogues([
-        //     'PROFESSOR:',
-        //     `Welcome to the PkmCenter !`,
-        //     'Sorry for the mess, we are still under construction ...',
-        //     'Here you can Revive your team ! ',
-        //     'Consult your log !',
-        //     'And soon many more to come ',
-        //   ])
-        //   this.UI.setChoices(['Revive', 'Consult log'])
-        //   this.nextAction = this.pokeCenterMenu
-        //   break;
-        //
-        //
-        // case 'Go forward':
-        //   this.UI.setDialogues([
-        //     'PROFESSOR:',
-        //     `You have chosen to go forward !`,
-        //   ])
-        //   this.UI.setChoices(CONTINUE_CHOICE)
-        //   this.nextAction = this.foForward
+        this.UI.setDialogues([
+          "PROFESSOR:",
+          `Welcome to the PkmCenter !`,
+          "Sorry for the mess, we are still under construction ...",
+          "Here you can Revive your team ! ",
+          "Consult your log !",
+          "And soon many more to come ",
+        ]);
+        this.UI.setChoices(["Revive", "Consult log"]);
+        this.nextAction = this.menu_pkmCenter;
+        break;
+
+      case "Go forward":
+        this.UI.setDialogues(["PROFESSOR:", `You have chosen to go forward !`]);
+        this.UI.setChoices(CONTINUE_CHOICE);
+        // this.nextAction = this.goForward
         break;
       default:
         break;
     }
   }
 
+  public menu_pkmCenter(response: string) {
+    console.log("pokeCenterMenu", response);
+    this.UI.setChoices(CONTINUE_CHOICE);
+    this.nextAction = this.continueGame;
+
+    switch (response) {
+      case "Revive":
+        this.UI.setDialogues([
+          "PROFESSOR:",
+          `You have chosen to revive your team !`,
+        ]);
+
+        break;
+      case "Consult log":
+        // Todo: Add a way to paginate the logs
+        this.UI.setDialogues([`Your log :`]);
+        this.world.getLogs().forEach((log) => {
+          this.UI.setDialogues([`Day ${log.day} : ${log.message}`], true);
+        });
+
+        this.UI.setChoices(CONTINUE_CHOICE);
+        this.UI.setType("PRESS");
+        break;
+      default:
+        break;
+    }
+  }
+
+
+  public menu_team(response: string) {
+    switch (response) {
+      case "Heal":
+        this.UI.setDialogues([
+          "PROFESSOR:",
+          `You have chosen to heal your team !`,
+        ]);
+        break;
+      case "Rename":
+        this.UI.setDialogues([
+          "PROFESSOR:",
+          `Which Pkm do you want to rename `,
+        ]);
+        this.UI.setChoices(
+            this.world
+                .getPlayer()
+                .getTeam()
+                .map((pkm: PkmModel) => pkm.getName()),
+        );
+        this.UI.setType("CHOICE");
+        this.nextAction = (res) => {
+          this.menu_team_sideEffect("RENAME", res);
+          this.nextAction = this.pokemonRename
+        };
+
+
+        break;
+      case "Release":
+        const team = this.world.getPlayer().getTeam();
+        if (team.length <= 1) {
+          this.UI.setDialogues([`You can't release your last pkm !`]);
+          this.UI.setChoices(CONTINUE_CHOICE);
+          this.UI.setType("PRESS");
+          this.nextAction = this.menu_team;
+        } else {
+          this.UI.setDialogues(["Which pkm would you like to release ?"], true);
+          this.UI.setChoices(team.map((pkm: PkmModel) => pkm.getName()));
+        }
+        break;
+      default:
+        this.continueGame("Team");
+        break;
+    }
+  }
+
+  public menu_team_sideEffect(type: string = "", response: string = "") {
+    switch (type) {
+      case "RENAME":
+        this.RAM.renamePkm = response;
+        this.UI.setDialogues(['How would you like to rename ' + response]);
+        this.UI.setType("ENTRY");
+        this.nextAction = this.pokemonRename
+
+        break;
+      default:
+        break;
+    }
+  }
+
+  public pokemonRename(response: string = "") {
+    this.UI.setChoices(CONTINUE_CHOICE);
+    this.UI.setType("PRESS")
+    alert('OK')
+
+
+    // const entry = new Entry(response);
+    // entry.htmlSpecialChars();
+    // if (entry.inputLength({ min: 0, max: 10 })) {
+    //   const oldName = this.RAM.renamePkm;
+    //   this.world.getPlayer().getTeam().forEach((pkm: PkmModel) => {
+    //     if (pkm.getName() === oldName) {
+    //       pkm.setName(entry.content);
+    //     }
+    //   });
+    //   this.world.addLog([
+    //     {
+    //       day: this.world.getDay(),
+    //       message: `You have chosen to rename ${oldName} as ${entry.content}.`,
+    //     },
+    //   ]);
+    //   this.UI.setDialogues([
+    //     "PROFESSOR:",
+    //     `Ok, you have chosen to name your ${oldName} in ${entry.content} !`,
+    //   ]);
+    //
+    //   this.UI.setChoices(CONTINUE_CHOICE);
+    //   this.UI.setType("PRESS");
+    // }
+  }
+
+
+  // public menu_team(response: string) {
+  //   switch (response) {
+  //     case "Heal":
+  //       this.UI.setDialogues([
+  //         "PROFESSOR:",
+  //         `You have chosen to heal your team !`,
+  //       ]);
+  //       // Methode de PkmMatser
+  //       // go ver continue game en this Next
+  //
+  //       break;
+  //     case "Rename":
+  //       this.UI.setDialogues([
+  //         "PROFESSOR:",
+  //         `Which Pkm do you want to rename `,
+  //       ]);
+  //       // Todo: Add a way to add Pkm id to be sure to rename the right one
+  //       this.UI.setChoices(
+  //         this.world
+  //           .getPlayer()
+  //           .getTeam()
+  //           .map((pkm: PkmModel) => pkm.getName()),
+  //       );
+  //       this.UI.setType("CHOICE");
+  //
+  //       this.nextAction = this.pokemonRename;
+  //
+  //       break;
+  //     case "Release":
+  //       const team = this.world.getPlayer().getTeam();
+  //
+  //       if (team.length <= 1) {
+  //         this.UI.setDialogues([`You can't release your last pkm !`]);
+  //         this.UI.setChoices(CONTINUE_CHOICE);
+  //         this.UI.setType("PRESS");
+  //         this.nextAction = this.menu_team;
+  //       } else {
+  //         this.UI.setDialogues(["Which pkm would you like to release ?"], true);
+  //         // Methode de PkmMatser
+  //
+  //         this.UI.setChoices(team.map((pkm: PkmModel) => pkm.getName()));
+  //
+  //         // this.gameUI.setDialogues([
+  //         //     'PROFESSOR:',
+  //         //     `You have chosen to release a pkm !`,
+  //         // ])
+  //       }
+  //       break;
+  //     default:
+  //       // alert("default");
+  //       this.continueGame("Team");
+  //
+  //       break;
+  //   }
+  // }
+
+  // public menu_team_sideEffect(type: string = "", response: string = "") {
+  //   switch (type) {
+  //     case "RENAME":
+  //       this.RAM.renamePkm = response;
+  //       this.UI.setDialogues(['How would you like to rename ' + response]);
+  //       this.UI.setType("ENTRY");
+  //       break
+  //       case "RELEASE":
+  //           break
+  //       case "HEAL":
+  //           break
+  //     default:
+  //           break
+  //
+  //   }
+  // }
+
+//   public pokemonRename(response: string = "") {
+//     this.menu_team_sideEffect("RENAME", response);
+//
+//     const team = this.world.getPlayer().getTeam();
+//     const pkm = team.find((pkm: PkmModel) => pkm.getName() === response);
+//
+//     if (pkm) {
+//
+//     } else {
+//       const entry = new Entry(response);
+//       entry.htmlSpecialChars();
+//
+//       if (entry.inputLength({min: 0, max: 10})) {
+//
+//         const oldName = this.RAM.renamePkm
+// console.log(this.RAM)
+//         console.log("oldName", oldName)
+//         this.world.getPlayer().getTeam().forEach((pkm: PkmModel) => {
+//           if (pkm.getName() === oldName) {
+//             pkm.setName(entry.content);
+//           }
+//         })
+//
+//         this.world.addLog([
+//           {
+//             day: this.world.getDay(),
+//             message: `You have chosen to rename ${oldName} as ${entry.content}.`,
+//           },
+//         ]);
+//
+//         this.UI.setDialogues([
+//           "PROFESSOR:",
+//           `Ok, you have chosen to name your ${oldName} in ${entry.content} !`,
+//         ]);
+//
+//         this.UI.setChoices(CONTINUE_CHOICE);
+//         this.UI.setType("PRESS")
+//
+//
+//       }
+//     }
+//   }
+
+
+
+/*  public pokemonRename(response: string) {
+    console.log("pokemonRename", response);
+    const team = this.world.getPlayer().getTeam();
+    const pkm = team.find((pkm: PkmModel) => pkm.getName() === response);
+
+    if (pkm) {
+      this.UI.setDialogues([
+        "PROFESSOR:",
+        `What would you like to rename ${pkm.getName()} ?`,
+      ]);
+      this.UI.setChoices([]);
+      this.UI.setType("ENTRY");
+      this.nextAction = this.confirmAction;
+    } else {
+      this.UI.setDialogues([
+        "PROFESSOR:",
+        `I didn't get that, please enter a valid name !`,
+        'it should be between 1 and 10 characters long with no special chars ( &, <, >, ", ! )',
+      ]);
+    }
+  }*/
+
+
+
+  // public confirmAction(response: string) {
+  //
+  // }
+
+  // Tools
   public extractData() {
     return {
       player_name: this.world.getPlayer().getName(),
@@ -337,58 +609,66 @@ export class GameController {
     };
   }
 
-  private saveGame() {
-    const fetchedData = async () => {
-      try {
-        const response = await fetch("/api/save/update", {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(this.extractData()),
-        });
+  // Save
+  private async saveGame() {
+    if (this.isLoading.state()) {
+      this.isLoading.whileLoading(true, this.saveGame.bind(this));
+      return;
+    }
 
-        if (!response.ok) {
-          throw new Error(`Failed to save game: ${response.statusText}`);
-        }
+    try {
+      this.isLoading.start();
 
-        const data = await response.json();
-        console.log("Game saved successfully:", data);
-      } catch (error: any) {
-        console.error("Error saving game:", error.message);
+      const response = await fetch("/api/save/update", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(this.extractData()),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to save game: ${response.statusText}`);
       }
 
+      const data = await response.json();
+      console.log("Game saved successfully:", data);
+    } catch (error: any) {
+      console.error("Error saving game:", error.message);
+    } finally {
+      this.isLoading.stop();
+      console.log("Game save operation finished.");
     }
-    fetchedData().catch((error) => {
-      console.error("Error during fetchData execution:", error);
-    });
   }
 
-  private eraseGame() {
-    // Effectuer la requête pour effacer le jeu
-    fetch("/api/save/delete", {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-        .then((response) => {
-          // Vérifier si la réponse est correcte
-          if (!response.ok) {
-            throw new Error(`Failed to erase game: ${response.statusText}`);
-          }
-          // Convertir la réponse en JSON
-          return response.json();
-        })
-        .then((data) => {
-          console.log("Game erased successfully:", data);
-        })
-        .catch((error) => {
-          console.error("Error erasing game:", error.message);
-        })
-        .finally(() => {
-          console.log("Game erased operation finished.");
-        });
-  }
+  private async eraseGame() {
+    if (this.isLoading.state()) {
+      this.isLoading.whileLoading(true, this.eraseGame.bind(this));
+      return;
+    }
 
+    try {
+      this.isLoading.start();
+
+      const response = await fetch("/api/save/update", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(new SaveModel()),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to erase game: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log("Game erased successfully:", data);
+    } catch (error: any) {
+      console.error("Error erasing game:", error.message);
+    } finally {
+      this.isLoading.stop();
+      console.log("Game erased operation finished.");
+    }
+  }
 }
