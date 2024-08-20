@@ -41,7 +41,6 @@ export const FormProvider: React.FC<{ children: ReactNode }> = ({
     [game.data],
   );
 
-
   const handleSubmit = (e: any) => {
     e?.preventDefault();
 

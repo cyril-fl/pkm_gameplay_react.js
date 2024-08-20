@@ -1,16 +1,17 @@
 // noinspection ExceptionCaughtLocallyJS
 
-import { SaveModel } from "@models/Save";
-import { WorldModel } from "@models/World";
-import { GameUIModel } from "@models/GameUI";
-import { Entry } from "@services//Entry";
-import { PkmModel } from "@models/Pkm";
-import { PkDexController } from "@controllers/PkmDex";
-import { SaveController } from "@controllers/Save";
-import { Loading } from "@services/Loading";
-
+import {SaveModel} from "@models/Save";
+import {WorldModel} from "@models/World";
+import {GameUIModel} from "@models/GameUI";
+import {Entry} from "@services//Entry";
+import {PkmModel} from "@models/Pkm";
+import {PkDexController} from "@controllers/PkmDex";
+import {Loading} from "@services/Loading";
+// Todo: regarder la list des todo et voir ce qui peu etre fait
+// - refactoriser un max le code
 // todo: changer de dossier
 export interface RAM {
+  lastSave?: any;
   starterChoices?: PkmModel[];
   pkmName_old?: string;
   pkmName_new?: string;
@@ -32,27 +33,36 @@ export class GameController {
     this.RAM = {};
     this.UI = new GameUIModel();
     this.world = new WorldModel(data);
-    this.nextAction = () => {
-      this.gameInit("Yes");
-    };
+    this.nextAction = this.startGame;
     this.isLoading = new Loading();
   }
 
   /* INIT PHASE*/
-  private reset() {
-    const newSave = new SaveModel();
+  public reset(exit: boolean = true) {
+    let data;
+    if (exit && this.RAM.lastSave) {
+      data = JSON.parse(this.RAM.lastSave);
+      data.player_team = data.player_team.map((pkm: PkmModel) =>
+        Object.assign(new PkmModel(), pkm),
+      );
+    } else {
+      data = new SaveModel();
+    }
+
     this.RAM = {};
     this.UI = new GameUIModel();
-    this.world = new WorldModel(newSave);
+    this.world = new WorldModel(data);
     this.nextAction = this.startGame;
   }
 
   private async startGame() {
     const player_team = this.world.getPlayer().getTeam();
+    this.RAM.lastSave = JSON.stringify(this.extractData());
+
     this.UI.setStyle("DEFAULT");
     this.UI.setChoices(BOOLEANS_CHOICE);
     this.UI.setType("CHOICE");
-
+    this.UI.setStyle("INIT");
     if (player_team.length === 0) {
       this.UI.setDialogues([
         `${PROF}`,
@@ -66,7 +76,7 @@ export class GameController {
       await this.starterInit(); // execute starteInit at the end, not to block the rest of the code
     } else {
       this.UI.setDialogues([
-        "PROFESSOR:",
+        `${PROF}`,
         "Welcome back !",
         "You have been gone for a while !",
         "Are you ready to continue your journey ?",
@@ -84,12 +94,11 @@ export class GameController {
         this.continueGame(); // Assurez-vous que `continueGame` est une fonction asynchrone si elle utilise des promesses
         break;
       case "No":
-        this.reset();
+        this.reset(false);
         await this.eraseGame(); // Assurez-vous que `eraseGame` est terminé avant de réinitialiser
         await this.startGame(); // Recommencer le jeu après réinitialisation
         break;
       default:
-        // Gérer d'autres cas si nécessaire
         break;
     }
   }
@@ -104,9 +113,8 @@ export class GameController {
       this.isLoading.start();
 
       const dexController = PkDexController.getInstance();
-      const entries = await dexController.getStarterEntries();
+      this.RAM.starterChoices = await dexController.getStarterEntries();
 
-      this.RAM.starterChoices = entries;
     } catch (error) {
       console.error("Error initializing:", error);
     } finally {
@@ -115,11 +123,10 @@ export class GameController {
   }
 
   private playerInit(response: string) {
-    // console.log("playerInit", response);
     switch (response) {
       case "Yes":
         this.UI.setDialogues([
-          "PROFESSOR:",
+           `${PROF}`,
           "You have chosen to embark on the journey !",
           "You will be given a pkm to start your journey !",
           "But first tell me your name ?",
@@ -130,7 +137,7 @@ export class GameController {
 
       case "No":
         this.UI.setDialogues([
-          "PROFESSOR:",
+           `${PROF}`,
           "You have chosen not to embark on the journey !",
           "You will be returned to the main menu !",
         ]);
@@ -148,7 +155,7 @@ export class GameController {
         ) {
           this.world.getPlayer().setName(entry.content);
           this.UI.setDialogues([
-            "PROFESSOR:",
+            `${PROF}`,
             `Ok ${entry.content}, are you ready to pick your first Pkm ?`,
             "You will be given a choice of 3 pkm to choose from !",
           ]);
@@ -167,7 +174,7 @@ export class GameController {
           this.starterChoice("");
         } else {
           this.UI.setDialogues([
-            "PROFESSOR:",
+            `${PROF}`,
             `I didn't get that, please enter a valid name !`,
             'it should be between 1 and 10 characters long with no special chars ( &, <, >, ", ! )',
           ]);
@@ -198,7 +205,7 @@ export class GameController {
       ]);
 
       this.UI.setDialogues([
-        "PROFESSOR:",
+        `${PROF}`,
         `Would you like to name your ${response} ?`,
       ]);
       this.UI.setChoices(BOOLEANS_CHOICE);
@@ -221,7 +228,7 @@ export class GameController {
     switch (response) {
       case "Yes":
         this.UI.setDialogues([
-          "PROFESSOR:",
+          `${PROF}`,
           `Ok, what would you like to name your ${thisStarter.getName()} ?`,
         ]);
         this.UI.setChoices([]);
@@ -230,7 +237,7 @@ export class GameController {
 
       case "No":
         this.UI.setDialogues([
-          "PROFESSOR:",
+          `${PROF}`,
           "Okay, you have chosen not to name your pkm ,",
           "You could do that later !",
         ]);
@@ -257,7 +264,7 @@ export class GameController {
           ]);
 
           this.UI.setDialogues([
-            "PROFESSOR:",
+            `${PROF}`,
             `Ok, you have chosen to name your ${oldName} in ${entry.content} !`,
           ]);
           this.UI.setChoices(CONTINUE_CHOICE);
@@ -266,7 +273,7 @@ export class GameController {
           this.nextAction = this.setWorld;
         } else {
           this.UI.setDialogues([
-            "PROFESSOR:",
+            `${PROF}`,
             `I didn't get that, please enter a valid name !`,
             'it should be between 1 and 10 characters long with no special chars ( &, <, >, ", ! )',
           ]);
@@ -277,20 +284,21 @@ export class GameController {
 
   private async setWorld() {
     this.UI.setDialogues([
-      "PROFESSOR:",
+      `${PROF}`,
       "You are now ready to start your journey !",
       "You will be given a pokedex to help you on your journey !",
     ]);
     this.UI.setChoices(CONTINUE_CHOICE);
     this.UI.setType("PRESS");
 
-    await this.inner_saveGame();
     this.nextAction = this.continueGame;
+    await this.inner_saveGame();
   }
 
   /* MAIN PHASE */
   public continueGame(response: string = "") {
     console.log("continueGame", response);
+    this.UI.setStyle("DEFAULT");
     this.UI.setDialogues([
       `Welcome in ${this.world.getLocation()} !`,
       "Here are some basic :",
@@ -569,13 +577,12 @@ export class GameController {
     };
   }
 
-  // Save
+  // Save & Quit
   public async saveGame() {
     await this.inner_saveGame();
     this.UI.setDialogues(["You have saved the game !"]);
     this.UI.setChoices(CONTINUE_CHOICE);
     this.UI.setType("PRESS");
-
   }
   private async inner_saveGame() {
     if (this.isLoading.state()) {
@@ -585,6 +592,9 @@ export class GameController {
 
     try {
       this.isLoading.start();
+      console.log("SAVE GAME BEFORZ", this.RAM);
+      this.RAM.lastSave = JSON.stringify(this.extractData());
+      console.log("SAVE GAME AFTER", this.RAM);
 
       const response = await fetch("/api/save/update", {
         method: "PUT",
@@ -605,6 +615,35 @@ export class GameController {
     } finally {
       this.isLoading.stop();
       console.log("Game save operation finished.");
+    }
+  }
+
+  public async quitGame(response: string = "") {
+    console.log("quitGame", response);
+    this.UI.setChoices(CONTINUE_CHOICE);
+    this.UI.setType("PRESS");
+    switch (response) {
+      case "Yes":
+        this.UI.setDialogues(["You saved the game! Have a good day!"]);
+        this.nextAction = this.reset;
+        await this.inner_saveGame();
+        break;
+      case "No":
+        this.UI.setDialogues(["You have chosen not to save !"]);
+        this.nextAction = this.reset;
+        break;
+      case "Back":
+        this.nextAction = this.continueGame;
+        this.continueGame();
+        break;
+      default:
+        this.UI.setDialogues([
+          "If you quit now, your progress will be lost !",
+          "Do you want to save before ?",
+        ]);
+        this.UI.setChoices(["Yes", "No", "Back"]);
+        this.UI.setType("CHOICE");
+        this.nextAction = this.quitGame;
     }
   }
 

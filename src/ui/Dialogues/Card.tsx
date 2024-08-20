@@ -27,10 +27,10 @@ export const DialoguesCard = () => {
         case "ERROR":
           return { article: "bg-red-400", p: "text-5xl" };
         default:
-          return { article: "bg-red-400 ", p: "text-5xl" };
+          return { article: " ", p: "" };
       }
     } else {
-      return { article: "bg-red-400 justify-center items-center", p: "text-5" };
+      return { article: "", p: "" };
     }
   }, [ui.style]);
 

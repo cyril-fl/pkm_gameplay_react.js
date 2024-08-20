@@ -24,11 +24,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
 
   const initializeGame = useCallback(() => {
     if (data !== null) {
-      // Type asign
       data.player_team = data.player_team.map((pkm: PkmModel) =>
         Object.assign(new PkmModel(), pkm),
       );
-
       const newGame = new GameController(data);
       setGame(newGame);
     }
@@ -46,24 +44,33 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     }
   }, [Game]);
 
-  const handleSave = async () => {
+  const handleHeaderAction = async (type: string) => {
     if (Game) {
       const updatedGame = new GameController(Game.extractData());
-      await Game.saveGame()
+
+      switch (type) {
+        case "SAVE":
+          await Game.saveGame();
+          break;
+        case "QUIT":
+          await Game.quitGame();
+          break;
+        default:
+          console.error("Unknown action type");
+          break;
+      }
       Object.assign(updatedGame, Game);
       setGame(updatedGame);
     } else {
-      console.error('Something went wrong, Game is null')
+      console.error("Something went wrong, Game is null");
     }
-
-  }
-
+  };
 
   return (
     <AppContext.Provider
       value={{
         game: { data: Game, set: setGame },
-        save: handleSave,
+        action: handleHeaderAction,
         ui: GameUI,
       }}
     >
