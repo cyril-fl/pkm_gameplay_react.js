@@ -17,6 +17,9 @@ export class PlayerModel {
     Object.assign(temp, pkm);
     this.team.push(temp);
   }
+  releasePkm(pkm: PkmModel) {
+    this.team = this.team.filter((p) => p !== pkm);
+  }
 
   /* SET */
   setName(name: string) {

@@ -5,7 +5,7 @@ export class Entry {
     this.content = entry.trim();
   }
 
-  public htmlSpecialChars() {
+  public HTMLSpecialChars_encode() {
     const map: { [key: string]: string } = {
       "&": "&amp;",
       "<": "&lt;",
@@ -14,9 +14,14 @@ export class Entry {
       "'": "&#039;",
     };
 
-    this.content.replace(/[&<>"']/g, function (m) {
+    this.content = this.content.replace(/[&<>"']/g, function (m) {
       return map[m];
     });
+  }
+
+  public HTMLSpecialChars_test() {
+    const specialCharsRegex = /[&<>"']/;
+    return specialCharsRegex.test(this.content);
   }
 
   public inputLength(limit: { min: number; max: number }): boolean {

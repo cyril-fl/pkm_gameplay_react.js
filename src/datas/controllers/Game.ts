@@ -12,7 +12,9 @@ import { Loading } from "@services/Loading";
 // todo: changer de dossier
 export interface RAM {
   starterChoices?: PkmModel[];
-  renamePkm?: string;
+  pkmName_old?: string;
+  pkmName_new?: string;
+  pkmName?: string;
 }
 
 const BOOLEANS_CHOICE = ["Yes", "No"];
@@ -30,12 +32,13 @@ export class GameController {
     this.RAM = {};
     this.UI = new GameUIModel();
     this.world = new WorldModel(data);
-    this.nextAction = this.startGame;
+    this.nextAction = () => {
+      this.gameInit("Yes");
+    };
     this.isLoading = new Loading();
   }
 
-
-  // Initialisation Phase
+  /* INIT PHASE*/
   private reset() {
     const newSave = new SaveModel();
     this.RAM = {};
@@ -76,6 +79,7 @@ export class GameController {
   public async gameInit(response: string) {
     switch (response) {
       case "Yes":
+        this.UI.setStyle("DEFAULT"); //to delete
         this.nextAction = this.continueGame;
         this.continueGame(); // Assurez-vous que `continueGame` est une fonction asynchrone si elle utilise des promesses
         break;
@@ -137,9 +141,11 @@ export class GameController {
 
       default:
         const entry = new Entry(response);
-        entry.htmlSpecialChars();
 
-        if (entry.inputLength({ min: 0, max: 10 })) {
+        if (
+          entry.inputLength({ min: 0, max: 10 }) &&
+          !entry.HTMLSpecialChars_test()
+        ) {
           this.world.getPlayer().setName(entry.content);
           this.UI.setDialogues([
             "PROFESSOR:",
@@ -235,8 +241,11 @@ export class GameController {
 
       default:
         const entry = new Entry(response);
-        entry.htmlSpecialChars();
-        if (entry.inputLength({ min: 0, max: 10 })) {
+
+        if (
+          entry.inputLength({ min: 0, max: 10 }) &&
+          !entry.HTMLSpecialChars_test()
+        ) {
           const oldName = thisStarter.getName();
           thisStarter.setName(entry.content);
 
@@ -266,7 +275,7 @@ export class GameController {
     }
   }
 
-  private setWorld() {
+  private async setWorld() {
     this.UI.setDialogues([
       "PROFESSOR:",
       "You are now ready to start your journey !",
@@ -275,12 +284,13 @@ export class GameController {
     this.UI.setChoices(CONTINUE_CHOICE);
     this.UI.setType("PRESS");
 
-    this.saveGame();
+    await this.saveGame();
     this.nextAction = this.continueGame;
   }
 
-  // Game Main Phase
+  /* MAIN PHASE */
   public continueGame(response: string = "") {
+    console.log("continueGame", response);
     this.UI.setDialogues([
       `Welcome in ${this.world.getLocation()} !`,
       "Here are some basic :",
@@ -289,6 +299,8 @@ export class GameController {
       "3) You can go forward and eventually Reach the next town or encounter some Wild Pkm",
     ]);
     this.UI.setChoices(["Team", "PkmCenter", "Go forward"]);
+    // this.UI.setChoices(["Team"]); // -- Todo: to delete
+
     this.UI.setType("CHOICE");
 
     switch (response) {
@@ -304,7 +316,10 @@ export class GameController {
           this.UI.setDialogues(["You have no pkm in your team!"], true);
         }
 
-        this.UI.setChoices(["Heal", "Rename", "Release"]);
+        this.UI.setChoices(["Heal", "Rename", "Release", "Back"]);
+
+        // this.UI.setChoices(["Rename"]); // -- Todo: to delete
+
         this.nextAction = this.menu_team;
         break;
 
@@ -317,7 +332,7 @@ export class GameController {
           "Consult your log !",
           "And soon many more to come ",
         ]);
-        this.UI.setChoices(["Revive", "Consult log"]);
+        this.UI.setChoices(["Revive", "Consult log", "Back"]);
         this.nextAction = this.menu_pkmCenter;
         break;
 
@@ -354,41 +369,35 @@ export class GameController {
         this.UI.setChoices(CONTINUE_CHOICE);
         this.UI.setType("PRESS");
         break;
+      case "Back":
+        this.continueGame();
+        this.nextAction = this.continueGame;
+        break;
       default:
         break;
     }
   }
 
-
   public menu_team(response: string) {
+    const team = this.world.getPlayer().getTeam();
+
     switch (response) {
       case "Heal":
         this.UI.setDialogues([
           "PROFESSOR:",
           `You have chosen to heal your team !`,
         ]);
+        // todo: add a way to heal the team with items de type "potion" , potion extend item, ...
         break;
+
       case "Rename":
-        this.UI.setDialogues([
-          "PROFESSOR:",
-          `Which Pkm do you want to rename `,
-        ]);
-        this.UI.setChoices(
-            this.world
-                .getPlayer()
-                .getTeam()
-                .map((pkm: PkmModel) => pkm.getName()),
-        );
+        this.UI.setDialogues(["Which pkm would you like to rename ?"], true);
+        this.UI.setChoices(team.map((pkm: PkmModel) => pkm.getName()));
         this.UI.setType("CHOICE");
-        this.nextAction = (res) => {
-          this.menu_team_sideEffect("RENAME", res);
-          this.nextAction = this.pokemonRename
-        };
-
-
+        this.nextAction = this.RenamePkm_A;
         break;
+
       case "Release":
-        const team = this.world.getPlayer().getTeam();
         if (team.length <= 1) {
           this.UI.setDialogues([`You can't release your last pkm !`]);
           this.UI.setChoices(CONTINUE_CHOICE);
@@ -397,7 +406,14 @@ export class GameController {
         } else {
           this.UI.setDialogues(["Which pkm would you like to release ?"], true);
           this.UI.setChoices(team.map((pkm: PkmModel) => pkm.getName()));
+          this.UI.setType("CHOICE");
+          this.nextAction = this.ReleasePkm_A;
         }
+        break;
+
+      case "Back":
+        this.continueGame("");
+        this.nextAction = this.continueGame;
         break;
       default:
         this.continueGame("Team");
@@ -405,183 +421,81 @@ export class GameController {
     }
   }
 
-  public menu_team_sideEffect(type: string = "", response: string = "") {
-    switch (type) {
-      case "RENAME":
-        this.RAM.renamePkm = response;
-        this.UI.setDialogues(['How would you like to rename ' + response]);
-        this.UI.setType("ENTRY");
-        this.nextAction = this.pokemonRename
+  // Release Pkm
+  public ReleasePkm_A(response: string) {
+    this.RAM.pkmName = response;
+    this.UI.setDialogues([
+      `Are you sure you want to release ${this.RAM.pkmName} ?`,
+    ]);
+    this.UI.setChoices(BOOLEANS_CHOICE);
+    this.UI.setType("CHOICE");
+    this.nextAction = this.ReleasePkm_B;
+  }
+  public ReleasePkm_B(response: string) {
+    switch (response) {
+      case "Yes":
+        this.UI.setDialogues([
+          "PROFESSOR:",
+          `You have chosen to release ${this.RAM.pkmName}!`,
+        ]);
+
+        this.world
+          .getPlayer()
+          .getTeam()
+          .forEach((pkm: PkmModel) => {
+            if (pkm.getName() === this.RAM.pkmName) {
+              this.world.getPlayer().releasePkm(pkm);
+            }
+          });
+
+        this.world.addLog([
+          {
+            day: this.world.getDay(),
+            message: `You have chosen to release ${this.RAM.pkmName}!`,
+          },
+        ]);
+
+        delete this.RAM.pkmName;
+
+        this.UI.setChoices(CONTINUE_CHOICE);
+        this.UI.setType("PRESS");
+        this.nextAction = this.menu_team;
 
         break;
+      case "No":
+        this.continueGame("Team");
+        break;
       default:
+        this.continueGame();
         break;
     }
   }
 
-  public pokemonRename(response: string = "") {
-    this.UI.setChoices(CONTINUE_CHOICE);
-    this.UI.setType("PRESS")
-    alert('OK')
-
-
-    // const entry = new Entry(response);
-    // entry.htmlSpecialChars();
-    // if (entry.inputLength({ min: 0, max: 10 })) {
-    //   const oldName = this.RAM.renamePkm;
-    //   this.world.getPlayer().getTeam().forEach((pkm: PkmModel) => {
-    //     if (pkm.getName() === oldName) {
-    //       pkm.setName(entry.content);
-    //     }
-    //   });
-    //   this.world.addLog([
-    //     {
-    //       day: this.world.getDay(),
-    //       message: `You have chosen to rename ${oldName} as ${entry.content}.`,
-    //     },
-    //   ]);
-    //   this.UI.setDialogues([
-    //     "PROFESSOR:",
-    //     `Ok, you have chosen to name your ${oldName} in ${entry.content} !`,
-    //   ]);
-    //
-    //   this.UI.setChoices(CONTINUE_CHOICE);
-    //   this.UI.setType("PRESS");
-    // }
+  // Rename Pkm
+  public RenamePkm_A(response: string) {
+    this.RAM.pkmName_old = response;
+    this.UI.setDialogues([
+      `What would you like to name ${this.RAM.pkmName_old} ?`,
+    ]);
+    this.UI.setChoices([]);
+    this.UI.setType("ENTRY");
+    this.nextAction = this.RenamePkm_B;
   }
 
+  public RenamePkm_B(response: string) {
+    const entry = new Entry(response);
 
-  // public menu_team(response: string) {
-  //   switch (response) {
-  //     case "Heal":
-  //       this.UI.setDialogues([
-  //         "PROFESSOR:",
-  //         `You have chosen to heal your team !`,
-  //       ]);
-  //       // Methode de PkmMatser
-  //       // go ver continue game en this Next
-  //
-  //       break;
-  //     case "Rename":
-  //       this.UI.setDialogues([
-  //         "PROFESSOR:",
-  //         `Which Pkm do you want to rename `,
-  //       ]);
-  //       // Todo: Add a way to add Pkm id to be sure to rename the right one
-  //       this.UI.setChoices(
-  //         this.world
-  //           .getPlayer()
-  //           .getTeam()
-  //           .map((pkm: PkmModel) => pkm.getName()),
-  //       );
-  //       this.UI.setType("CHOICE");
-  //
-  //       this.nextAction = this.pokemonRename;
-  //
-  //       break;
-  //     case "Release":
-  //       const team = this.world.getPlayer().getTeam();
-  //
-  //       if (team.length <= 1) {
-  //         this.UI.setDialogues([`You can't release your last pkm !`]);
-  //         this.UI.setChoices(CONTINUE_CHOICE);
-  //         this.UI.setType("PRESS");
-  //         this.nextAction = this.menu_team;
-  //       } else {
-  //         this.UI.setDialogues(["Which pkm would you like to release ?"], true);
-  //         // Methode de PkmMatser
-  //
-  //         this.UI.setChoices(team.map((pkm: PkmModel) => pkm.getName()));
-  //
-  //         // this.gameUI.setDialogues([
-  //         //     'PROFESSOR:',
-  //         //     `You have chosen to release a pkm !`,
-  //         // ])
-  //       }
-  //       break;
-  //     default:
-  //       // alert("default");
-  //       this.continueGame("Team");
-  //
-  //       break;
-  //   }
-  // }
-
-  // public menu_team_sideEffect(type: string = "", response: string = "") {
-  //   switch (type) {
-  //     case "RENAME":
-  //       this.RAM.renamePkm = response;
-  //       this.UI.setDialogues(['How would you like to rename ' + response]);
-  //       this.UI.setType("ENTRY");
-  //       break
-  //       case "RELEASE":
-  //           break
-  //       case "HEAL":
-  //           break
-  //     default:
-  //           break
-  //
-  //   }
-  // }
-
-//   public pokemonRename(response: string = "") {
-//     this.menu_team_sideEffect("RENAME", response);
-//
-//     const team = this.world.getPlayer().getTeam();
-//     const pkm = team.find((pkm: PkmModel) => pkm.getName() === response);
-//
-//     if (pkm) {
-//
-//     } else {
-//       const entry = new Entry(response);
-//       entry.htmlSpecialChars();
-//
-//       if (entry.inputLength({min: 0, max: 10})) {
-//
-//         const oldName = this.RAM.renamePkm
-// console.log(this.RAM)
-//         console.log("oldName", oldName)
-//         this.world.getPlayer().getTeam().forEach((pkm: PkmModel) => {
-//           if (pkm.getName() === oldName) {
-//             pkm.setName(entry.content);
-//           }
-//         })
-//
-//         this.world.addLog([
-//           {
-//             day: this.world.getDay(),
-//             message: `You have chosen to rename ${oldName} as ${entry.content}.`,
-//           },
-//         ]);
-//
-//         this.UI.setDialogues([
-//           "PROFESSOR:",
-//           `Ok, you have chosen to name your ${oldName} in ${entry.content} !`,
-//         ]);
-//
-//         this.UI.setChoices(CONTINUE_CHOICE);
-//         this.UI.setType("PRESS")
-//
-//
-//       }
-//     }
-//   }
-
-
-
-/*  public pokemonRename(response: string) {
-    console.log("pokemonRename", response);
-    const team = this.world.getPlayer().getTeam();
-    const pkm = team.find((pkm: PkmModel) => pkm.getName() === response);
-
-    if (pkm) {
+    if (
+      entry.inputLength({ min: 0, max: 10 }) &&
+      !entry.HTMLSpecialChars_test()
+    ) {
+      this.RAM.pkmName_new = entry.content;
       this.UI.setDialogues([
-        "PROFESSOR:",
-        `What would you like to rename ${pkm.getName()} ?`,
+        `Are you sure you want to rename ${this.RAM.pkmName_old} in ${this.RAM.pkmName_new} ?`,
       ]);
-      this.UI.setChoices([]);
-      this.UI.setType("ENTRY");
-      this.nextAction = this.confirmAction;
+      this.UI.setChoices(BOOLEANS_CHOICE);
+      this.UI.setType("CHOICE");
+      this.nextAction = this.RenamePkm_C;
     } else {
       this.UI.setDialogues([
         "PROFESSOR:",
@@ -589,13 +503,59 @@ export class GameController {
         'it should be between 1 and 10 characters long with no special chars ( &, <, >, ", ! )',
       ]);
     }
-  }*/
+  }
 
+  public RenamePkm_C(response: string) {
+    switch (response) {
+      case "Yes":
+        this.UI.setDialogues([
+          "PROFESSOR:",
+          `You have chosen to rename ${this.RAM.pkmName_old}!`,
+        ]);
 
+        this.world
+          .getPlayer()
+          .getTeam()
+          .forEach((pkm: PkmModel) => {
+            if (
+              pkm.getName() === this.RAM.pkmName_old &&
+              this.RAM.pkmName_new
+            ) {
+              pkm.setName(this.RAM.pkmName_new);
+            } else {
+              this.UI.setDialogues([
+                "PROFESSOR:",
+                "Something went wrong, we'll retry again later !",
+              ]);
+              this.UI.setChoices(CONTINUE_CHOICE);
+              this.UI.setType("PRESS");
+              this.nextAction = this.menu_team;
+            }
+          });
 
-  // public confirmAction(response: string) {
-  //
-  // }
+        this.world.addLog([
+          {
+            day: this.world.getDay(),
+            message: `You have chosen to rename  ${this.RAM.pkmName_old} in ${this.RAM.pkmName_new}!`,
+          },
+        ]);
+
+        delete this.RAM.pkmName_old;
+        delete this.RAM.pkmName_new;
+
+        this.UI.setChoices(CONTINUE_CHOICE);
+        this.UI.setType("PRESS");
+        this.nextAction = this.menu_team;
+
+        break;
+      case "No":
+        this.continueGame("Team");
+        break;
+      default:
+        this.continueGame();
+        break;
+    }
+  }
 
   // Tools
   public extractData() {

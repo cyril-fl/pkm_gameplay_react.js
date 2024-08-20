@@ -8,6 +8,7 @@ export const ChoiceInput = () => {
   const { ui } = useAppContext();
   const { submit } = useFormContext();
 
+  // todo mettre choice comme {label: string, value: string}
   const choices = useMemo(
     () => ui?.getChoices() || [DEFAULT_CHOICE],
     [ui.choices],
