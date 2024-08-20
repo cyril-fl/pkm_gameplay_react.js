@@ -46,10 +46,24 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     }
   }, [Game]);
 
+  const handleSave = async () => {
+    if (Game) {
+      const updatedGame = new GameController(Game.extractData());
+      await Game.saveGame()
+      Object.assign(updatedGame, Game);
+      setGame(updatedGame);
+    } else {
+      console.error('Something went wrong, Game is null')
+    }
+
+  }
+
+
   return (
     <AppContext.Provider
       value={{
         game: { data: Game, set: setGame },
+        save: handleSave,
         ui: GameUI,
       }}
     >

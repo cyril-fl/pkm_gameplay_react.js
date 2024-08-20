@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import { useAppContext } from "@/hooks/useContext";
 
 export const ClockCard = () => {
-  const { game } = useAppContext();
+  const { game, save, ui } = useAppContext();
 
   const [isLoading, setIsLoading] = useState(null);
   const [time, setTime] = useState(new Date());
@@ -46,6 +46,33 @@ export const ClockCard = () => {
   //   return () => clearInterval(interval)
   // }, [game.data])
 
+  const handleSave = () => {
+    if (save) {
+      save()
+    }
+  }
+
+  const style = useMemo(() => {
+    if (ui) {
+      switch (ui.getStyle()) {
+        case "DEFAULT":
+          return { p: "" };
+        case "START":
+          return {
+            button: "hidden",
+          };
+        case "ERROR":
+          return { p: "" };
+        default:
+          return { p: "" };
+      }
+    } else {
+      return { p: "" };
+    }
+  }, [ui.style]);
+
+  console.log('UI',ui )
+
   return (
     <div className="flex justify-between">
       <div className="flex gap-4">
@@ -56,7 +83,11 @@ export const ClockCard = () => {
           {time.getDate()} {monthName}
         </p>
       </div>
-      <div>{isLoading && <p>Loading...</p>}</div>
+      {/*<div>{isLoading && <p>Loading...</p>}</div>*/}
+      <button
+          className={style.button}
+      onClick={handleSave}
+      >Save</button>
     </div>
   );
 };

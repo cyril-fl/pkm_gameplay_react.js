@@ -284,7 +284,7 @@ export class GameController {
     this.UI.setChoices(CONTINUE_CHOICE);
     this.UI.setType("PRESS");
 
-    await this.saveGame();
+    await this.inner_saveGame();
     this.nextAction = this.continueGame;
   }
 
@@ -570,9 +570,16 @@ export class GameController {
   }
 
   // Save
-  private async saveGame() {
+  public async saveGame() {
+    await this.inner_saveGame();
+    this.UI.setDialogues(["You have saved the game !"]);
+    this.UI.setChoices(CONTINUE_CHOICE);
+    this.UI.setType("PRESS");
+
+  }
+  private async inner_saveGame() {
     if (this.isLoading.state()) {
-      this.isLoading.whileLoading(true, this.saveGame.bind(this));
+      this.isLoading.whileLoading(true, this.inner_saveGame.bind(this));
       return;
     }
 

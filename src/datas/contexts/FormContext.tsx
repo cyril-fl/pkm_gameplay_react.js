@@ -28,6 +28,7 @@ export const FormProvider: React.FC<{ children: ReactNode }> = ({
     }
     return null;
   }, [game.data]);
+
   const nextAction = useCallback(
     (...args: any) => {
       if (game.data) {
@@ -40,12 +41,6 @@ export const FormProvider: React.FC<{ children: ReactNode }> = ({
     [game.data],
   );
 
-  /*  useEffect(()=> {
-    if (game.data && game.data.nextAction) {
-      console.log('ACTION CHANGE')
-      console.log(game.data.nextAction)
-    }
-  }, [game.data])*/
 
   const handleSubmit = (e: any) => {
     e?.preventDefault();
