@@ -1,16 +1,21 @@
+// todo : exporter ca ailler
+interface UI_Compiler_Choice {
+  content: string[];
+  push?: boolean;
+  reset?: boolean;
+}
+
 export class GameUIModel {
   private dialogues: string[];
   private choices: string[];
   private type: string;
   private style: string;
-  private notification: string;
 
   constructor() {
     this.dialogues = ["Pokemon"];
     this.choices = ["*"];
     this.type = "PRESS";
     this.style = "START";
-    this.notification = "";
   }
 
   /* Getters && Setters */
@@ -27,9 +32,6 @@ export class GameUIModel {
   }
   public getStyle() {
     return this.style;
-  }
-  public getNotification() {
-    return this.notification;
   }
 
   // Setters
@@ -48,11 +50,11 @@ export class GameUIModel {
   }
 
   public setChoices(
-      choices: string[],
-      push: boolean = false,
-      reset: boolean = false,) {
+    choices: string[],
+    push: boolean = false,
+    reset: boolean = false,
+  ) {
     if (reset) {
-
       this.choices = [];
     } else if (push) {
       this.choices.push(...choices);
@@ -61,14 +63,40 @@ export class GameUIModel {
     }
   }
 
-
   public setType(type: string) {
     this.type = type;
   }
+
+  public set(
+      type?: string,
+      choice?: UI_Compiler_Choice,
+      style?: string,
+
+  ) {
+    switch (type) {
+      case "PRESS":
+      case "INPUT":
+        this.type = type;
+        break;
+      case "CHOICE":
+        this.type = type;
+        if (choice) {
+          this.setChoices(choice.content, choice.push, choice.reset);
+        }
+        break;
+      default:
+        this.type = "PRESS"; // Optionnel si vous voulez gérer un type non défini
+        break;
+    }
+
+    if (style) {
+      this.style = style;
+    }
+
+  }
+
+
   public setStyle(style: string) {
     this.style = style;
-  }
-  public setNotification(notification: string) {
-    this.notification = notification;
   }
 }

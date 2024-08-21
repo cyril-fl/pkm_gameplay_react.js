@@ -39,14 +39,11 @@ export class GameController {
 
   /* INIT PHASE*/
   private async startGame() {
-    const player_team = this.world.getPlayer().getTeam();
     this.RAM.lastSave = JSON.stringify(this.extractData());
+    const isPlayerTeamZero = this.world.getPlayer().getTeam().length === 0;
 
-    this.UI.setStyle("DEFAULT");
-    this.UI.setChoices(BOOLEANS_CHOICE);
-    this.UI.setType("CHOICE");
-    this.UI.setStyle("INIT");
-    if (player_team.length === 0) {
+    if (isPlayerTeamZero) {
+      this.UI.set("CHOICE", {content: BOOLEANS_CHOICE}, 'INIT');
       this.UI.setDialogues([
         `${PROF}`,
         "You seem to be a new face around here !",
@@ -57,54 +54,19 @@ export class GameController {
       ]);
       this.nextAction = this.playerInit;
       await this.starterInit(); // execute starteInit at the end, not to block the rest of the code
+
     } else {
-      this.UI.setStyle("START_GAME_SATE");
-      this.UI.setChoices(["Continue", "New game"]);
+      this.UI.set("CHOICE", {content: ["Continue", "New game"]}, 'START_GAME_SATE');
       this.UI.setDialogues([
         `Day : ${this.world.getDay()} , Location : ${this.world.getLocation()}`,
         `Player : ${this.world.getPlayer().getName()}`,
-        `Team : ${player_team.map((pkm: PkmModel) => pkm.getName()).join(", ")}`,
+        `Team : ${this.world.getPlayer().getTeam().map((pkm: PkmModel) => pkm.getName()).join(", ")}`,
       ]);
       this.nextAction = this.gameInit;
     }
   }
 
-  public async gameInit(response: string) {
-    switch (response) {
-      case "Continue":
-      case "Yes":
-        this.UI.setStyle("DEFAULT"); //to delete
-        this.nextAction = this.continueGame;
-        this.continueGame(); // Assurez-vous que `continueGame` est une fonction asynchrone si elle utilise des promesses
-        break;
-      case "New game":
-      case "No":
-        this.reset(false);
-        await this.eraseGame(); // Assurez-vous que `eraseGame` est terminé avant de réinitialiser
-        await this.startGame(); // Recommencer le jeu après réinitialisation
-        break;
-      default:
-        break;
-    }
-  }
 
-  private async starterInit() {
-    if (this.isLoading.state()) {
-      this.isLoading.whileLoading(true, this.starterInit.bind(this));
-      return;
-    }
-
-    try {
-      this.isLoading.start();
-
-      const dexController = PkDexController.getInstance();
-      this.RAM.starterChoices = await dexController.getStarterEntries();
-    } catch (error) {
-      console.error("Error initializing:", error);
-    } finally {
-      this.isLoading.stop();
-    }
-  }
 
   private playerInit(response: string) {
     switch (response) {
@@ -563,18 +525,6 @@ export class GameController {
     }
   }
 
-  // Tools
-  public extractData() {
-    return {
-      player_name: this.world.getPlayer().getName(),
-      player_team: this.world.getPlayer().getTeam(),
-      player_bags: this.world.getPlayer().getBag(),
-      world_day: this.world.getDay(),
-      world_location: this.world.getLocation(),
-      world_logs: this.world.getLogs(),
-    };
-  }
-
   // Save & Quit
   public async saveGame() {
     await this.inner_saveGame();
@@ -613,6 +563,17 @@ export class GameController {
   }
 
   /* TOOL BOX*/
+  public extractData() {
+    return {
+      player_name: this.world.getPlayer().getName(),
+      player_team: this.world.getPlayer().getTeam(),
+      player_bags: this.world.getPlayer().getBag(),
+      world_day: this.world.getDay(),
+      world_location: this.world.getLocation(),
+      world_logs: this.world.getLogs(),
+    };
+  }
+
   public reset(exit: boolean = true) {
     let data;
     if (exit && this.RAM.lastSave) {
@@ -630,70 +591,115 @@ export class GameController {
     this.nextAction = this.startGame;
   }
 
-  private inner_saveGame_2() {}
-
   private async inner_saveGame() {
-    if (this.isLoading.state()) {
-      this.isLoading.whileLoading(true, this.inner_saveGame.bind(this));
-      return;
-    }
+    this.RAM.lastSave = JSON.stringify(this.extractData()); // peu être un souci ici 🤷 ?
 
-    try {
-      this.isLoading.start();
-      console.log("SAVE GAME BEFORZ", this.RAM);
-      this.RAM.lastSave = JSON.stringify(this.extractData());
-      console.log("SAVE GAME AFTER", this.RAM);
+    await this.performGameOperation(
+      () =>
+        fetch("/api/save/update", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(this.extractData()),
+        }),
+      "Game saved successfully:",
+      "Error saving game",
+    );
+  }
 
-      const response = await fetch("/api/save/update", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(this.extractData()),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to save game: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      console.log("Game saved successfully:", data);
-    } catch (error: any) {
-      console.error("Error saving game:", error.message);
-    } finally {
-      this.isLoading.stop();
-      console.log("Game save operation finished.");
+  public async gameInit(response: string) {
+    switch (response) {
+      case "Continue":
+      case "Yes":
+        this.UI.setStyle("DEFAULT"); //to delete
+        this.nextAction = this.continueGame;
+        this.continueGame(); // Assurez-vous que `continueGame` est une fonction asynchrone si elle utilise des promesses
+        break;
+      case "New game":
+      case "No":
+        this.reset(false);
+        await this.eraseGame(); // Assurez-vous que `eraseGame` est terminé avant de réinitialiser
+        await this.startGame(); // Recommencer le jeu après réinitialisation
+        break;
+      default:
+        break;
     }
   }
 
-  private async eraseGame() {
+
+
+  // REFACTOR ICI
+  private async starterInit() {
     if (this.isLoading.state()) {
-      this.isLoading.whileLoading(true, this.eraseGame.bind(this));
+      this.isLoading.whileLoading(true, this.starterInit.bind(this));
       return;
     }
 
     try {
       this.isLoading.start();
 
-      const response = await fetch("/api/save/update", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(new SaveModel()),
-      });
+      const dexController = PkDexController.getInstance();
+      this.RAM.starterChoices = await dexController.getStarterEntries();
+    } catch (error) {
+      console.error("Error initializing:", error);
+    } finally {
+      this.isLoading.stop();
+    }
+  }
+
+
+
+
+  private async eraseGame() {
+    await this.performGameOperation(
+      () =>
+        fetch("/api/save/update", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(new SaveModel()),
+        }),
+      "Game erased successfully:",
+      "Error erasing game",
+    );
+  }
+
+  private async performGameOperation(
+      operation: () => Promise<Response>,
+      successMessage: string,
+      errorMessage: string,
+  ) {
+    if (this.isLoading.state()) {
+      this.isLoading.whileLoading(
+          true,
+          this.performGameOperation.bind(
+              this,
+              operation,
+              successMessage,
+              errorMessage,
+          ),
+      );
+      return;
+    }
+
+    try {
+      this.isLoading.start();
+
+      const response = await operation();
 
       if (!response.ok) {
-        throw new Error(`Failed to erase game: ${response.statusText}`);
+        throw new Error(`${errorMessage}: ${response.statusText}`);
       }
 
       const data = await response.json();
-      console.log("Game erased successfully:", data);
+      console.log(successMessage, data);
     } catch (error: any) {
-      console.error("Error erasing game:", error.message);
+      console.error(errorMessage, error.message);
     } finally {
       this.isLoading.stop();
-      console.log("Game erased operation finished.");
+      console.log(`${successMessage} operation finished.`);
     }
   }
 }

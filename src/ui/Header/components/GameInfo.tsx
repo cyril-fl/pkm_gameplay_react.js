@@ -8,7 +8,7 @@ export const GameInfo = () => {
   const style = useStyleUI(ui);
 
   return (
-    <div className={`flex gap-2 ${style.header__p}`} >
+    <div className={`flex gap-2 ${style.header__p}`}>
       {game.data && (
         <>
           <p>

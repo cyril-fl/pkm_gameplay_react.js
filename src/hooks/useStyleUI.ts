@@ -28,7 +28,8 @@ export const useStyleUI = (ref: GameUIModel | null) => {
       case "START_GAME_SATE":
         style = {
           ...style,
-          dialogue__art: "border-4 border-GameBoy-white bg-GameBoy-black p-4 text-GameBoy-white rounded-md outline outline-GameBoy-black",
+          dialogue__art:
+            "border-4 border-GameBoy-white bg-GameBoy-black p-4 text-GameBoy-white rounded-md outline outline-GameBoy-black",
           header__button: "hidden",
           header__p: "hidden",
         };
