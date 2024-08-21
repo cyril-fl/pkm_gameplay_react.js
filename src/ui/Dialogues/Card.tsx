@@ -21,7 +21,7 @@ export const DialoguesCard = () => {
       // className=""
     >
       {dialogues.map((text: string, index: number) => (
-        <p key={index} className={`${style.dialogue__p}`}>
+        <p key={index} className={`${style.dialogue__p} `}>
           {text}
         </p>
       ))}

@@ -75,8 +75,13 @@ export class GameUIModel {
   ) {
     switch (type) {
       case "PRESS":
-      case "INPUT":
         this.type = type;
+        if (choice) {
+          this.setChoices(choice.content);
+        }
+      case "ENTRY":
+        this.type = type;
+        this.setChoices([]);
         break;
       case "CHOICE":
         this.type = type;
@@ -84,6 +89,7 @@ export class GameUIModel {
           this.setChoices(choice.content, choice.push, choice.reset);
         }
         break;
+
       default:
         this.type = "PRESS"; // Optionnel si vous voulez gérer un type non défini
         break;
