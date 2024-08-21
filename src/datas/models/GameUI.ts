@@ -5,6 +5,19 @@ interface UI_Compiler_Choice {
   reset?: boolean;
 }
 
+interface UI_Compiler_Dialogue {
+  content: string[];
+  push?: boolean;
+  reset?: boolean;
+}
+
+interface UI_Compiler {
+  type: string;
+  choice?: UI_Compiler_Choice;
+  style?: string;
+  dialogues?: UI_Compiler_Dialogue;
+}
+
 export class GameUIModel {
   private dialogues: string[];
   private choices: string[];
@@ -35,18 +48,41 @@ export class GameUIModel {
   }
 
   // Setters
-  public setDialogues(
-    dialogues: string[],
-    push: boolean = false,
-    reset: boolean = false,
+  public set(
+    type?: string,
+    choice?: UI_Compiler_Choice,
+    style?: string,
+    dialogues?: UI_Compiler_Dialogue,
   ) {
-    if (reset) {
-      this.dialogues = [];
-    } else if (push) {
-      this.dialogues.push(...dialogues);
-    } else {
-      this.dialogues = dialogues;
+    // Set Types
+    // Set Choices
+    if (type) {
+      this.type = type;
+
+      if (type === "PRESS" && choice) {
+        this.setChoices(choice.content);
+      }
+      if (type === "CHOICE" && choice) {
+        this.setChoices(choice.content, choice.push, choice.reset);
+      }
+      if (type === "ENTRY") {
+        this.setChoices([]);
+      }
     }
+
+    // Set Style
+    if (style) {
+      this.setStyle(style);
+    }
+
+    // Set Dialogues
+    if (dialogues) {
+      this.setDialogues(dialogues.content, dialogues.push, dialogues.reset);
+    }
+  }
+
+  public setType(type: string) {
+    this.type = type;
   }
 
   public setChoices(
@@ -63,46 +99,21 @@ export class GameUIModel {
     }
   }
 
-  public setType(type: string) {
-    this.type = type;
-  }
-
-  public set(
-      type?: string,
-      choice?: UI_Compiler_Choice,
-      style?: string,
-
-  ) {
-    switch (type) {
-      case "PRESS":
-        this.type = type;
-        if (choice) {
-          this.setChoices(choice.content);
-        }
-      case "ENTRY":
-        this.type = type;
-        this.setChoices([]);
-        break;
-      case "CHOICE":
-        this.type = type;
-        if (choice) {
-          this.setChoices(choice.content, choice.push, choice.reset);
-        }
-        break;
-
-      default:
-        this.type = "PRESS"; // Optionnel si vous voulez gérer un type non défini
-        break;
-    }
-
-    if (style) {
-      this.style = style;
-    }
-
-  }
-
-
   public setStyle(style: string) {
     this.style = style;
+  }
+
+  public setDialogues(
+    dialogues: string[],
+    push: boolean = false,
+    reset: boolean = false,
+  ) {
+    if (reset) {
+      this.dialogues = [];
+    } else if (push) {
+      this.dialogues.push(...dialogues);
+    } else {
+      this.dialogues = dialogues;
+    }
   }
 }

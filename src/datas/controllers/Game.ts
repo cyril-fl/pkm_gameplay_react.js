@@ -21,7 +21,12 @@ export interface RAM {
 enum UI_TYPE {
   CHOICE = "CHOICE",
   PRESS = "PRESS",
-  ENTRY = "ENTRY"
+  ENTRY = "ENTRY",
+}
+enum MENU {
+  TEAM = "Team",
+  PKMCENTER = "PkmCenter",
+  GO_FORWARD = "Go forward",
 }
 const CHOICES = {
   CONTINUE: ["*"],
@@ -30,8 +35,6 @@ const CHOICES = {
 const BACK = "Back";
 
 const PROF = "PROFESSOR:";
-
-
 
 export class GameController {
   private RAM: RAM;
@@ -54,51 +57,62 @@ export class GameController {
     const isPlayerTeamZero = this.world.getPlayer().getTeam().length === 0;
 
     if (isPlayerTeamZero) {
-      this.UI.set(UI_TYPE.CHOICE, {content: CHOICES.BOOLEANS}, 'INIT');
-      this.UI.setDialogues([
-        `${PROF}`,
-        "You seem to be a new face around here !",
-        "Welcome to the fantastic world of pkm,",
-        "You are about to embark on a journey of a life time !",
-        "You will face many challenges and make many choices !",
-        "Are you ready ?",
-      ]);
+      this.UI.set(UI_TYPE.CHOICE, { content: CHOICES.BOOLEANS }, "INIT", {
+        content: [
+          PROF,
+          "You seem to be a new face around here !",
+          "Welcome to the fantastic world of pkm,",
+          "You are about to embark on a journey of a life time !",
+          "You will face many challenges and make many choices !",
+          "Are you ready ?",
+        ],
+      });
       this.nextAction = this.playerInit;
       await this.performStarterInit(); // execute starteInit at the end, not to block the rest of the code
-
     } else {
-      this.UI.set(UI_TYPE.CHOICE, {content: ["Continue", "New game"]}, 'START_GAME_SATE');
-      this.UI.setDialogues([
-        `Day : ${this.world.getDay()} , Location : ${this.world.getLocation()}`,
-        `Player : ${this.world.getPlayer().getName()}`,
-        `Team : ${this.world.getPlayer().getTeam().map((pkm: PkmModel) => pkm.getName()).join(", ")}`,
-      ]);
-      this.nextAction = this.gameInit;
+      this.UI.set(
+        UI_TYPE.CHOICE,
+        { content: ["Continue", "New game"] },
+        "START_GAME_SATE",
+        {
+          content: [
+            `Day : ${this.world.getDay()} , Location : ${this.world.getLocation()}`,
+            `Player : ${this.world.getPlayer().getName()}`,
+            `Team : ${this.world
+              .getPlayer()
+              .getTeam()
+              .map((pkm: PkmModel) => pkm.getName())
+              .join(", ")}`,
+          ],
+        },
+      );
+      this.nextAction = this.launchGame;
     }
   }
 
-
-// YES/NO/DEFAULT
+  // YES/NO/DEFAULT
   private playerInit(response: string) {
     switch (response) {
       case "Yes":
-        this.UI.set("ENTRY");
-        this.UI.setDialogues([
-          `${PROF}`,
-          "You have chosen to embark on the journey !",
-          "You will be given a pkm to start your journey !",
-          "But first tell me your name ?",
-        ]);
+        this.UI.set("ENTRY", undefined, undefined, {
+          content: [
+            PROF,
+            "You have chosen to embark on the journey !",
+            "You will be given a pkm to start your journey !",
+            "But first tell me your name ?",
+          ],
+        });
         break;
 
       case "No":
-        this.UI.set(UI_TYPE.PRESS,{content: CHOICES.CONTINUE})
-        this.UI.setDialogues([
-          `${PROF}`,
-          "You have chosen not to embark on the journey !",
-          "You will be returned to the main menu !",
-        ]);
-        this.nextAction = this.uiReset;
+        this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
+          content: [
+            PROF,
+            "You have chosen not to embark on the journey !",
+            "You will be returned to the main menu !",
+          ],
+        });
+        this.nextAction = this.resetUI;
         break;
 
       default:
@@ -109,12 +123,6 @@ export class GameController {
           !entry.HTMLSpecialChars_test()
         ) {
           this.world.getPlayer().setName(entry.content);
-          this.UI.setDialogues([
-            `${PROF}`,
-            `Ok ${entry.content}, are you ready to pick your first Pkm ?`,
-            "You will be given a choice of 3 pkm to choose from !",
-          ]);
-
           this.world.addLog([
             {
               day: this.world.getDay(),
@@ -122,14 +130,19 @@ export class GameController {
             },
           ]);
 
-          this.UI.setChoices(CHOICES.CONTINUE);
-          this.UI.setType(UI_TYPE.PRESS);
+          this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
+            content: [
+              PROF,
+              `Ok ${entry.content}, are you ready to pick your first Pkm ?`,
+              "You will be given a choice of 3 pkm to choose from !",
+            ],
+          });
 
           this.nextAction = this.starterChoice;
           this.starterChoice("");
         } else {
           this.UI.setDialogues([
-            `${PROF}`,
+            PROF,
             `I didn't get that, please enter a valid name !`,
             'it should be between 1 and 10 characters long with no special chars ( &, <, >, ", ! )',
           ]);
@@ -150,8 +163,6 @@ export class GameController {
 
     if (choice) {
       this.world.getPlayer().catchPkm(choice);
-      delete this.RAM.starterChoices;
-
       this.world.addLog([
         {
           day: this.world.getDay(),
@@ -159,21 +170,20 @@ export class GameController {
         },
       ]);
 
-      this.UI.setDialogues([
-        `${PROF}`,
-        `Would you like to name your ${response} ?`,
-      ]);
-      this.UI.setChoices(CHOICES.BOOLEANS);
+      this.UI.set(UI_TYPE.CHOICE, { content: CHOICES.BOOLEANS }, undefined, {
+        content: [PROF, `Would you like to name your ${response} ?`],
+      });
       this.nextAction = this.starterRename;
+      delete this.RAM.starterChoices;
     } else {
       const temp = starterPkm.map((pkm: PkmModel) => {
         const pkmTypes = pkm.getTypes().join(" / ");
         const content = ` the ${pkmTypes || ""} pkm`;
-        return (pkm.display() + content);
+        return pkm.display() + content;
       });
 
       this.UI.setDialogues(temp, true);
-      this.UI.set("CHOICE", {content: starterNames});
+      this.UI.set("CHOICE", { content: starterNames });
     }
   }
 
@@ -183,20 +193,22 @@ export class GameController {
 
     switch (response) {
       case "Yes":
-        this.UI.setDialogues([
-          `${PROF}`,
-          `Ok, what would you like to name your ${thisStarter.getName()} ?`,
-        ]);
-        this.UI.set("ENTRY");
+        this.UI.set("ENTRY", undefined, undefined, {
+          content: [
+            PROF,
+            `Ok, what would you like to name your ${thisStarter.getName()} ?`,
+          ],
+        });
         break;
 
       case "No":
-        this.UI.setDialogues([
-          `${PROF}`,
-          "Okay, you have chosen not to name your pkm ,",
-          "You could do that later !",
-        ]);
-        this.UI.set("PRESS", {content: CHOICES.CONTINUE});
+        this.UI.set("PRESS", { content: CHOICES.CONTINUE }, undefined, {
+          content: [
+            PROF,
+            "Okay, you have chosen not to name your pkm ,",
+            "You could do that later !",
+          ],
+        });
         this.nextAction = this.setWorld;
         break;
 
@@ -217,16 +229,16 @@ export class GameController {
             },
           ]);
 
-          this.UI.setDialogues([
-            `${PROF}`,
-            `Ok, you have chosen to name your ${oldName} in ${entry.content} !`,
-          ]);
-          this.UI.set("PRESS", {content: CHOICES.CONTINUE});
-
+          this.UI.set("PRESS", { content: CHOICES.CONTINUE }, undefined, {
+            content: [
+              PROF,
+              `Ok, you have chosen to name your ${oldName} in ${entry.content} !`,
+            ],
+          });
           this.nextAction = this.setWorld;
         } else {
           this.UI.setDialogues([
-            `${PROF}`,
+            PROF,
             `I didn't get that, please enter a valid name !`,
             'it should be between 1 and 10 characters long with no special chars ( &, <, >, ", ! )',
           ]);
@@ -236,12 +248,13 @@ export class GameController {
   }
 
   private async setWorld() {
-    this.UI.setDialogues([
-      `${PROF}`,
-      "You are now ready to start your journey !",
-      "You will be given a pokedex to help you on your journey !",
-    ]);
-    this.UI.set(UI_TYPE.PRESS, {content: CHOICES.CONTINUE});
+    this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
+      content: [
+        PROF,
+        "You are now ready to start your journey !",
+        "You will be given a pokedex to help you on your journey !",
+      ],
+    });
 
     this.nextAction = this.continueGame;
     await this.performSaveData();
@@ -256,17 +269,22 @@ export class GameController {
       "2) You can go to the PkmCenter",
       "3) You can go forward and eventually Reach the next town or encounter some Wild Pkm",
     ]);
-    this.UI.set(UI_TYPE.CHOICE, {content: ["Team", "PkmCenter", "Go forward"]}, 'DEFAULT');
+    this.UI.set(
+      UI_TYPE.CHOICE,
+      { content: [MENU.GO_FORWARD, MENU.TEAM, MENU.PKMCENTER] },
+      "DEFAULT",
+    );
 
     switch (response) {
-      case "Team":
+      case MENU.TEAM:
         const team = this.world.getPlayer().getTeam();
 
-        this.UI.setDialogues(["PROFESSOR:", `Here is your team :`]);
         if (team.length > 0) {
-          team.forEach((pkm: PkmModel) => {
-            this.UI.setDialogues([pkm.display()], true);
-          });
+          this.UI.setDialogues([
+            PROF,
+            `Here is your team :`,
+            ...team.map((pkm: PkmModel) => pkm.display()),
+          ]);
         } else {
           this.UI.setDialogues(["You have no pkm in your team!"], true);
         }
@@ -276,9 +294,9 @@ export class GameController {
         this.nextAction = this.menu_team;
         break;
 
-      case "PkmCenter":
+      case MENU.PKMCENTER:
         this.UI.setDialogues([
-          "PROFESSOR:",
+          PROF,
           `Welcome to the PkmCenter !`,
           "Sorry for the mess, we are still under construction ...",
           "Here you can Revive your team ! ",
@@ -289,9 +307,9 @@ export class GameController {
         this.nextAction = this.menu_pkmCenter;
         break;
 
-      case "Go forward":
-        this.UI.setDialogues(["PROFESSOR:", `You have chosen to go forward !`]);
-        this.UI.set(UI_TYPE.PRESS, {content: CHOICES.CONTINUE});
+      case MENU.GO_FORWARD:
+        this.UI.setDialogues([PROF, `You have chosen to go forward !`]);
+        this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE });
         this.nextAction = this.menu_goForward;
         break;
       default:
@@ -303,23 +321,24 @@ export class GameController {
     console.log("pokeCenterMenu", response);
     this.UI.setChoices(CHOICES.CONTINUE);
     this.nextAction = this.menu_pkmCenter;
-    this.UI.set(UI_TYPE.PRESS, {content: CHOICES.CONTINUE});
-
+    this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE });
 
     switch (response) {
       case "Revive":
         this.UI.setDialogues([
-          "PROFESSOR:",
+          PROF,
           `You have chosen to revive your team !`,
         ]);
 
         break;
       case "Consult log":
         // Todo: Add a way to paginate the logs
-        this.UI.setDialogues([`Your log :`]);
-        this.world.getLogs().forEach((log) => {
-          this.UI.setDialogues([`Day ${log.day} : ${log.message}`], true);
-        });
+        this.UI.setDialogues([
+          `Your log :`,
+          ...this.world
+            .getLogs()
+            .map((log) => `Day ${log.day} : ${log.message}`),
+        ]);
 
         break;
       case BACK:
@@ -327,7 +346,7 @@ export class GameController {
         this.nextAction = this.continueGame;
         break;
       default:
-        this.continueGame("PkmCenter");
+        this.continueGame(MENU.PKMCENTER);
         break;
     }
   }
@@ -337,39 +356,43 @@ export class GameController {
 
     switch (response) {
       case "Heal":
-        this.UI.setDialogues([
-          "PROFESSOR:",
-          `You have chosen to heal your team !`,
-        ]);
+        this.UI.setDialogues([PROF, `You have chosen to heal your team !`]);
         // todo: add a way to heal the team with items de type "potion" , potion extend item, ...
         break;
 
       case "Rename":
-        this.UI.setDialogues(["Which pkm would you like to rename ?"], true);
-        const temps_choices = [...team.map((pkm: PkmModel) => pkm.getName()), BACK];
-        this.UI.set(UI_TYPE.CHOICE, {content: temps_choices});
+        this.UI.set(
+          UI_TYPE.CHOICE,
+          { content: [...team.map((pkm: PkmModel) => pkm.getName()), BACK] },
+          undefined,
+          { content: ["Which pkm would you like to rename ?"], push: true },
+        );
         this.nextAction = this.RenamePkm_A;
         break;
 
       case "Release":
         if (team.length <= 1) {
-          this.UI.setDialogues([`You can't release your last pkm !`]);
-          this.UI.set(UI_TYPE.PRESS, {content: CHOICES.CONTINUE});
+          this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
+            content: [`You can't release your last pkm !`],
+          });
           this.nextAction = this.menu_team;
         } else {
-          this.UI.setDialogues(["Which pkm would you like to release ?"], true);
-          const temps_choices = [...team.map((pkm: PkmModel) => pkm.getName()), BACK];
-          this.UI.set(UI_TYPE.CHOICE, {content: temps_choices});
+          this.UI.set(
+            UI_TYPE.CHOICE,
+            { content: [...team.map((pkm: PkmModel) => pkm.getName()), BACK] },
+            undefined,
+            { content: ["Which pkm would you like to release ?"], push: true },
+          );
           this.nextAction = this.ReleasePkm_A;
         }
         break;
 
       case BACK:
-        this.continueGame("");
         this.nextAction = this.continueGame;
+        this.continueGame();
         break;
       default:
-        this.continueGame("Team");
+        this.continueGame(MENU.TEAM);
         break;
     }
   }
@@ -384,20 +407,14 @@ export class GameController {
   // Release Pkm
   public ReleasePkm_A(response: string) {
     this.RAM.pkmName = response;
-    this.UI.setDialogues([
-      `Are you sure you want to release ${this.RAM.pkmName} ?`,
-    ]);
-    this.UI.set(UI_TYPE.CHOICE, {content: CHOICES.BOOLEANS});
+    this.UI.set(UI_TYPE.CHOICE, { content: CHOICES.BOOLEANS }, undefined, {
+      content: [`Are you sure you want to release ${this.RAM.pkmName} ?`],
+    });
     this.nextAction = this.ReleasePkm_B;
   }
   public ReleasePkm_B(response: string) {
     switch (response) {
       case "Yes":
-        this.UI.setDialogues([
-          "PROFESSOR:",
-          `You have chosen to release ${this.RAM.pkmName}!`,
-        ]);
-
         this.world
           .getPlayer()
           .getTeam()
@@ -416,12 +433,14 @@ export class GameController {
 
         delete this.RAM.pkmName;
 
-        this.UI.set(UI_TYPE.PRESS, {content: CHOICES.CONTINUE});
+        this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
+          content: [PROF, `You have chosen to release ${this.RAM.pkmName}!`],
+        });
         this.nextAction = this.menu_team;
 
         break;
       case "No":
-        this.continueGame("Team");
+        this.continueGame(MENU.TEAM);
         break;
       default:
         this.continueGame();
@@ -432,15 +451,15 @@ export class GameController {
   // Rename Pkm
   public RenamePkm_A(response: string) {
     if (response === BACK) {
-      this.continueGame("Team");
+      this.continueGame(MENU.TEAM);
       return;
     }
 
     this.RAM.pkmName_old = response;
-    this.UI.setDialogues([
-      `What would you like to name ${this.RAM.pkmName_old} ?`,
-    ]);
-    this.UI.set(UI_TYPE.ENTRY);
+
+    this.UI.set(UI_TYPE.ENTRY, undefined, undefined, {
+      content: [`What would you like to name ${this.RAM.pkmName_old} ?`],
+    });
     this.nextAction = this.RenamePkm_B;
   }
 
@@ -452,14 +471,16 @@ export class GameController {
       !entry.HTMLSpecialChars_test()
     ) {
       this.RAM.pkmName_new = entry.content;
-      this.UI.setDialogues([
-        `Are you sure you want to rename ${this.RAM.pkmName_old} in ${this.RAM.pkmName_new} ?`,
-      ]);
-      this.UI.set(UI_TYPE.CHOICE, {content: CHOICES.BOOLEANS});
+
+      this.UI.set(UI_TYPE.CHOICE, { content: CHOICES.BOOLEANS }, undefined, {
+        content: [
+          `Are you sure you want to rename ${this.RAM.pkmName_old} in ${this.RAM.pkmName_new} ?`,
+        ],
+      });
       this.nextAction = this.RenamePkm_C;
     } else {
       this.UI.setDialogues([
-        "PROFESSOR:",
+        PROF,
         `I didn't get that, please enter a valid name !`,
         'it should be between 1 and 10 characters long with no special chars ( &, <, >, ", ! )',
       ]);
@@ -470,10 +491,10 @@ export class GameController {
   public RenamePkm_C(response: string) {
     switch (response) {
       case "Yes":
-        this.UI.setDialogues([
-          "PROFESSOR:",
-          `You have chosen to rename ${this.RAM.pkmName_old}!`,
-        ]);
+        this.UI.setDialogues([PROF]);
+        this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
+          content: [PROF, `You have chosen to rename ${this.RAM.pkmName_old}!`],
+        });
 
         this.world
           .getPlayer()
@@ -485,12 +506,19 @@ export class GameController {
             ) {
               pkm.setName(this.RAM.pkmName_new);
             } else {
-              this.UI.setDialogues([
-                "PROFESSOR:",
-                "Something went wrong, we'll retry again later !",
-              ]);
-              this.UI.set(UI_TYPE.PRESS, {content: CHOICES.CONTINUE});
+              this.UI.set(
+                UI_TYPE.PRESS,
+                { content: CHOICES.CONTINUE },
+                undefined,
+                {
+                  content: [
+                    PROF,
+                    "Something went wrong, we'll retry again later !",
+                  ],
+                },
+              );
               this.nextAction = this.menu_team;
+              this.continueGame(MENU.TEAM);
             }
           });
 
@@ -501,15 +529,13 @@ export class GameController {
           },
         ]);
 
+        this.nextAction = this.menu_team;
         delete this.RAM.pkmName_old;
         delete this.RAM.pkmName_new;
 
-        this.UI.set(UI_TYPE.PRESS, {content: CHOICES.CONTINUE});
-        this.nextAction = this.menu_team;
-
         break;
       case "No":
-        this.continueGame("Team");
+        this.continueGame(MENU.TEAM);
         break;
       default:
         this.continueGame();
@@ -520,38 +546,45 @@ export class GameController {
   // Save & Quit
   public async saveGame() {
     await this.performSaveData();
-    this.UI.setDialogues(["You have saved the game !"]);
-    this.UI.set(UI_TYPE.PRESS, {content: CHOICES.CONTINUE});
+    this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
+      content: ["You have saved the game !"],
+    });
   }
 
   // YES/NO/DEFAULT
   public async quitGame(response: string = "") {
-    console.log("quitGame", response);
-    this.UI.set(UI_TYPE.PRESS, {content: CHOICES.CONTINUE});
+    this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE });
     switch (response) {
       case "Yes":
         this.UI.setDialogues(["You saved the game! Have a good day!"]);
-        this.nextAction = this.uiReset;
+        this.nextAction = this.resetUI;
         await this.performSaveData();
         break;
       case "No":
         this.UI.setDialogues(["You have chosen not to save !"]);
-        this.nextAction = this.uiReset;
+        this.nextAction = this.resetUI;
         break;
       case BACK:
         this.nextAction = this.continueGame;
         this.continueGame();
         break;
       default:
-        this.UI.setDialogues([
-          "If you quit now, your progress will be lost !",
-          "Do you want to save before ?",
-        ]);
-        this.UI.set(UI_TYPE.CHOICE, {content: [...CHOICES.BOOLEANS, BACK]});
+        this.UI.set(
+          UI_TYPE.CHOICE,
+          { content: [...CHOICES.BOOLEANS, BACK] },
+          undefined,
+          {
+            content: [
+              "If you quit now, your progress will be lost !",
+              "Do you want to save before ?",
+            ],
+          },
+        );
         this.nextAction = this.quitGame;
     }
   }
 
+  //  REFACTORED - OK
   /* TOOL BOX*/
   public extractData() {
     return {
@@ -563,13 +596,12 @@ export class GameController {
       world_logs: this.world.getLogs(),
     };
   }
-
-  public uiReset(quit: boolean = true) {
+  public resetUI(quit: boolean = true) {
     let data;
     if (quit && this.RAM.lastSave) {
       data = JSON.parse(this.RAM.lastSave);
       data.player_team = data.player_team.map((pkm: PkmModel) =>
-        Object.assign(new PkmModel(), pkm),
+          Object.assign(new PkmModel(), pkm),
       );
     } else {
       data = new SaveModel();
@@ -580,53 +612,27 @@ export class GameController {
     this.world = new WorldModel(data);
     this.nextAction = this.startGame;
   }
-
-  // YES/NO/DEFAULT
-  public async gameInit(response: string) {
-    switch (response) {
-      case "Continue":
-      case "Yes":
-        this.nextAction = this.continueGame;
-        this.continueGame(); // Assurez-vous que `continueGame` est une fonction asynchrone si elle utilise des promesses
-          break;
-      case "New game":
-      case "No":
-        this.uiReset(false);
-        await this.performOverWriteSaveData(); // Assurez-vous que `eraseGame` est terminé avant de réinitialiser
-        await this.startGame(); // Recommencer le jeu après réinitialisation
-          break;
-      default:
-          break;
+  
+  public async launchGame(response: string) {
+    if (["Continue", "Yes"].includes(response)) {
+      this.nextAction = this.continueGame;
+      this.continueGame();
+    } else if (["New game", "No"].includes(response)) {
+      this.resetUI(false);
+      await this.performOverWriteSaveData(); // Assurez-vous que `eraseGame` est terminé avant de réinitialiser
+      await this.startGame(); // Recommencer le jeu après réinitialisation
+    } else {
     }
   }
-
-
-  private switchHandler(response: string, yes: () => void, no: () => void, deflt: () => void) {
-    const actions: { [key: string]: () => void } = {
-      "Yes": yes,
-      "No": no,
-      "default": deflt,
-    };
-
-    (actions[response] || actions["default"])();
-  }
-
-
-
-
-
-
-  //  REFACTORED - OK
 
   private async performStarterInit() {
     const dexController = PkDexController.getInstance();
 
     await this.performGameOperation(
-        async () =>
-            this.RAM.starterChoices = await dexController.getStarterEntries()
-        ,
-        "Dex successfully initialized.",
-        "Error initializing dex"
+      async () =>
+        (this.RAM.starterChoices = await dexController.getStarterEntries()),
+      "Dex successfully initialized.",
+      "Error initializing dex",
     );
   }
 
@@ -634,16 +640,16 @@ export class GameController {
     this.RAM.lastSave = JSON.stringify(this.extractData()); // peu être un souci ici 🤷 ?
 
     await this.performGameOperation(
-        () =>
-            fetch("/api/save/update", {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(this.extractData()),
-            }),
-        "Game saved successfully:",
-        "Error saving game",
+      () =>
+        fetch("/api/save/update", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(this.extractData()),
+        }),
+      "Game saved successfully:",
+      "Error saving game",
     );
   }
 
@@ -663,19 +669,19 @@ export class GameController {
   }
 
   private async performGameOperation<T>(
-      operation: () => Promise<T>,
-      successMessage: string,
-      errorMessage: string,
+    operation: () => Promise<T>,
+    successMessage: string,
+    errorMessage: string,
   ) {
     if (this.isLoading.state()) {
       this.isLoading.whileLoading(
-          true,
-          this.performGameOperation.bind(
-              this,
-              operation,
-              successMessage,
-              errorMessage,
-          ),
+        true,
+        this.performGameOperation.bind(
+          this,
+          operation,
+          successMessage,
+          errorMessage,
+        ),
       );
       return;
     }
