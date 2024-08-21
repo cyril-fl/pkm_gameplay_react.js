@@ -47,9 +47,21 @@ export class GameUIModel {
     }
   }
 
-  public setChoices(choices: string[]) {
-    this.choices = choices;
+  public setChoices(
+      choices: string[],
+      push: boolean = false,
+      reset: boolean = false,) {
+    if (reset) {
+
+      this.choices = [];
+    } else if (push) {
+      this.choices.push(...choices);
+    } else {
+      this.choices = choices;
+    }
   }
+
+
   public setType(type: string) {
     this.type = type;
   }

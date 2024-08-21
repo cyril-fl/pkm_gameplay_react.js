@@ -1,9 +1,10 @@
 import { useAppContext } from "@/hooks/useContext";
 import { useMemo } from "react";
+import { useStyleUI } from "@/hooks/useStyleUI";
 
 export const DialoguesCard = () => {
   const { ui } = useAppContext();
-
+  const style = useStyleUI(ui);
   // console.log('UI DATA', ui)
 
   const dialogues = useMemo(() => {
@@ -14,30 +15,13 @@ export const DialoguesCard = () => {
     }
   }, [ui.dialogues]);
 
-  const style = useMemo(() => {
-    if (ui) {
-      switch (ui.getStyle()) {
-        case "DEFAULT":
-          return { article: "", p: "" };
-        case "START":
-          return {
-            article: "justify-center items-center",
-            p: "text-9xl font-jacquard-24",
-          };
-        case "ERROR":
-          return { article: "bg-red-400", p: "text-5xl" };
-        default:
-          return { article: " ", p: "" };
-      }
-    } else {
-      return { article: "", p: "" };
-    }
-  }, [ui.style]);
-
   return (
-    <article className={`flex grow flex-col gap-4 text-2xl ${style.article}`}>
+    <article
+      className={`flex flex-col gap-4 text-2xl ${style.dialogue__art}`}
+      // className=""
+    >
       {dialogues.map((text: string, index: number) => (
-        <p key={index} className={`${style.p}`}>
+        <p key={index} className={`${style.dialogue__p}`}>
           {text}
         </p>
       ))}
