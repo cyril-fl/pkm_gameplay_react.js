@@ -55,7 +55,8 @@ export class GameController {
           ],
         },
       );
-      this.nextAction = this.initPlayer;
+      this.nextAction = this.playerInit;
+      this.RAM.continueGame_tuto = true;
       await this.performStarterInit(); // execute starterInit at the end, not to block the rest of the code
     } else {
       this.UI.set(
@@ -70,12 +71,13 @@ export class GameController {
           ],
         },
       );
+      this.RAM.continueGame_tuto = false;
       this.nextAction = this.launchGame;
     }
   }
 
   // YES/NO/DEFAULT
-  private initPlayer(response: string) {
+  private playerInit(response: string) {
     switch (response) {
       case UI_BUTTON.YES:
         this.UI.set(UI_TYPE.ENTRY, undefined, undefined, {
@@ -114,8 +116,8 @@ export class GameController {
             ],
           });
 
-          this.nextAction = this.selectStarter;
-          this.selectStarter();
+          this.nextAction = this.starterSelect;
+          this.starterSelect();
         } else {
           this.UI.setDialogues([
             UI_CHARACTER.PROF,
@@ -126,7 +128,7 @@ export class GameController {
     }
   }
 
-  private selectStarter(response: string = "") {
+  private starterSelect(response: string = "") {
     const starterList = this.RAM.starterChoices;
 
     if (!starterList) return;
@@ -233,24 +235,26 @@ export class GameController {
       ],
     });
 
-    this.nextAction = this.continueGame;
+    this.nextAction = this.menu_main;
     await this.performSaveData();
   }
 
   /* MAIN PHASE */
-  public continueGame(response: string = "") {
-    this.UI.setDialogues([
-      `Welcome in ${this.world.getLocation()} !`,
+  public menu_main(response: string = "") {
+    const temps_d = [`Welcome in ${this.world.getLocation()} !`,]
+    const temp_p = [
       "Here are some basic :",
       "1) You can monitor your team",
       "2) You can go to the PkmCenter",
       "3) You can go forward and eventually Reach the next town or encounter some Wild Pkm",
-    ]);
+    ]
+    const dialogues = this.tuto(temps_d, temp_p, 'continueGame_tuto')
+
     this.UI.set(
       UI_TYPE.CHOICE,
       { content: CHOICES.ACTION_MAIN_MENU },
-      UI_STYLE.DEFAULT,
-    );
+      UI_STYLE.DEFAULT, {
+        content: dialogues})
 
     switch (response) {
       case UI_MENU.TEAM:
@@ -280,12 +284,13 @@ export class GameController {
             ...CHOICES.ACTION_PKMCENTER_MENU,
             ...CHOICES.ACTION_BACK,
           ]}, undefined, { content:[
-          UI_CHARACTER.PROF,
+          UI_CHARACTER.NURSE,
           `Welcome to the PkmCenter !`,
           "Sorry for the mess, we are still under construction ...",
-          "Here you can Revive your team ! ",
-          "Consult your log !",
-          "And soon many more to come ",
+          "   - I can revive your knock out partner, you can consult your log.",
+          "   - You can consult your log.",
+          " ",
+          "And soon many more to come !",
         ]});
 
         this.nextAction = this.menu_pkmCenter;
@@ -311,48 +316,6 @@ export class GameController {
     }
   }
 
-  public travel_event(response: string) {
-    switch (response) {
-      case UI_BUTTON.YES:
-        this.UI.set(
-          UI_TYPE.CHOICE,
-          { content: this.var_teamChoices() },
-          undefined,
-          {
-            content: [
-              `Choose one of your pkm`,
-              ...this.world
-                .getPlayer()
-                .getTeam()
-                .map((pkm: PkmModel) => pkm.display()),
-            ],
-          },
-        );
-
-        this.nextAction = this.continueGame; //temp
-
-        break;
-      case UI_BUTTON.NO:
-        this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
-          content: [`You ran away ...`],
-        });
-        this.nextAction = this.continueGame;
-        break;
-      default:
-        this.UI.set(UI_TYPE.CHOICE, { content: CHOICES.BOOLEANS }, undefined, {
-          content: [`Do you want to battle ?`],
-          push: true,
-        });
-        this.nextAction = this.travel_event;
-        break;
-    }
-  }
-  public travel_nothing() {
-    this.world.oneDayPasses();
-    this.nextAction = this.continueGame;
-    this.continueGame();
-  }
-
   public menu_pkmCenter(response: string) {
     this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE });
     this.nextAction = this.menu_pkmCenter;
@@ -376,11 +339,11 @@ export class GameController {
 
         break;
       case UI_BUTTON.BACK:
-        this.continueGame();
-        this.nextAction = this.continueGame;
+        this.menu_main();
+        this.nextAction = this.menu_main;
         break;
       default:
-        this.continueGame(UI_MENU.PKMCENTER);
+        this.menu_main(UI_MENU.PKMCENTER);
         break;
     }
   }
@@ -430,11 +393,11 @@ export class GameController {
         break;
 
       case UI_BUTTON.BACK:
-        this.nextAction = this.continueGame;
-        this.continueGame();
+        this.nextAction = this.menu_main;
+        this.menu_main();
         break;
       default:
-        this.continueGame(UI_MENU.TEAM);
+        this.menu_main(UI_MENU.TEAM);
         break;
     }
   }
@@ -442,9 +405,8 @@ export class GameController {
   // YES/NO/DEFAULT
   // Release Pkm
   public releasePkm_A(response: string) {
-    // AZER
     const temp_pkm = this.findPkm(response);
-    if (!temp_pkm) {
+    if (!temp_pkm) { // todo a refactor mais je crois que c'est bon
         this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
             content: [`Something went wrong, please try again !`],
         });
@@ -483,10 +445,10 @@ export class GameController {
         delete this.RAM.pkm;
         break;
       case UI_BUTTON.NO:
-        this.continueGame(UI_MENU.TEAM);
+        this.menu_main(UI_MENU.TEAM);
         break;
       default:
-        this.continueGame();
+        this.menu_main();
         break;
     }
   }
@@ -494,7 +456,7 @@ export class GameController {
   // Rename Pkm
   public renamePkm_A(response: string) {
     if (response === UI_BUTTON.BACK) {
-      this.continueGame(UI_MENU.TEAM);
+      this.menu_main(UI_MENU.TEAM);
       return;
     }
 
@@ -549,7 +511,7 @@ export class GameController {
           delete this.RAM.pkmName_new;
 
         } else {
-            this.UI.set(
+            this.UI.set( //todo possibleto refactor enfin je crois
               UI_TYPE.PRESS,
               { content: CHOICES.CONTINUE },
               undefined,
@@ -560,62 +522,63 @@ export class GameController {
                 ],
               },
             );
-              this.continueGame(UI_MENU.TEAM);
+              this.menu_main(UI_MENU.TEAM);
           }
         break;
       case UI_BUTTON.NO:
-        this.continueGame(UI_MENU.TEAM);
+        this.menu_main(UI_MENU.TEAM);
         break;
       default:
-        this.continueGame();
+        this.menu_main();
         break;
     }
   }
 
-  // Save & Quit
-  public async saveGame() {
-    await this.performSaveData();
-    this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
-      content: ["You have saved the game !"],
-    });
-  }
-
-  // YES/NO/DEFAULT
-  public async quitGame(response: string = "") {
-    this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE });
+    // Travel
+  public travel_event(response: string) {
     switch (response) {
       case UI_BUTTON.YES:
-        this.UI.setDialogues(["You saved the game! Have a good day!"]);
-        this.nextAction = this.resetUI;
-        await this.performSaveData();
+        this.UI.set(
+            UI_TYPE.CHOICE,
+            { content: this.var_teamChoices() },
+            undefined,
+            {
+              content: [
+                `Choose one of your pkm`,
+                ...this.world
+                    .getPlayer()
+                    .getTeam()
+                    .map((pkm: PkmModel) => pkm.display()),
+              ],
+            },
+        );
+
+        this.nextAction = this.menu_main; //temp
+
         break;
       case UI_BUTTON.NO:
-        this.UI.setDialogues(["You have chosen not to save !"]);
-        this.nextAction = this.resetUI;
-        break;
-      case UI_BUTTON.BACK:
-        this.nextAction = this.continueGame;
-        this.continueGame();
+        this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
+          content: [`You ran away ...`],
+        });
+        this.nextAction = this.menu_main;
         break;
       default:
-        this.UI.set(
-          UI_TYPE.CHOICE,
-          { content: [...CHOICES.BOOLEANS, ...CHOICES.ACTION_BACK] },
-          undefined,
-          {
-            content: [
-              "If you quit now, your progress will be lost !",
-              "Do you want to save before ?",
-            ],
-          },
-        );
-        this.nextAction = this.quitGame;
+        this.UI.set(UI_TYPE.CHOICE, { content: CHOICES.BOOLEANS }, undefined, {
+          content: [`Do you want to battle ?`],
+          push: true,
+        });
+        this.nextAction = this.travel_event;
+        break;
     }
+  }
+  public travel_nothing() {
+    this.world.oneDayPasses();
+    this.nextAction = this.menu_main;
+    this.menu_main();
   }
 
   //  REFACTORED - OK
   /* VAR DATA */
-
   private var_team<T>(operation: (model: PkmModel) => T): T[] {
     return this.world.getPlayer().getTeam().map(operation);
   }
@@ -635,26 +598,21 @@ export class GameController {
   }
 
   /* TOOL BOX*/
+  // Divers
+  private tuto(dialogues: string[], pushDialogues: string[], ramAttribut: keyof RAM) {
+    if (this.RAM[ramAttribut]) {
+      this.RAM[ramAttribut] = false;
+      dialogues.push(...pushDialogues)
+    }
+
+    return dialogues
+  }
+
   private findPkm(id: string): PkmModel | undefined {
     return this.world
         .getPlayer()
         .getTeam()
         .find((pkm: PkmModel) => pkm.getID().toString() === id);
-  }
-
-  private isRandomEvent(
-    eventTriggerChance: number,
-    eventChanceRange: number,
-  ): boolean {
-    const eventOutcome = Math.floor(Math.random() * eventChanceRange);
-    return eventOutcome < eventTriggerChance;
-  }
-
-  private isValidInput(entry: Entry, minLength = 1, maxLength = 10): boolean {
-    return (
-      entry.inputLength({ min: minLength, max: maxLength }) &&
-      !entry.HTMLSpecialChars_test()
-    );
   }
 
   public extractData() {
@@ -696,13 +654,70 @@ export class GameController {
 
   private async launchGame(response: string) {
     if ([String(UI_BUTTON.CONTINUE), UI_BUTTON.YES].includes(response)) {
-      this.nextAction = this.continueGame;
-      this.continueGame();
+      this.nextAction = this.menu_main;
+      this.menu_main();
     } else if ([String(UI_BUTTON.NEW_GAME), UI_BUTTON.NO].includes(response)) {
       this.resetUI(false);
       await this.performOverWriteSaveData(); // Assurez-vous que `eraseGame` est terminé avant de réinitialiser
       await this.start(); // Recommencer le jeu après réinitialisation
     } else {
+    }
+  }
+
+  // Test
+  private isRandomEvent(
+      eventTriggerChance: number,
+      eventChanceRange: number,
+  ): boolean {
+    const eventOutcome = Math.floor(Math.random() * eventChanceRange);
+    return eventOutcome < eventTriggerChance;
+  }
+
+  private isValidInput(entry: Entry, minLength = 1, maxLength = 10): boolean {
+    return (
+        entry.inputLength({ min: minLength, max: maxLength }) &&
+        !entry.HTMLSpecialChars_test()
+    );
+  }
+
+  // Perform
+  // Game action
+  public async game_save() {
+    await this.performSaveData();
+    this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
+      content: ["You have saved the game !"],
+    });
+  }
+
+  public async game_quit(response: string = "") {
+    this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE });
+    this.nextAction = this.resetUI;
+
+    switch (response) {
+      case UI_BUTTON.YES:
+        this.UI.setDialogues(["You saved the game! Have a good day!"]);
+        await this.performSaveData();
+        break;
+      case UI_BUTTON.NO:
+        this.UI.setDialogues(["You have chosen not to save !"]);
+        break;
+      case UI_BUTTON.BACK:
+        this.nextAction = this.menu_main;
+        this.menu_main();
+        break;
+      default:
+        this.UI.set(
+            UI_TYPE.CHOICE,
+            { content: [...CHOICES.BOOLEANS, ...CHOICES.ACTION_BACK] },
+            undefined,
+            {
+              content: [
+                "If you quit now, your progress will be lost !",
+                "Do you want to save before ?",
+              ],
+            },
+        );
+        this.nextAction = this.game_quit;
     }
   }
 

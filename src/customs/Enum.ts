@@ -30,6 +30,7 @@ export enum UI_STYLE {
 }
 export enum UI_CHARACTER {
   PROF = "PROFESSOR:",
+  NURSE = "NURSE JOY:",
 }
 
 export const CHOICES = {

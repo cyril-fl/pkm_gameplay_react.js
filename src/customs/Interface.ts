@@ -28,6 +28,7 @@ export interface RAM {
   pkmName_old?: string;
   pkmName_new?: string;
   pkm?: PkmModel;
+  continueGame_tuto?: boolean;
 }
 // World
 export interface log {

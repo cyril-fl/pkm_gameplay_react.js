@@ -50,10 +50,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
 
       switch (type) {
         case "SAVE":
-          await Game.saveGame();
+          await Game.game_save();
           break;
         case "QUIT":
-          await Game.quitGame();
+          await Game.game_quit();
           break;
         default:
           console.error("Unknown action type");
