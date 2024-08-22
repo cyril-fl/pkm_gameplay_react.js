@@ -27,7 +27,7 @@ export interface RAM {
   starterChoices?: PkmModel[];
   pkmName_old?: string;
   pkmName_new?: string;
-  pkmName?: string;
+  pkm?: PkmModel;
 }
 // World
 export interface log {
@@ -41,8 +41,8 @@ export interface pkmType {
 }
 // Game UI
 export interface Choice {
-    label: string;
-    value: PkmModel | string;
+  label: string;
+  value: string;
 }
 
 export interface UI_Compiler {

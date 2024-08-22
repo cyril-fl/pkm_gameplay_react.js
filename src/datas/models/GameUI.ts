@@ -2,23 +2,24 @@ import {
   UI_Compiler_Choice,
   UI_Compiler_Dialogue,
   UI_Compiler,
+  Choice,
 } from "@customs/Interface";
+import { CHOICES, UI_STYLE, UI_TYPE } from "@customs/Enum";
 
 export class GameUIModel {
   private dialogues: string[];
-  private choices: string[];
+  private choices: Choice[];
   private type: string;
   private style: string;
 
   constructor() {
     this.dialogues = ["Pokemon"];
-    this.choices = ["*"];
-    this.type = "PRESS";
-    this.style = "START";
+    this.choices = CHOICES.CONTINUE;
+    this.type = UI_TYPE.PRESS;
+    this.style = UI_STYLE.START;
   }
 
   /* Getters && Setters */
-
   // Getters
   public getDialogues() {
     return this.dialogues;
@@ -72,7 +73,7 @@ export class GameUIModel {
   }
 
   public setChoices(
-    choices: string[],
+    choices: Choice[],
     push: boolean = false,
     reset: boolean = false,
   ) {

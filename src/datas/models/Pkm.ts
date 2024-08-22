@@ -65,15 +65,22 @@ export class PkmModel {
     this.id = ++PkmModel.nativId;
   }
 
-  getRandomNumber(limit: { min: number; max: number }) {
+  /* SETTERS */
+  public setName(name: string) {
+    this.name = name;
+  }
+  /*  GETTERS*/
+
+  public getID() {
+    return this.id;
+  }
+
+  public getRandomNumber(limit: { min: number; max: number }) {
     return Math.floor(Math.random() * (limit.max - limit.min + 1)) + limit.min;
   }
 
   public getName() {
     return this.name;
-  }
-  public setName(name: string) {
-    this.name = name;
   }
 
   getData() {

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo } from "react";
 import { useAppContext, useFormContext } from "@/hooks/useContext";
 import { ChoiceInput } from "@/ui/Selection/components/Choices";
+import { Choice } from "@customs/Interface";
 
 export const PressInput = () => {
   const { ui } = useAppContext();
@@ -23,16 +24,15 @@ export const PressInput = () => {
     }
   };
 
-  const choices = useMemo(() => {
-    if (ui.choices) {
-      return ui
-        .getChoices()
-        .map((text: string, index: number) => (
-          <span key={index}>{display(text)}</span>
-        ));
-    }
-    return null;
-  }, [ui.choices]);
+  const choices = useMemo(
+    () =>
+      ui
+        ?.getChoices()
+        .map((text: Choice, index: number) => (
+          <span key={index}>{display(text.value)}</span>
+        )),
+    [ui.choices],
+  );
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
