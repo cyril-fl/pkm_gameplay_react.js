@@ -1,22 +1,8 @@
-// todo : exporter ca ailler
-interface UI_Compiler_Choice {
-  content: string[];
-  push?: boolean;
-  reset?: boolean;
-}
-
-interface UI_Compiler_Dialogue {
-  content: string[];
-  push?: boolean;
-  reset?: boolean;
-}
-
-interface UI_Compiler {
-  type: string;
-  choice?: UI_Compiler_Choice;
-  style?: string;
-  dialogues?: UI_Compiler_Dialogue;
-}
+import {
+  UI_Compiler_Choice,
+  UI_Compiler_Dialogue,
+  UI_Compiler,
+} from "@customs/Interface";
 
 export class GameUIModel {
   private dialogues: string[];

@@ -1,11 +1,14 @@
+import { PkmModel } from "@models/Pkm";
+import { log } from "@customs/Interface";
+
 export class SaveModel {
-  /* Todo : Ajouter les Interface des attributs team, bags et logs */
+  /* Todo : Ajouter les Interface des attributs , bags */
   player_name: string;
-  player_team: any;
+  player_team: PkmModel[];
   player_bags: any;
   world_day: number;
   world_location: string;
-  world_logs: any;
+  world_logs: log[];
 
   static DEFAULT = {
     player_name: "Red",

@@ -1,11 +1,11 @@
 import { number } from "prop-types";
+import { pkmType } from "@customs/Interface";
 
 export class PkdDexEntry {
   public name: string;
   public id: number;
   public description: string;
-  // Todo gerer le type de Type justement
-  public types: any[];
+  public types: pkmType[];
   public evolution_id: string | null;
   public evolution_lvl: number | null;
   public atk_min: number;

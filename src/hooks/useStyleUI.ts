@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { GameUIModel } from "@models/GameUI";
+import { UI_STYLE } from "@customs/Enum";
 
 export const useStyleUI = (ref: GameUIModel | null) => {
   const DEFAULT_STYLE = {
@@ -16,7 +17,7 @@ export const useStyleUI = (ref: GameUIModel | null) => {
     let style = { ...DEFAULT_STYLE };
 
     switch (ref.getStyle()) {
-      case "START":
+      case UI_STYLE.START:
         style = {
           ...style,
           dialogue__art: "justify-center items-center grow",
@@ -25,7 +26,7 @@ export const useStyleUI = (ref: GameUIModel | null) => {
           header__p: "hidden",
         };
         break;
-      case "START_GAME_SATE":
+      case UI_STYLE.SHOW_LAST_SAVE:
         style = {
           ...style,
           dialogue__art:
@@ -34,13 +35,14 @@ export const useStyleUI = (ref: GameUIModel | null) => {
           header__p: "hidden",
         };
         break;
-      case "INIT": // todo: trouver un meilleur nom
+      case UI_STYLE.PROF_GREETINGS:
         style = {
           ...style,
+          header__button: "hidden",
           header__p: "hidden",
         };
         break;
-      case "ERROR":
+      case UI_STYLE.ERROR:
         style = {
           ...style,
           dialogue__art: "bg-red-400",

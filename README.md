@@ -1,14 +1,12 @@
 # Pokemon Gameplay React
 
-<div style="display: flex; align-items: flex-start; flex-direction: column; gap: 1rem; justify-content: center; align-content: center">
+<div style="display: flex; align-items: flex-start; flex-direction: column; gap: 1rem; justify-content: center; align-items: center;">
   <img src="./public/assets/webp/screen_01.webp" alt="Screenshot of game" style="flex-shrink: 0; width: 60%; height: auto;" />
   <div style="display: flex; flex-direction: row; flex-shrink: 1; gap: 1rem; justify-content: center; align-content: center">
     <img src="./public/assets/webp/screen_02.webp" alt="Screenshot of game" style="flex-shrink: 1; width: 30%; height: auto;" />
     <img src="./public/assets/webp/screen_03.webp" alt="Screenshot of game" style="flex-shrink: 1; width: 30%; height: auto;" />
   </div>
 </div>
-
-
 
 ### Description
 

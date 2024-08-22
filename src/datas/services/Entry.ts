@@ -25,6 +25,6 @@ export class Entry {
   }
 
   public inputLength(limit: { min: number; max: number }): boolean {
-    return this.content.length > limit.min && this.content.length < limit.max;
+    return this.content.length >= limit.min && this.content.length <= limit.max;
   }
 }

@@ -56,6 +56,7 @@ export const FormProvider: React.FC<{ children: ReactNode }> = ({
       switch (ui.getType()) {
         case "CHOICE":
           const selectedChoice = formData.get("selected");
+          console.log("selectedChoice", selectedChoice);
           temp = nextAction(selectedChoice);
           break;
         case "ENTRY":

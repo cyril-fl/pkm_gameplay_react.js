@@ -1,4 +1,5 @@
 import { PkdDexEntry } from "@models/PkmDex";
+import { pkmType } from "@customs/Interface";
 
 const NEUTRAL_POKEMON = {
   name: "Neutral",
@@ -23,8 +24,7 @@ export class PkmModel {
   // HP [min, max]
   private name: string;
   private level: number;
-  // todo : gerer type interface
-  private types: any[];
+  private types: pkmType[];
   private isShiny: boolean;
   private experienceMeter: number;
   private experienceGiver: number;

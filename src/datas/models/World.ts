@@ -1,13 +1,6 @@
-// import {PlayerModel} from "@models/Player";
-// import {PkmModel} from "@models/Pkm";
-
 import { SaveModel } from "@models/Save";
 import { PlayerModel } from "@models/Player";
-
-export interface log {
-  day: number;
-  message: string;
-}
+import { log } from "@customs/Interface";
 
 export class WorldModel {
   private day: number;
