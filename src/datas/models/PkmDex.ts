@@ -1,5 +1,5 @@
 import { type, move } from "@customs/Interface";
-import {MOCKUP_DEX_ENTRY} from "@/datas/mockup/dex_entry";
+import { MOCKUP_DEX_ENTRY } from "@/datas/mockup/dex_entry";
 
 export class PkdDexEntry {
   private _name: string;
@@ -38,103 +38,103 @@ export class PkdDexEntry {
     this._is_starter = entry.is_starter === 1; // Convert to boolean
   }
 
-    /* GET */
-    get name(): string {
-      return this._name;
-    }
-    get id(): number {
-      return this._id;
-    }
-    get description(): string {
-      return this._description;
-    }
-    get types(): type[] {
-      return this._types;
-    }
-    get evolutionId(): string | null {
-      return this._evolution_id;
-    }
-    get evolutionLvl(): number | null {
-      return this._evolution_lvl;
-    }
-    get atkMin(): number {
-      return this._atk_min;
-    }
-    get atkMax(): number {
-      return this._atk_max;
-    }
-    get defMin(): number {
-      return this._def_min;
-    }
-    get defMax(): number {
-      return this._def_max;
-    }
-    get hpMin(): number {
-      return this._hp_min;
-    }
-    get hpMax(): number {
-      return this._hp_max;
-    }
-    get spdMin(): number {
-      return this._spd_min;
-    }
-    get spdMax(): number {
-      return this._spd_max;
-    }
-    get moves(): move[] {
-      return this._moves;
-    }
-    get isStarter(): boolean {
-      return this._is_starter
-    }
+  /* GET */
+  get name(): string {
+    return this._name;
+  }
+  get id(): number {
+    return this._id;
+  }
+  get description(): string {
+    return this._description;
+  }
+  get types(): type[] {
+    return this._types;
+  }
+  get evolutionId(): string | null {
+    return this._evolution_id;
+  }
+  get evolutionLvl(): number | null {
+    return this._evolution_lvl;
+  }
+  get atkMin(): number {
+    return this._atk_min;
+  }
+  get atkMax(): number {
+    return this._atk_max;
+  }
+  get defMin(): number {
+    return this._def_min;
+  }
+  get defMax(): number {
+    return this._def_max;
+  }
+  get hpMin(): number {
+    return this._hp_min;
+  }
+  get hpMax(): number {
+    return this._hp_max;
+  }
+  get spdMin(): number {
+    return this._spd_min;
+  }
+  get spdMax(): number {
+    return this._spd_max;
+  }
+  get moves(): move[] {
+    return this._moves;
+  }
+  get isStarter(): boolean {
+    return this._is_starter;
+  }
 
-    /* SET */
-    set name(data: string) {
-      this._name = data;
-    }
-    set id(data: number) {
-      this._id = data;
-    }
-    set description(data: string) {
-      this._description = data;
-    }
-    set types(data: type[]) {
-      this._types = data;
-    }
-    set evolutionId(data: string | null) {
-      this._evolution_id = data;
-    }
-    set evolutionLvl(data: number | null) {
-      this._evolution_lvl = data;
-    }
-    set atkMin(data: number) {
-      this._atk_min = data;
-    }
-    set atkMax(data: number) {
-      this._atk_max = data;
-    }
-    set defMin(data: number) {
-      this._def_min = data;
-    }
-    set defMax(data: number) {
-      this._def_max = data;
-    }
-    set hpMin(data: number) {
-      this._hp_min = data;
-    }
-    set hpMax(data: number) {
-      this._hp_max = data;
-    }
-    set spdMin(data: number) {
-      this._spd_min = data;
-    }
-    set spdMax(data: number) {
-      this._spd_max = data;
-    }
-    set moves(data: move[]) {
-      this._moves = data;
-    }
-    set isStarter(data: boolean) {
-      this._is_starter = data;
-    }
+  /* SET */
+  set name(data: string) {
+    this._name = data;
+  }
+  set id(data: number) {
+    this._id = data;
+  }
+  set description(data: string) {
+    this._description = data;
+  }
+  set types(data: type[]) {
+    this._types = data;
+  }
+  set evolutionId(data: string | null) {
+    this._evolution_id = data;
+  }
+  set evolutionLvl(data: number | null) {
+    this._evolution_lvl = data;
+  }
+  set atkMin(data: number) {
+    this._atk_min = data;
+  }
+  set atkMax(data: number) {
+    this._atk_max = data;
+  }
+  set defMin(data: number) {
+    this._def_min = data;
+  }
+  set defMax(data: number) {
+    this._def_max = data;
+  }
+  set hpMin(data: number) {
+    this._hp_min = data;
+  }
+  set hpMax(data: number) {
+    this._hp_max = data;
+  }
+  set spdMin(data: number) {
+    this._spd_min = data;
+  }
+  set spdMax(data: number) {
+    this._spd_max = data;
+  }
+  set moves(data: move[]) {
+    this._moves = data;
+  }
+  set isStarter(data: boolean) {
+    this._is_starter = data;
+  }
 }

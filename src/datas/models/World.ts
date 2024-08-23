@@ -8,13 +8,15 @@ export class WorldModel {
   private _location: string;
   private _logs: log[];
   private _player: PlayerModel;
-  private _dex: PkdDexEntry[] | null = null;
+  private _dex: PkdDexEntry[] = [];
 
   constructor(data: SaveModel) {
+    console.log("WorldModel constructor", data);
     this._player = new PlayerModel(
       data.player_name,
       data.player_team,
       data.player_bags,
+      data.player_dex
     );
     this._day = data.world_day;
     this._location = data.world_location;
@@ -35,7 +37,7 @@ export class WorldModel {
     return this._player;
   }
   get dex(): PkdDexEntry[] | null {
-      return this._dex;
+    return this._dex;
   }
 
   /* SET */

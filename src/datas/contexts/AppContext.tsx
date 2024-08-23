@@ -11,6 +11,7 @@ import { GameController } from "@controllers/Game";
 import { GameUIModel } from "@models/GameUI";
 import { useSave } from "@/hooks/useSave";
 import { PkmModel } from "@models/Pkm";
+import {MOCKUP_DEX_ENTRY} from "@/datas/mockup/dex_entry";
 
 export const AppContext = createContext<any>({});
 
@@ -24,6 +25,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
 
   const initializeGame = useCallback(() => {
     if (data !== null) {
+      // try to log data to see what it contains
+      // todo abandon pour ce soir
+      console.log(data.player_team);
+
+      console.log(new PkmModel())
+
       data.player_team = data.player_team.map((pkm: PkmModel) =>
         Object.assign(new PkmModel(), pkm),
       );
@@ -46,7 +53,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
 
   const handleHeaderAction = async (type: string) => {
     if (Game) {
-      const updatedGame = new GameController(Game.data());
+      const updatedGame = new GameController(Game.data);
 
       switch (type) {
         case "SAVE":

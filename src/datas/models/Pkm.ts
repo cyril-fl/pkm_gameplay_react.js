@@ -7,8 +7,8 @@ export class PkmModel {
   private _dex_entry: number; // readonly todo
   private _name: string;
   private _level: number;
-  private _types: type[]; // readonly todo
-  private _isShiny: boolean; // readonly todo
+  private readonly _types: type[]; // readonly todo
+  private readonly _isShiny: boolean; // readonly todo
   private _experienceMeter: number;
   private _experienceGiver: number;
   private _atk: number;
@@ -19,10 +19,8 @@ export class PkmModel {
   private _moves: move[];
   private _id: string = ""; // format : 0000 (dex entry) - 0000 (type1 type2 ) - 0000 (static ID) // readonly todo
 
-  constructor(
-    pkm: PkdDexEntry = new PkdDexEntry(),
-    level: number = 1,
-  ) {
+  constructor(pkm: PkdDexEntry = new PkdDexEntry(), level: number = 1) {
+    console.log("PkmModel constructor", pkm);
     this._dex_entry = pkm.id;
     this._name = pkm.name;
     this._level = level;
@@ -59,20 +57,48 @@ export class PkmModel {
     this._level = level;
   }
 
-
-
   /*  GETTERS*/
-  get id() {
-    return this._id;
+  get dexEntry() {
+    return this._dex_entry;
   }
-  public get name() {
+  get name() {
     return this._name;
   }
+  get level() {
+    return this._level;
+  }
   get types() {
-    return this._types.map((type) => type.name);
+    return this._types.map((type) => type);
+  }
+  get isShiny() {
+    return this._isShiny;
+  }
+  get experienceMeter() {
+    return this._experienceMeter;
+  }
+  get experienceGiver() {
+    return this._experienceGiver;
+  }
+  get atk() {
+    return this._atk;
+  }
+  get dfs() {
+    return this._dfs;
+  }
+  get spd() {
+    return this._spd;
+  }
+  get hp() {
+    return this._hp;
+  }
+  get hp_max() {
+    return this._hp_max;
   }
   get moves() {
     return this._moves;
+  }
+  get id() {
+    return this._id;
   }
 
   /* TOOLS */
@@ -86,11 +112,13 @@ export class PkmModel {
       const oneThird = Math.ceil(wishedLength / 3);
       const oneSixth = Math.ceil(oneThird / 2);
 
-      let A = this._dex_entry.toString().padStart(oneThird, "0");
+      console.log("1",this.dexEntry);
+      console.log("2",this._dex_entry);
+      let A = this.dexEntry.toString().padStart(oneThird, "0");
 
-      let B = this._types
-          .map((t) => t.id.toString().padStart(oneSixth, "0"))
-          .join("");
+      let B = this.types
+        .map((t) => t.id.toString().padStart(oneSixth, "0"))
+        .join("");
       B = B.length < oneThird ? B.padEnd(oneThird, "0") : B;
 
       let C = tempID.toString().padStart(oneThird, "0");
@@ -104,9 +132,9 @@ export class PkmModel {
       this._hp = 0;
     }
     return (
-        `${this._name} LVL : ${this._level} \n` +
-        `( PV : ${this._hp} / ${this._hp_max} | ATK : ${this._atk}` +
-        ` | DEF : ${this._dfs} )`
+      `${this._name} LVL : ${this._level} \n` +
+      `( PV : ${this._hp} / ${this._hp_max} | ATK : ${this._atk}` +
+      ` | DEF : ${this._dfs} )`
     );
   }
 }

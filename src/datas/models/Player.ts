@@ -1,15 +1,23 @@
 import { PkmModel } from "@models/Pkm";
 import { PkDexController } from "@controllers/PkmDex";
+import { PkdDexEntry } from "@models/PkmDex";
 
 export class PlayerModel {
   private _name: string;
   private _team: PkmModel[];
-  private _bag: any[];    // Todo: Gérer le type bagItem
+  private _bag: any[]; // Todo: Gérer le type bagItem
+  private _pkdex: PkdDexEntry[];
 
-  constructor(name: string, team: PkmModel[], bag: any[]) {
+  constructor(
+    name: string,
+    team: PkmModel[],
+    bag: any[],
+    pkdex: PkdDexEntry[],
+  ) {
     this._name = name;
     this._team = team;
     this._bag = bag;
+    this._pkdex = pkdex;
   }
 
   /* SET */
@@ -18,10 +26,10 @@ export class PlayerModel {
     this._name = name;
   }
   set team(team: PkmModel[]) {
-      this._team = team;
+    this._team = team;
   }
   set bag(bag: any[]) {
-      this._bag = bag;
+    this._bag = bag;
   }
 
   /*  GET */
@@ -34,6 +42,9 @@ export class PlayerModel {
   get bag() {
     return this._bag;
   }
+    get dex() {
+        return this._pkdex;
+    }
 
   /* Tools */
   async setUpToSix() {
@@ -61,12 +72,14 @@ export class PlayerModel {
     }
   }
 
-  catchPkm(pkm: PkmModel) {
-    const temp = new PkmModel();
-    Object.assign(temp, pkm);
-    this._team.push(temp);
+  public catchPkm(pkm: PkmModel) {
+    console.log("Catching", pkm);
+    this._team.push(pkm);
   }
-  releasePkm(pkm: PkmModel) {
+  public releasePkm(pkm: PkmModel) {
     this._team = this._team.filter((p) => p !== pkm);
+  }
+  public addPkdexEntry(pkdex: PkdDexEntry) {
+    this._pkdex.push(pkdex);
   }
 }

@@ -1,0 +1,131 @@
+import { PkmModel } from "@models/Pkm";
+import { PkDexController } from "@controllers/PkmDex";
+import {PkdDexEntry} from "@models/PkmDex";
+
+export class PlayerModel {
+  private _name: string;
+  private _team: PkmModel[];
+  /* Todo: Gerer le type bagItem*/
+  private _bag: any[];
+  private _pkdex: PkdDexEntry[] = []
+
+  constructor(name: string, team: PkmModel[], bag: any[]) {
+    this._name = name;
+    this._team = team;
+    this._bag = bag;
+  }
+
+  catchPkm(pkm: PkmModel) {
+    const temp = new PkmModel();
+    Object.assign(temp, pkm);
+    this._team.push(temp);
+  }
+
+
+  releasePkm(pkm: PkmModel) {
+    this._team = this._team.filter((p) => p !== pkm);
+  }
+
+  /* SET */
+  async setUpToSix() {
+    if (this._team.length >= 6) {
+      return;
+    }
+
+    const dexController = PkDexController.getInstance();
+    const dex = await dexController.getDex();
+
+    const tempDexEntry = new Set();
+    const nb_pkm = 59; // 68 pkm différents dans ce jeu - 9 starters
+    const totalEntries = 6 - this._team.length;
+
+    while (tempDexEntry.size < totalEntries) {
+      let random = Math.floor(Math.random() * nb_pkm + 9); // Evite d'avoir un starter
+      tempDexEntry.add(random); // Ajoute le nombre au Set (aucun doublon possible)
+    }
+
+    const uniqueDexEntries = Array.from(tempDexEntry);
+
+    for (let i = 0; i < totalEntries; i++) {
+      const pkm = dex[Number(uniqueDexEntries[i])];
+      this._team.push(new PkmModel(pkm, 5));
+    }
+  }
+
+  set name(newName: string) {
+    this._name = newName;
+  }
+
+  set bag(newBag ) {
+    this._bag = newBag;
+  }
+
+  /*  GET */
+  get name() {
+    return this._name;
+  }
+  get team() {
+    return this._team;
+  }
+  get bag() {
+    return this._bag;
+  }
+  get pkmDex() {
+    return this._pkdex;
+  }
+}
+
+
+import { SaveModel } from "@models/Save";
+import { PlayerModel } from "@models/Player";
+import { log } from "@customs/Interface";
+import { PkdDexEntry } from "@models/PkmDex";
+
+export class WorldModel {
+  private _day: number;
+  private _location: string;
+  private _logs: log[];
+  private _player: PlayerModel;
+  private _dex: PkdDexEntry[] = [];
+
+  constructor(data: SaveModel) {
+    this._player = new PlayerModel(
+        data.player_name,
+        data.player_team,
+        data.player_bags,
+    );
+    this._day = data.world_day;
+    this._location = data.world_location;
+    this._logs = data.world_logs;
+  }
+
+  /* GET */
+  get day(): number {
+    return this._day;
+  }
+  get location(): string {
+    return this._location;
+  }
+  get logs(): log[] {
+    return this._logs;
+  }
+  get player(): PlayerModel {
+    return this._player;
+  }
+  get dex(): PkdDexEntry[] | null {
+    return this._dex;
+  }
+
+  /* SET */
+  set dex(newData: PkdDexEntry[]) {
+    this._dex = newData;
+  }
+
+  /* Tools */
+  public oneDayPasses() {
+    this._day += 1;
+  }
+  public addLog(message: log[]) {
+    message.forEach((m) => this._logs.push(m));
+  }
+}

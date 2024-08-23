@@ -14,7 +14,7 @@ import {
   UI_TYPE,
 } from "@customs/Enum";
 import { Choice, move, RAM } from "@customs/Interface";
-import {PkdDexEntry} from "@models/PkmDex";
+import { PkdDexEntry } from "@models/PkmDex";
 
 // Todo: regarder la list des todo et voir ce qui peu être fait
 // Todo : instancier le player et vérifier les impermanence de type sur son content
@@ -42,34 +42,34 @@ export class GameController {
 
     if (isPlayerTeamZero) {
       this.UI.set(
-          UI_TYPE.CHOICE,
-          { content: CHOICES.BOOLEANS },
-          UI_STYLE.PROF_GREETINGS,
-          {
-            content: [
-              UI_CHARACTER.PROF,
-              "You seem to be a new face around here !",
-              "Welcome to the fantastic world of pkm,",
-              "You are about to embark on a journey of a life time !",
-              "You will face many challenges and make many choices !",
-              "Are you ready ?",
-            ],
-          },
+        UI_TYPE.CHOICE,
+        { content: CHOICES.BOOLEANS },
+        UI_STYLE.PROF_GREETINGS,
+        {
+          content: [
+            UI_CHARACTER.PROF,
+            "You seem to be a new face around here !",
+            "Welcome to the fantastic world of pkm,",
+            "You are about to embark on a journey of a life time !",
+            "You will face many challenges and make many choices !",
+            "Are you ready ?",
+          ],
+        },
       );
       this.nextAction = this.playerInit;
       this.RAM.continueGame_tuto = true;
     } else {
       this.UI.set(
-          UI_TYPE.CHOICE,
-          { content: CHOICES.ACTION_LAST_SAVE },
-          UI_STYLE.SHOW_LAST_SAVE,
-          {
-            content: [
-              `Day : ${this.world.day} , Location : ${this.world.location}`,
-              `Player : ${this.var_playerName()}`,
-              `Team : ${this.var_team((pkm: PkmModel) => pkm.name).join(", ")}`,
-            ],
-          },
+        UI_TYPE.CHOICE,
+        { content: CHOICES.ACTION_LAST_SAVE },
+        UI_STYLE.SHOW_LAST_SAVE,
+        {
+          content: [
+            `Day : ${this.world.day} , Location : ${this.world.location}`,
+            `Player : ${this.var_playerName()}`,
+            `Team : ${this.var_team((pkm: PkmModel) => pkm.name).join(", ")}`,
+          ],
+        },
       );
       this.RAM.continueGame_tuto = false;
       this.nextAction = this.launchGame;
@@ -142,17 +142,21 @@ export class GameController {
       return { label: pkm.name, value: pkm.id.toString() };
     });
 
+    console.log('starterChoices', starterList);
+    console.log('starterChoices', response);
+
     const playerChoice = starterList.find((starter: PkmModel) => {
-      if (starter.id.toString() == response) {
+      if (starter.id === response) {
         return starter;
       }
     });
 
     if (playerChoice) {
+      console.log('playerChoice', playerChoice);
+
+
       this.catchPkm(playerChoice);
-      this.addLog(
-          `You have chosen ${playerChoice.name} as your first pkm !`,
-      );
+      this.addLog(`You have chosen ${playerChoice.name} as your first pkm !`);
       this.UI.set(UI_TYPE.CHOICE, { content: CHOICES.BOOLEANS }, undefined, {
         content: [
           UI_CHARACTER.PROF,
@@ -173,8 +177,6 @@ export class GameController {
       });
     }
   }
-
-
 
   private starterRename_A(response: string) {
     const thisStarter = this.world.player.team[0];
@@ -207,7 +209,7 @@ export class GameController {
           const oldName = thisStarter.name;
           thisStarter.name = entry.content;
           this.addLog(
-              `You have chosen to name ${oldName} as ${entry.content}.`,
+            `You have chosen to name ${oldName} as ${entry.content}.`,
           );
 
           this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
@@ -247,8 +249,7 @@ export class GameController {
 
   /* MENU */
   private menu_main(response: string = "") {
-    console.log('PLAYER',this.world.player);
-
+    console.log("PLAYER", this.world.player);
 
     console.log(this.world.player.team);
     const temps_d = [`Welcome in ${this.world.location} !`];
@@ -261,12 +262,12 @@ export class GameController {
     const dialogues = this.tuto(temps_d, temp_p, "continueGame_tuto");
 
     this.UI.set(
-        UI_TYPE.CHOICE,
-        { content: CHOICES.ACTION_MAIN_MENU },
-        UI_STYLE.DEFAULT,
-        {
-          content: dialogues,
-        },
+      UI_TYPE.CHOICE,
+      { content: CHOICES.ACTION_MAIN_MENU },
+      UI_STYLE.DEFAULT,
+      {
+        content: dialogues,
+      },
     );
 
     /*this.world.getPlayer().setUpToSix(); // UP TO SIX*/
@@ -279,7 +280,6 @@ export class GameController {
             UI_CHARACTER.PROF,
             `Here is your team :`,
             ...this.var_team<string>((pkm: PkmModel) => pkm.display()),
-
           ]);
         } else {
           this.UI.setDialogues(["You have no pkm in your team!"], true);
@@ -295,22 +295,22 @@ export class GameController {
 
       case UI_MENU.PKMCENTER:
         this.UI.set(
-            UI_TYPE.CHOICE,
-            {
-              content: [...CHOICES.ACTION_PKMCENTER_MENU, ...CHOICES.ACTION_BACK],
-            },
-            undefined,
-            {
-              content: [
-                UI_CHARACTER.NURSE,
-                `Welcome to the PkmCenter !`,
-                "Sorry for the mess, we are still under construction ...",
-                "   - I can revive your knock out partner, you can consult your log.",
-                "   - You can consult your log.",
-                " ",
-                "And soon many more to come !",
-              ],
-            },
+          UI_TYPE.CHOICE,
+          {
+            content: [...CHOICES.ACTION_PKMCENTER_MENU, ...CHOICES.ACTION_BACK],
+          },
+          undefined,
+          {
+            content: [
+              UI_CHARACTER.NURSE,
+              `Welcome to the PkmCenter !`,
+              "Sorry for the mess, we are still under construction ...",
+              "   - I can revive your knock out partner, you can consult your log.",
+              "   - You can consult your log.",
+              " ",
+              "And soon many more to come !",
+            ],
+          },
         );
 
         this.nextAction = this.menu_pkmCenter;
@@ -358,9 +358,7 @@ export class GameController {
         // Todo: Add a way to paginate the logs
         this.UI.setDialogues([
           `Your log :`,
-          ...this.world
-              .logs
-              .map((log) => `Day ${log.day} : ${log.message}`),
+          ...this.world.logs.map((log) => `Day ${log.day} : ${log.message}`),
         ]);
 
         break;
@@ -387,12 +385,12 @@ export class GameController {
 
       case UI_MENU.RENAME:
         this.UI.set(
-            UI_TYPE.CHOICE,
-            {
-              content: [...this.var_teamChoices(), ...CHOICES.ACTION_BACK],
-            },
-            undefined,
-            { content: ["Which pkm would you like to rename ?"], push: true },
+          UI_TYPE.CHOICE,
+          {
+            content: [...this.var_teamChoices(), ...CHOICES.ACTION_BACK],
+          },
+          undefined,
+          { content: ["Which pkm would you like to rename ?"], push: true },
         );
         this.nextAction = this.renamePkm_A;
         break;
@@ -405,12 +403,12 @@ export class GameController {
           this.nextAction = this.menu_team;
         } else {
           this.UI.set(
-              UI_TYPE.CHOICE,
-              {
-                content: [...this.var_teamChoices(), ...CHOICES.ACTION_BACK],
-              },
-              undefined,
-              { content: ["Which pkm would you like to release ?"], push: true },
+            UI_TYPE.CHOICE,
+            {
+              content: [...this.var_teamChoices(), ...CHOICES.ACTION_BACK],
+            },
+            undefined,
+            { content: ["Which pkm would you like to release ?"], push: true },
           );
           this.nextAction = this.releasePkm_A;
         }
@@ -450,14 +448,11 @@ export class GameController {
   private releasePkm_B(response: string) {
     switch (response) {
       case UI_BUTTON.YES:
-        this.world
-            .player
-            .team
-            .forEach((pkm: PkmModel) => {
-              if (pkm === this.RAM.pkm) {
-                this.world.player.releasePkm(pkm);
-              }
-            });
+        this.world.player.team.forEach((pkm: PkmModel) => {
+          if (pkm === this.RAM.pkm) {
+            this.world.player.releasePkm(pkm);
+          }
+        });
         this.addLog(`You have chosen to release ${this.RAM.pkm?.name} !`);
         this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
           content: [
@@ -536,7 +531,7 @@ export class GameController {
         if (this.RAM.pkm && this.RAM.pkmName_new) {
           this.RAM.pkm.name = this.RAM.pkmName_new;
           this.addLog(
-              `You have chosen to rename ${this.RAM.pkm?.name} in ${this.RAM.pkmName_new}!`,
+            `You have chosen to rename ${this.RAM.pkm?.name} in ${this.RAM.pkmName_new}!`,
           );
 
           delete this.RAM.pkmName_old;
@@ -560,15 +555,15 @@ export class GameController {
     switch (response) {
       case UI_BUTTON.YES:
         this.UI.set(
-            UI_TYPE.CHOICE,
-            { content: this.var_teamChoices() },
-            undefined,
-            {
-              content: [
-                `Choose one of your pkm`,
-                ...this.var_team<string>((pkm: PkmModel) => pkm.display()),
-              ],
-            },
+          UI_TYPE.CHOICE,
+          { content: this.var_teamChoices() },
+          undefined,
+          {
+            content: [
+              `Choose one of your pkm`,
+              ...this.var_team<string>((pkm: PkmModel) => pkm.display()),
+            ],
+          },
         );
 
         this.nextAction = this.event_battle;
@@ -613,10 +608,10 @@ export class GameController {
     };
 
     const playerChoiceMove: Choice[] = this.var_pkmMovePool(
-        playerChoice,
-        (move: move): Choice => {
-          return { label: move.name, value: move.name };
-        },
+      playerChoice,
+      (move: move): Choice => {
+        return { label: move.name, value: move.name };
+      },
     );
 
     this.UI.set(UI_TYPE.BATTLE, { content: playerChoiceMove }, undefined, {
@@ -629,7 +624,6 @@ export class GameController {
   private var_team<T>(operation: (model: PkmModel) => T): T[] {
     return this.world.player.team.map(operation);
   }
-
 
   private var_teamChoices(): Choice[] {
     return this.var_team((pkm: PkmModel) => {
@@ -648,9 +642,9 @@ export class GameController {
   /* TOOL BOX*/
   // Divers
   private tuto(
-      dialogues: string[],
-      pushDialogues: string[],
-      ramAttribut: keyof RAM,
+    dialogues: string[],
+    pushDialogues: string[],
+    ramAttribut: keyof RAM,
   ) {
     if (this.RAM[ramAttribut]) {
       this.RAM[ramAttribut] = false;
@@ -661,29 +655,29 @@ export class GameController {
   }
 
   private findPkm(id: string): PkmModel | undefined {
-    return this.world
-        .player
-        .team
-        .find((pkm: PkmModel) => pkm.id.toString() === id);
+    return this.world.player.team.find(
+      (pkm: PkmModel) => pkm.id.toString() === id,
+    );
   }
 
   private catchPkm(response: PkmModel) {
     this.world.player.catchPkm(response);
 
-    const dexEntry = this.world.dex?.find((pkm: PkdDexEntry) => pkm.id === response.dexEntry);
+    const dexEntry = this.world.dex?.find(
+      (pkm: PkdDexEntry) => pkm.id === response.dexEntry,
+    );
     if (dexEntry) {
       this.world.player.addPkdexEntry(dexEntry);
       this.addLog(`You have caught ${dexEntry.name} !`);
     }
   }
 
-
   private resetUI(quit: boolean = true) {
     let data;
     if (quit && this.RAM.lastSave) {
       data = JSON.parse(this.RAM.lastSave);
       data.player_team = data.player_team.map((pkm: PkmModel) =>
-          Object.assign(new PkmModel(), pkm),
+        Object.assign(new PkmModel(), pkm),
       );
     } else {
       data = new SaveModel();
@@ -725,8 +719,8 @@ export class GameController {
 
   // Test
   private isRandomEvent(
-      eventTriggerChance: number,
-      eventChanceRange: number,
+    eventTriggerChance: number,
+    eventChanceRange: number,
   ): boolean {
     const eventOutcome = Math.floor(Math.random() * eventChanceRange);
     return eventOutcome < eventTriggerChance;
@@ -734,8 +728,8 @@ export class GameController {
 
   private isValidInput(entry: Entry, minLength = 1, maxLength = 10): boolean {
     return (
-        entry.inputLength({ min: minLength, max: maxLength }) &&
-        !entry.HTMLSpecialChars_test()
+      entry.inputLength({ min: minLength, max: maxLength }) &&
+      !entry.HTMLSpecialChars_test()
     );
   }
 
@@ -766,15 +760,15 @@ export class GameController {
         break;
       default:
         this.UI.set(
-            UI_TYPE.CHOICE,
-            { content: [...CHOICES.BOOLEANS, ...CHOICES.ACTION_BACK] },
-            undefined,
-            {
-              content: [
-                "If you quit now, your progress will be lost !",
-                "Do you want to save before ?",
-              ],
-            },
+          UI_TYPE.CHOICE,
+          { content: [...CHOICES.BOOLEANS, ...CHOICES.ACTION_BACK] },
+          undefined,
+          {
+            content: [
+              "If you quit now, your progress will be lost !",
+              "Do you want to save before ?",
+            ],
+          },
         );
         this.nextAction = this.game_quit;
     }
@@ -785,21 +779,21 @@ export class GameController {
     const dexController = PkDexController.getInstance();
 
     await this.perform_operation(
-        async () => {
-          const temp_dex = await dexController.getDex();
-          if (temp_dex) {
-            this.world.dex = temp_dex;
-            console.log(temp_dex)
-            this.RAM.starterChoices = temp_dex
-                .filter((pkm: any) => pkm.isStarter )
-                .map((pkm: any) => new PkmModel(pkm, 5));
-            console.log(this.RAM.starterChoices);
-          } else {
-            this.warning(this.start);
-          }
-        },
-        "Dex pkm successfully initialized.",
-        "Error initializing dex",
+      async () => {
+        const temp_dex = await dexController.getDex();
+        if (temp_dex) {
+          this.world.dex = temp_dex;
+          console.log(temp_dex);
+          this.RAM.starterChoices = temp_dex
+            .filter((pkm: any) => pkm.isStarter)
+            .map((pkm: any) => new PkmModel(pkm, 5));
+          console.log(this.RAM.starterChoices);
+        } else {
+          this.warning(this.start);
+        }
+      },
+      "Dex pkm successfully initialized.",
+      "Error initializing dex",
     );
   }
 
@@ -824,48 +818,48 @@ export class GameController {
     this.RAM.lastSave = JSON.stringify(this.data); // peu être un souci ici 🤷 ?
 
     await this.perform_operation(
-        () =>
-            fetch("/api/save/update", {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(this.data),
-            }),
-        "Game saved successfully:",
-        "Error saving game",
+      () =>
+        fetch("/api/save/update", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(this.data),
+        }),
+      "Game saved successfully:",
+      "Error saving game",
     );
   }
 
   private async perform_overWriteSaveData() {
     await this.perform_operation(
-        () =>
-            fetch("/api/save/update", {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(new SaveModel()),
-            }),
-        "Game erased successfully:",
-        "Error erasing game",
+      () =>
+        fetch("/api/save/update", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(new SaveModel()),
+        }),
+      "Game erased successfully:",
+      "Error erasing game",
     );
   }
 
   private async perform_operation<T>(
-      operation: () => Promise<T>,
-      successMessage: string,
-      errorMessage: string,
+    operation: () => Promise<T>,
+    successMessage: string,
+    errorMessage: string,
   ) {
     if (this.isLoading.state()) {
       this.isLoading.whileLoading(
-          true,
-          this.perform_operation.bind(
-              this,
-              operation,
-              successMessage,
-              errorMessage,
-          ),
+        true,
+        this.perform_operation.bind(
+          this,
+          operation,
+          successMessage,
+          errorMessage,
+        ),
       );
       return;
     }
@@ -894,13 +888,13 @@ export class GameController {
     }
   }
 
-
-/* GETTERS */
+  /* GETTERS */
   get data() {
     return {
       player_name: this.world.player.name,
       player_team: this.world.player.team,
       player_bags: this.world.player.bag,
+      player_dex: this.world.player.dex,
       world_day: this.world.day,
       world_location: this.world.location,
       world_logs: this.world.logs,
