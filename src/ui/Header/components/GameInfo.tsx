@@ -12,14 +12,14 @@ export const GameInfo = () => {
       {game.data && (
         <>
           <p>
-            {game.data.world.getDay() < 10
-              ? "0" + game.data.world.getDay()
-              : game.data.world.getDay()}
+            {game.data.world.day < 10
+              ? "0" + game.data.world.day
+              : game.data.world.day}
           </p>
           <p>-</p>
-          <p>{game.data.world.getPlayer().getName()}</p>
+          <p>{game.data.world.player.name}</p>
           <p>-</p>
-          <p>{game.data.world.getLocation()}</p>
+          <p>{game.data.world.location}</p>
         </>
       )}
     </div>

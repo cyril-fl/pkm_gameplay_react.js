@@ -3,7 +3,7 @@ import { GameUIModel } from "@models/GameUI";
 import { GameController } from "@controllers/Game";
 import { submitEvent } from "@customs/Types";
 import { PkmModel } from "@models/Pkm";
-import {PkdDexEntry} from "@models/PkmDex";
+import { PkdDexEntry } from "@models/PkmDex";
 
 /* CONTEXT */
 // AppContext
@@ -34,8 +34,8 @@ export interface RAM {
   arena?: arena;
 }
 interface arena {
-  playerPkm: PkmModel,
-  wildPkm: PkmModel
+  playerPkm: PkmModel;
+  wildPkm: PkmModel;
 }
 
 // World

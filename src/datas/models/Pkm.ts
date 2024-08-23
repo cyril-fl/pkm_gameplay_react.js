@@ -1,5 +1,5 @@
 import { PkdDexEntry } from "@models/PkmDex";
-import {move, type} from "@customs/Interface";
+import { move, type } from "@customs/Interface";
 
 const NEUTRAL_POKEMON = {
   dex_entry: 0,
@@ -42,14 +42,11 @@ const NEUTRAL_POKEMON = {
       type: { id: 1, name: "Neutral" },
       crit: { success: 0, fail: 0 },
     },
-
   ],
-    is_starter: false,
-
+  is_starter: false,
 };
 
 export class PkmModel {
-
   static ID = 0;
   private dex_entry: number;
   private name: string;
@@ -70,7 +67,7 @@ export class PkmModel {
     pkm: PkdDexEntry = new PkdDexEntry(NEUTRAL_POKEMON),
     level: number = 1,
   ) {
-    this.dex_entry = pkm.id
+    this.dex_entry = pkm.id;
     this.name = pkm.name;
     this.level = level;
     this.types = pkm.types;
@@ -98,23 +95,24 @@ export class PkmModel {
     this.setID(12);
   }
 
-
   /* SETTERS */
   public setName(name: string) {
     this.name = name;
   }
   private setID(wishedLength: number) {
-    if (this.id == "" ) {
-      const tempID = ++PkmModel.ID
-      const oneThird = Math.ceil(wishedLength/3);
-      const oneSixth = Math.ceil(oneThird/2)
+    if (this.id == "") {
+      const tempID = ++PkmModel.ID;
+      const oneThird = Math.ceil(wishedLength / 3);
+      const oneSixth = Math.ceil(oneThird / 2);
 
-      let A =  this.dex_entry.toString().padStart(oneThird, '0');
+      let A = this.dex_entry.toString().padStart(oneThird, "0");
 
-      let B = this.types.map((t) => t.id.toString().padStart(oneSixth, '0')).join('')
-      B = B.length < oneThird ? B.padEnd(oneThird, '0') : B;
+      let B = this.types
+        .map((t) => t.id.toString().padStart(oneSixth, "0"))
+        .join("");
+      B = B.length < oneThird ? B.padEnd(oneThird, "0") : B;
 
-      let C = tempID.toString().padStart(oneThird, '0');
+      let C = tempID.toString().padStart(oneThird, "0");
 
       this.id = `${A}-${B}-${C}`;
     }

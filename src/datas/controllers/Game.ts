@@ -13,7 +13,7 @@ import {
   UI_STYLE,
   UI_TYPE,
 } from "@customs/Enum";
-import {Choice, move, RAM} from "@customs/Interface";
+import { Choice, move, RAM } from "@customs/Interface";
 
 // Todo: regarder la list des todo et voir ce qui peu être fait
 // Todo : instancier le player et vérifier les impermanence de type sur son content
@@ -37,7 +37,7 @@ export class GameController {
   /* INIT PHASE*/
   private start() {
     this.RAM.lastSave = JSON.stringify(this.extractData());
-    const isPlayerTeamZero = this.world.getPlayer().getTeam().length === 0;
+    const isPlayerTeamZero = this.world.player.getTeam().length === 0;
 
     if (isPlayerTeamZero) {
       this.UI.set(
@@ -64,7 +64,7 @@ export class GameController {
         UI_STYLE.SHOW_LAST_SAVE,
         {
           content: [
-            `Day : ${this.world.getDay()} , Location : ${this.world.getLocation()}`,
+            `Day : ${this.world.day} , Location : ${this.world.location}`,
             `Player : ${this.var_playerName()}`,
             `Team : ${this.var_team((pkm: PkmModel) => pkm.getName()).join(", ")}`,
           ],
@@ -76,9 +76,9 @@ export class GameController {
   }
 
   private dexInit() {
-    console.log(this.RAM.dex)
+    console.log(this.RAM.dex);
     if (this.RAM.dex) {
-      this.world.setDex(this.RAM.dex)
+      this.world.dex = this.RAM.dex;
     }
   }
 
@@ -110,7 +110,7 @@ export class GameController {
         const entry = new Entry(response);
 
         if (this.isValidInput(entry)) {
-          this.world.getPlayer().setName(entry.content);
+          this.world.player.setName(entry.content);
           this.addLog(`Hi ${entry.content}, you have started your journey !`);
 
           this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
@@ -154,7 +154,7 @@ export class GameController {
     });
 
     if (playerChoice) {
-      this.world.getPlayer().catchPkm(playerChoice);
+      this.world.player.catchPkm(playerChoice);
       this.addLog(
         `You have chosen ${playerChoice.getName()} as your first pkm !`,
       );
@@ -180,7 +180,7 @@ export class GameController {
   }
 
   private starterRename_A(response: string) {
-    const thisStarter = this.world.getPlayer().getTeam()[0];
+    const thisStarter = this.world.player.getTeam()[0];
 
     switch (response) {
       case UI_BUTTON.YES:
@@ -250,8 +250,8 @@ export class GameController {
 
   /* MENU */
   private async menu_main(response: string = "") {
-    console.log(this.world.getPlayer().getTeam())
-    const temps_d = [`Welcome in ${this.world.getLocation()} !`];
+    console.log(this.world.player.getTeam());
+    const temps_d = [`Welcome in ${this.world.location} !`];
     const temp_p = [
       "Here are some basic :",
       "1) You can monitor your team",
@@ -323,12 +323,10 @@ export class GameController {
 
           this.nextAction = this.travel_event;
 
-
           // TODO : Je ne peux pas le mettre ici sinon tout le jeux est en asunc juste pour ça !
           // Set le dex quelques par dans le world ?
           // Ou le faire come javais prevu pour le pokedex.
           // await this.perform_wildPkmInit()
-
         } else {
           this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
             content: [
@@ -360,7 +358,7 @@ export class GameController {
         this.UI.setDialogues([
           `Your log :`,
           ...this.world
-            .getLogs()
+            .logs
             .map((log) => `Day ${log.day} : ${log.message}`),
         ]);
 
@@ -376,7 +374,7 @@ export class GameController {
   }
 
   private menu_team(response: string) {
-    const team = this.world.getPlayer().getTeam();
+    const team = this.world.player.getTeam();
     switch (response) {
       case UI_MENU.HEAL:
         this.UI.setDialogues([
@@ -452,11 +450,11 @@ export class GameController {
     switch (response) {
       case UI_BUTTON.YES:
         this.world
-          .getPlayer()
+          .player
           .getTeam()
           .forEach((pkm: PkmModel) => {
             if (pkm === this.RAM.pkm) {
-              this.world.getPlayer().releasePkm(pkm);
+              this.world.player.releasePkm(pkm);
             }
           });
         this.addLog(`You have chosen to release ${this.RAM.pkm?.getName()} !`);
@@ -583,7 +581,9 @@ export class GameController {
         break;
       default:
         this.UI.set(UI_TYPE.CHOICE, { content: CHOICES.BOOLEANS }, undefined, {
-          content: [`Wild ${this.RAM.pkm?.getName()} appears ! Do you want to battle ?`],
+          content: [
+            `Wild ${this.RAM.pkm?.getName()} appears ! Do you want to battle ?`,
+          ],
           push: true,
         });
         this.nextAction = this.travel_event;
@@ -608,23 +608,25 @@ export class GameController {
 
     this.RAM.arena = {
       playerPkm: playerChoice,
-      wildPkm: this.RAM.pkm
+      wildPkm: this.RAM.pkm,
     };
 
-    const playerChoiceMove: Choice[] = this.var_pkmMovePool(playerChoice, (move: move):Choice => {
-      return { label: move.name, value: move.name };
-    });
+    const playerChoiceMove: Choice[] = this.var_pkmMovePool(
+      playerChoice,
+      (move: move): Choice => {
+        return { label: move.name, value: move.name };
+      },
+    );
 
     this.UI.set(UI_TYPE.BATTLE, { content: playerChoiceMove }, undefined, {
       content: [`You have chosen ${playerChoice.getName()} !`],
     });
-
   }
 
   //  REFACTORED - OK
   /* VAR DATA */
   private var_team<T>(operation: (model: PkmModel) => T): T[] {
-    return this.world.getPlayer().getTeam().map(operation);
+    return this.world.player.getTeam().map(operation);
   }
 
   private var_teamChoices(): Choice[] {
@@ -634,7 +636,7 @@ export class GameController {
   }
 
   private var_playerName(): string {
-    return this.world.getPlayer().getName();
+    return this.world.player.getName();
   }
 
   private var_pkmMovePool(pkm: PkmModel, action: (move: move) => any): any[] {
@@ -658,19 +660,19 @@ export class GameController {
 
   private findPkm(id: string): PkmModel | undefined {
     return this.world
-      .getPlayer()
+      .player
       .getTeam()
       .find((pkm: PkmModel) => pkm.getID().toString() === id);
   }
 
   public extractData() {
     return {
-      player_name: this.world.getPlayer().getName(),
-      player_team: this.world.getPlayer().getTeam(),
-      player_bags: this.world.getPlayer().getBag(),
-      world_day: this.world.getDay(),
-      world_location: this.world.getLocation(),
-      world_logs: this.world.getLogs(),
+      player_name: this.world.player.getName(),
+      player_team: this.world.player.getTeam(),
+      player_bags: this.world.player.getBag(),
+      world_day: this.world.day,
+      world_location: this.world.location,
+      world_logs: this.world.logs,
     };
   }
 
@@ -694,7 +696,7 @@ export class GameController {
   private addLog(message: string) {
     this.world.addLog([
       {
-        day: this.world.getDay(),
+        day: this.world.day,
         message: message,
       },
     ]);
@@ -789,21 +791,20 @@ export class GameController {
     );
   }
 
-
   private async perform_dexInit() {
     const dexController = PkDexController.getInstance();
 
     await this.perform_operation(
-        async () => {
-          let temp = await dexController.getDex();
-          this.RAM.dex = temp;
-        },
-        "Dex pkm successfully initialized.",
-        "Error initializing dex",
+      async () => {
+        let temp = await dexController.getDex();
+        this.RAM.dex = temp;
+      },
+      "Dex pkm successfully initialized.",
+      "Error initializing dex",
     );
   }
 
-/*  private async perform_DexInit() {
+  /*  private async perform_DexInit() {
     const dexController = PkDexController.getInstance();
 
     await this.perform_operation(
@@ -819,7 +820,6 @@ export class GameController {
         "Error initializing dex",
     );
   }*/
-
 
   private async perform_saveData() {
     this.RAM.lastSave = JSON.stringify(this.extractData()); // peu être un souci ici 🤷 ?

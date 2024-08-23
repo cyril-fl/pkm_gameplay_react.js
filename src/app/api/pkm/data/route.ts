@@ -20,17 +20,16 @@ export async function GET() {
 
     const typesMap = new Map(types.map((type) => [type.id, type]));
     const transformedDex = dex.map((pokemon) => {
-
       const pkmTypesIds = [Number(pokemon.type_1), Number(pokemon.type_2)];
 
-
-      pokemon.moves = pokemon.moves.split(", ").map((move: any) =>{
-        const temp = move.split(" - ")
+      pokemon.moves = pokemon.moves.split(", ").map((move: any) => {
+        const temp = move.split(" - ");
         return {
           name: temp[0],
           damage: temp[1],
-          crit : {success: temp[2], fail: temp[3]},
-          type: typesMap.get(Number(temp[4]))}
+          crit: { success: temp[2], fail: temp[3] },
+          type: typesMap.get(Number(temp[4])),
+        };
       });
 
       // Associer les types aux détails
