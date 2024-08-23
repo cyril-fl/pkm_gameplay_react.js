@@ -25,7 +25,8 @@ export const FormProvider: React.FC<{ children: ReactNode }> = ({
 
   const saveData = useMemo(() => {
     if (game.data) {
-      return game.data.extractData();
+      // refactor this name todo
+      return game.data.data;
     }
     return null;
   }, [game.data]);

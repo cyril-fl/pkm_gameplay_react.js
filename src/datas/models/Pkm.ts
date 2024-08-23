@@ -4,11 +4,11 @@ import { move, type } from "@customs/Interface";
 // todo : mettre getter et setter pour les variables privées
 export class PkmModel {
   static ID = 0;
-  private _dex_entry: number;
+  private _dex_entry: number; // readonly todo
   private _name: string;
   private _level: number;
-  private _types: type[];
-  private _isShiny: boolean;
+  private _types: type[]; // readonly todo
+  private _isShiny: boolean; // readonly todo
   private _experienceMeter: number;
   private _experienceGiver: number;
   private _atk: number;
@@ -17,7 +17,7 @@ export class PkmModel {
   private _hp: number;
   private _hp_max: number;
   private _moves: move[];
-  private _id: string = ""; // format : 0000 (dex entry) - 0000 (type1 type2 ) - 0000 (static ID)
+  private _id: string = ""; // format : 0000 (dex entry) - 0000 (type1 type2 ) - 0000 (static ID) // readonly todo
 
   constructor(
     pkm: PkdDexEntry = new PkdDexEntry(),
@@ -52,9 +52,34 @@ export class PkmModel {
   }
 
   /* SETTERS */
-  public setName(name: string) {
+  set name(name: string) {
     this._name = name;
   }
+  set level(level: number) {
+    this._level = level;
+  }
+
+
+
+  /*  GETTERS*/
+  get id() {
+    return this._id;
+  }
+  public get name() {
+    return this._name;
+  }
+  get types() {
+    return this._types.map((type) => type.name);
+  }
+  get moves() {
+    return this._moves;
+  }
+
+  /* TOOLS */
+  public getRandomNumber(limit: { min: number; max: number }) {
+    return Math.floor(Math.random() * (limit.max - limit.min + 1)) + limit.min;
+  }
+
   private setID(wishedLength: number) {
     if (this._id == "") {
       const tempID = ++PkmModel.ID;
@@ -64,8 +89,8 @@ export class PkmModel {
       let A = this._dex_entry.toString().padStart(oneThird, "0");
 
       let B = this._types
-        .map((t) => t.id.toString().padStart(oneSixth, "0"))
-        .join("");
+          .map((t) => t.id.toString().padStart(oneSixth, "0"))
+          .join("");
       B = B.length < oneThird ? B.padEnd(oneThird, "0") : B;
 
       let C = tempID.toString().padStart(oneThird, "0");
@@ -73,37 +98,15 @@ export class PkmModel {
       this._id = `${A}-${B}-${C}`;
     }
   }
-  /*  GETTERS*/
 
-  public getID() {
-    return this._id;
-  }
-
-  public getRandomNumber(limit: { min: number; max: number }) {
-    return Math.floor(Math.random() * (limit.max - limit.min + 1)) + limit.min;
-  }
-
-  public getName() {
-    return this._name;
-  }
-
-  getTypes() {
-    console.log(this._types);
-    return this._types.map((type) => type.name);
-  }
-
-  getMoves() {
-    return this._moves;
-  }
-
-  display() {
+  public display(): string {
     if (this._hp < 0) {
       this._hp = 0;
     }
     return (
-      `${this._name} LVL : ${this._level} \n` +
-      `( PV : ${this._hp} / ${this._hp_max} | ATK : ${this._atk}` +
-      ` | DEF : ${this._dfs} )`
+        `${this._name} LVL : ${this._level} \n` +
+        `( PV : ${this._hp} / ${this._hp_max} | ATK : ${this._atk}` +
+        ` | DEF : ${this._dfs} )`
     );
   }
 }

@@ -46,7 +46,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
 
   const handleHeaderAction = async (type: string) => {
     if (Game) {
-      const updatedGame = new GameController(Game.extractData());
+      const updatedGame = new GameController(Game.data());
 
       switch (type) {
         case "SAVE":

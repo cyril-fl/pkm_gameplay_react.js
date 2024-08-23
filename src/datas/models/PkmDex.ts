@@ -137,6 +137,4 @@ export class PkdDexEntry {
     set isStarter(data: boolean) {
       this._is_starter = data;
     }
-
-
 }
