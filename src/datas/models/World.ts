@@ -1,12 +1,14 @@
 import { SaveModel } from "@models/Save";
 import { PlayerModel } from "@models/Player";
 import { log } from "@customs/Interface";
+import {PkdDexEntry} from "@models/PkmDex";
 
 export class WorldModel {
   private day: number;
   private location: string;
   private logs: log[];
   private player: PlayerModel;
+  private dex: PkdDexEntry[] | null = null;
 
   constructor(data: SaveModel) {
     this.player = new PlayerModel(
@@ -31,6 +33,11 @@ export class WorldModel {
   }
   public getPlayer(): PlayerModel {
     return this.player;
+  }
+
+  /* SET */
+  public setDex(data: PkdDexEntry[]) {
+    this.dex = data
   }
 
   /* Tools */

@@ -35,7 +35,7 @@ export class GameController {
   }
 
   /* INIT PHASE*/
-  private async start() {
+  private start() {
     this.RAM.lastSave = JSON.stringify(this.extractData());
     const isPlayerTeamZero = this.world.getPlayer().getTeam().length === 0;
 
@@ -57,7 +57,6 @@ export class GameController {
       );
       this.nextAction = this.playerInit;
       this.RAM.continueGame_tuto = true;
-      await this.perform_starterInit(); // execute starterInit at the end, not to block the rest of the code
     } else {
       this.UI.set(
         UI_TYPE.CHOICE,
@@ -73,6 +72,13 @@ export class GameController {
       );
       this.RAM.continueGame_tuto = false;
       this.nextAction = this.launchGame;
+    }
+  }
+
+  private dexInit() {
+    console.log(this.RAM.dex)
+    if (this.RAM.dex) {
+      this.world.setDex(this.RAM.dex)
     }
   }
 
@@ -126,6 +132,11 @@ export class GameController {
         }
     }
   }
+
+  // // TODO: Perfom un DEX init le le placer dans le world.
+  // // DONNER UN ELPTE DEX AU PLAUER, ET QUAND IL CAPTUER ON COPIER L4ENTR2 DU WILD VER LE DEX.
+  // await this.perform_dexInit()
+  // this.dexInit()
 
   private starterSelect(response: string = "") {
     const starterList = this.RAM.starterChoices;
@@ -238,7 +249,7 @@ export class GameController {
   }
 
   /* MENU */
-  private menu_main(response: string = "") {
+  private async menu_main(response: string = "") {
     console.log(this.world.getPlayer().getTeam())
     const temps_d = [`Welcome in ${this.world.getLocation()} !`];
     const temp_p = [
@@ -309,7 +320,15 @@ export class GameController {
           this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
             content: [`You have encountered a wild Pokémon!`],
           });
+
           this.nextAction = this.travel_event;
+
+
+          // TODO : Je ne peux pas le mettre ici sinon tout le jeux est en asunc juste pour ça !
+          // Set le dex quelques par dans le world ?
+          // Ou le faire come javais prevu pour le pokedex.
+          // await this.perform_wildPkmInit()
+
         } else {
           this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
             content: [
@@ -564,7 +583,7 @@ export class GameController {
         break;
       default:
         this.UI.set(UI_TYPE.CHOICE, { content: CHOICES.BOOLEANS }, undefined, {
-          content: [`Do you want to battle ?`],
+          content: [`Wild ${this.RAM.pkm?.getName()} appears ! Do you want to battle ?`],
           push: true,
         });
         this.nextAction = this.travel_event;
@@ -582,10 +601,15 @@ export class GameController {
   private event_battle(response: string) {
     const playerChoice = this.findPkm(response);
     console.log(playerChoice);
-    if (!playerChoice) {
+    if (!playerChoice || !this.RAM.pkm) {
       this.warning(this.menu_main);
       return;
     }
+
+    this.RAM.arena = {
+      playerPkm: playerChoice,
+      wildPkm: this.RAM.pkm
+    };
 
     const playerChoiceMove: Choice[] = this.var_pkmMovePool(playerChoice, (move: move):Choice => {
       return { label: move.name, value: move.name };
@@ -758,16 +782,44 @@ export class GameController {
     await this.perform_operation(
       async () => {
         let temp = await dexController.getStarterEntries();
-
-
-        console.log('perform_operation sarter', temp);
         this.RAM.starterChoices = temp.map((pkm: any) => new PkmModel(pkm, 5));
-        console.log(this.RAM.starterChoices)
       },
       "Dex successfully initialized.",
       "Error initializing dex",
     );
   }
+
+
+  private async perform_dexInit() {
+    const dexController = PkDexController.getInstance();
+
+    await this.perform_operation(
+        async () => {
+          let temp = await dexController.getDex();
+          this.RAM.dex = temp;
+        },
+        "Dex pkm successfully initialized.",
+        "Error initializing dex",
+    );
+  }
+
+/*  private async perform_DexInit() {
+    const dexController = PkDexController.getInstance();
+
+    await this.perform_operation(
+        async () => {
+          let temp = await dexController.getDex();
+          let temp_index = Math.floor(Math.random() * temp.length);
+
+          // todo : ajouter un algo pour calculer le leve en random
+          this.RAM.pkm = new PkmModel(temp[temp_index], 5);
+          console.log(this.RAM.pkm)
+        },
+        "Wild pkm successfully initialized.",
+        "Error initializing dex",
+    );
+  }*/
+
 
   private async perform_saveData() {
     this.RAM.lastSave = JSON.stringify(this.extractData()); // peu être un souci ici 🤷 ?

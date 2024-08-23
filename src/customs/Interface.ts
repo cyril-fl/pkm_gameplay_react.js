@@ -3,6 +3,7 @@ import { GameUIModel } from "@models/GameUI";
 import { GameController } from "@controllers/Game";
 import { submitEvent } from "@customs/Types";
 import { PkmModel } from "@models/Pkm";
+import {PkdDexEntry} from "@models/PkmDex";
 
 /* CONTEXT */
 // AppContext
@@ -24,12 +25,19 @@ export interface FormContextType {
 // Game Controller
 export interface RAM {
   lastSave?: any;
+  continueGame_tuto?: boolean;
   starterChoices?: PkmModel[];
+  dex?: PkdDexEntry[];
   pkmName_old?: string;
   pkmName_new?: string;
   pkm?: PkmModel;
-  continueGame_tuto?: boolean;
+  arena?: arena;
 }
+interface arena {
+  playerPkm: PkmModel,
+  wildPkm: PkmModel
+}
+
 // World
 export interface log {
   day: number;
