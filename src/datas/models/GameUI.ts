@@ -51,10 +51,13 @@ export class GameUIModel {
     if (type) {
       this.type = type;
 
-      if (type === "PRESS" && choice) {
+      if (type === UI_TYPE.PRESS && choice) {
         this.setChoices(choice.content);
       }
-      if (type === "CHOICE" && choice) {
+      if (type === UI_TYPE.CHOICE && choice) {
+        this.setChoices(choice.content, choice.push);
+      }
+      if (type === UI_TYPE.BATTLE && choice) {
         this.setChoices(choice.content, choice.push);
       }
       if (type === "ENTRY") {

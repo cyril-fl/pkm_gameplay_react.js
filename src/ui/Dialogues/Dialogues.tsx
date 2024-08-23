@@ -16,8 +16,8 @@ export const DialoguesCard = () => {
   }, [ui.dialogues]);
 
   return (
-    <article
-      className={`flex flex-col gap-4 text-2xl ${style.dialogue__art}`}
+    <div
+      className={`flex flex-col gap-4 ${style.dialogue__art}`}
       // className=""
     >
       {dialogues.map((text: string, index: number) => (
@@ -25,6 +25,6 @@ export const DialoguesCard = () => {
           {text}
         </p>
       ))}
-    </article>
+    </div>
   );
 };

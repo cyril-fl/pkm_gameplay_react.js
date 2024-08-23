@@ -417,10 +417,15 @@ export class GameController {
   /* MENU OPTION */
   // Release Pkm
   private releasePkm_A(response: string) {
+    console.log(response);
     const temp_pkm = this.findPkm(response);
 
     if (!temp_pkm) {
+      if (response === UI_BUTTON.BACK) {
+        this.menu_main(UI_MENU.TEAM);
+      } else {
       this.warning(this.menu_team);
+      }
       return;
     }
 
@@ -593,9 +598,18 @@ export class GameController {
       return;
     }
 
+    const playerChoiceMove = [
+      { label: "1", value: "1" },
+      { label: "2", value: "2" },
+      { label: "3", value: "3" },
+      { label: "4", value: "4" },
+    ]
 
 
+    this.UI.set(UI_TYPE.BATTLE, { content: playerChoiceMove}, undefined, {content: [`You have chosen ${playerChoice.getName()} !`]});
 
+
+    console.log(this.UI.getChoices())
 
   }
 

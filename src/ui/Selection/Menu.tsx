@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import { PressInput } from "@/ui/Selection/components/Press";
 import { ChoiceInput } from "@/ui/Selection/components/Choices";
 import { EntryInput } from "@/ui/Selection/components/Entry";
+import { UI_TYPE } from "@customs/Enum";
 
 export const SelectMenu = () => {
   const { ui } = useAppContext();
@@ -18,11 +19,12 @@ export const SelectMenu = () => {
 
   const renderMenu = useMemo(() => {
     switch (gameType) {
-      case "CHOICE":
+      case UI_TYPE.CHOICE:
+      case UI_TYPE.BATTLE:
         return <ChoiceInput />;
-      case "ENTRY":
+      case UI_TYPE.ENTRY:
         return <EntryInput />;
-      case "PRESS":
+      case UI_TYPE.PRESS:
         return <PressInput />;
       default:
         return <p>{gameType}</p>;
