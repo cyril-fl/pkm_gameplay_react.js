@@ -37,7 +37,7 @@ export class GameController {
   /* INIT PHASE*/
   private start() {
     this.RAM.lastSave = JSON.stringify(this.extractData());
-    const isPlayerTeamZero = this.world.player.getTeam().length === 0;
+    const isPlayerTeamZero = this.world.player.team.length === 0;
 
     if (isPlayerTeamZero) {
       this.UI.set(
@@ -110,7 +110,7 @@ export class GameController {
         const entry = new Entry(response);
 
         if (this.isValidInput(entry)) {
-          this.world.player.setName(entry.content);
+          this.world.player.name = entry.content;
           this.addLog(`Hi ${entry.content}, you have started your journey !`);
 
           this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
@@ -180,7 +180,7 @@ export class GameController {
   }
 
   private starterRename_A(response: string) {
-    const thisStarter = this.world.player.getTeam()[0];
+    const thisStarter = this.world.player.team[0];
 
     switch (response) {
       case UI_BUTTON.YES:
@@ -250,7 +250,7 @@ export class GameController {
 
   /* MENU */
   private async menu_main(response: string = "") {
-    console.log(this.world.player.getTeam());
+    console.log(this.world.player.team);
     const temps_d = [`Welcome in ${this.world.location} !`];
     const temp_p = [
       "Here are some basic :",
@@ -374,7 +374,7 @@ export class GameController {
   }
 
   private menu_team(response: string) {
-    const team = this.world.player.getTeam();
+    const team = this.world.player.team;
     switch (response) {
       case UI_MENU.HEAL:
         this.UI.setDialogues([
@@ -451,7 +451,7 @@ export class GameController {
       case UI_BUTTON.YES:
         this.world
           .player
-          .getTeam()
+          .team
           .forEach((pkm: PkmModel) => {
             if (pkm === this.RAM.pkm) {
               this.world.player.releasePkm(pkm);
@@ -626,7 +626,7 @@ export class GameController {
   //  REFACTORED - OK
   /* VAR DATA */
   private var_team<T>(operation: (model: PkmModel) => T): T[] {
-    return this.world.player.getTeam().map(operation);
+    return this.world.player.team.map(operation);
   }
 
   private var_teamChoices(): Choice[] {
@@ -636,7 +636,7 @@ export class GameController {
   }
 
   private var_playerName(): string {
-    return this.world.player.getName();
+    return this.world.player.name;
   }
 
   private var_pkmMovePool(pkm: PkmModel, action: (move: move) => any): any[] {
@@ -661,15 +661,15 @@ export class GameController {
   private findPkm(id: string): PkmModel | undefined {
     return this.world
       .player
-      .getTeam()
+      .team
       .find((pkm: PkmModel) => pkm.getID().toString() === id);
   }
 
   public extractData() {
     return {
-      player_name: this.world.player.getName(),
-      player_team: this.world.player.getTeam(),
-      player_bags: this.world.player.getBag(),
+      player_name: this.world.player.name,
+      player_team: this.world.player.team,
+      player_bags: this.world.player.bag,
       world_day: this.world.day,
       world_location: this.world.location,
       world_logs: this.world.logs,
