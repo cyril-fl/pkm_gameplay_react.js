@@ -4,6 +4,7 @@ import { FormProvider } from "@contexts/FormContext";
 import { DialoguesCard } from "@/ui/Dialogues/Card";
 import { SelectMenu } from "@/ui/Selection/Menu";
 import { Header } from "@/ui/Header/Card";
+import {NotificationCard} from "@/ui/Notification/Notification";
 
 export default function App() {
   return (

@@ -103,6 +103,7 @@ export const ChoiceInput = () => {
               : ""
           }`}
           onClick={(e) => handleClick(e, choice)}
+          onMouseEnter={() => setSelected(choice)}
         >
           {choice.label}
           <span className={`${selected === choice ? "" : "opacity-0"} text-xl`}>

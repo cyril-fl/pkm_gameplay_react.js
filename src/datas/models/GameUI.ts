@@ -11,12 +11,14 @@ export class GameUIModel {
   private choices: Choice[];
   private type: string;
   private style: string;
+  private notification: string[];
 
   constructor() {
     this.dialogues = ["Pokemon"];
     this.choices = CHOICES.CONTINUE;
     this.type = UI_TYPE.PRESS;
     this.style = UI_STYLE.START;
+    this.notification = [];
   }
 
   /* Getters && Setters */
@@ -33,6 +35,9 @@ export class GameUIModel {
   public getStyle() {
     return this.style;
   }
+    public getNotification() {
+      return this.notification;
+    }
 
   // Setters
   public set(
@@ -50,7 +55,7 @@ export class GameUIModel {
         this.setChoices(choice.content);
       }
       if (type === "CHOICE" && choice) {
-        this.setChoices(choice.content, choice.push, choice.reset);
+        this.setChoices(choice.content, choice.push);
       }
       if (type === "ENTRY") {
         this.setChoices([]);
@@ -64,7 +69,7 @@ export class GameUIModel {
 
     // Set Dialogues
     if (dialogues) {
-      this.setDialogues(dialogues.content, dialogues.push, dialogues.reset);
+      this.setDialogues(dialogues.content, dialogues.push);
     }
   }
 
@@ -75,11 +80,8 @@ export class GameUIModel {
   public setChoices(
     choices: Choice[],
     push: boolean = false,
-    reset: boolean = false,
   ) {
-    if (reset) {
-      this.choices = [];
-    } else if (push) {
+    if (push) {
       this.choices.push(...choices);
     } else {
       this.choices = choices;
@@ -93,14 +95,27 @@ export class GameUIModel {
   public setDialogues(
     dialogues: string[],
     push: boolean = false,
-    reset: boolean = false,
   ) {
-    if (reset) {
-      this.dialogues = [];
-    } else if (push) {
+    if (push) {
       this.dialogues.push(...dialogues);
     } else {
       this.dialogues = dialogues;
     }
+  }
+
+  public setNotification(
+      notification: string[],
+      push: boolean = false,
+      ) {
+
+    if (push) {
+      this.notification.push(...notification);
+    } else {
+      this.notification = notification;
+    }
+
+    setTimeout(() => {
+      this.notification = [];
+    }, 100);
   }
 }

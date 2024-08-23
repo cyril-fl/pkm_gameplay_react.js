@@ -57,7 +57,7 @@ export class GameController {
       );
       this.nextAction = this.playerInit;
       this.RAM.continueGame_tuto = true;
-      await this.performStarterInit(); // execute starterInit at the end, not to block the rest of the code
+      await this.perform_starterInit(); // execute starterInit at the end, not to block the rest of the code
     } else {
       this.UI.set(
         UI_TYPE.CHOICE,
@@ -67,7 +67,7 @@ export class GameController {
           content: [
             `Day : ${this.world.getDay()} , Location : ${this.world.getLocation()}`,
             `Player : ${this.var_playerName()}`,
-            `Team : ${this.var_teamNames()}`,
+            `Team : ${this.var_team((pkm: PkmModel) => pkm.getName()).join(", ")}`,
           ],
         },
       );
@@ -76,7 +76,6 @@ export class GameController {
     }
   }
 
-  // YES/NO/DEFAULT
   private playerInit(response: string) {
     switch (response) {
       case UI_BUTTON.YES:
@@ -158,7 +157,7 @@ export class GameController {
           `Would you like to name your ${playerChoice.getName()} ?`,
         ],
       });
-      this.nextAction = this.starterRename;
+      this.nextAction = this.starterRename_A;
       delete this.RAM.starterChoices;
     } else {
       const new_dialogues = starterList.map((pkm: PkmModel) => {
@@ -173,8 +172,7 @@ export class GameController {
     }
   }
 
-  // YES/NO/DEFAULT
-  private starterRename(response: string) {
+  private starterRename_A(response: string) {
     const thisStarter = this.world.getPlayer().getTeam()[0];
 
     switch (response) {
@@ -195,7 +193,7 @@ export class GameController {
             "You could do that later !",
           ],
         });
-        this.nextAction = this.setWorld;
+        this.nextAction = this.starterRename_B;
         break;
 
       default:
@@ -214,19 +212,24 @@ export class GameController {
               `Ok, you have chosen to name your ${oldName} in ${entry.content} !`,
             ],
           });
-          this.nextAction = this.setWorld;
+          this.nextAction = this.starterRename_B;
         } else {
+
+          this.UI.setNotification([
+              'Entry should be between 1 and 10 characters long with no special chars ( &, <, >, ", !, _ )'
+          ])
+
           this.UI.setDialogues([
             UI_CHARACTER.PROF,
             `I didn't get that, please enter a valid name !`,
-            'it should be between 1 and 10 characters long with no special chars ( &, <, >, ", ! )',
+            'it should be between 1 and 10 characters long with no special chars ( &, <, >, ", !, _ )',
           ]);
         }
         break;
     }
   }
 
-  private async setWorld() {
+  private async starterRename_B() {
     this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
       content: [
         UI_CHARACTER.PROF,
@@ -236,30 +239,33 @@ export class GameController {
     });
 
     this.nextAction = this.menu_main;
-    await this.performSaveData();
+    await this.perform_saveData();
   }
 
-  /* MAIN PHASE */
-  public menu_main(response: string = "") {
-    const temps_d = [`Welcome in ${this.world.getLocation()} !`,]
+  /* MENU */
+  private menu_main(response: string = "") {
+    const temps_d = [`Welcome in ${this.world.getLocation()} !`];
     const temp_p = [
       "Here are some basic :",
       "1) You can monitor your team",
       "2) You can go to the PkmCenter",
       "3) You can go forward and eventually Reach the next town or encounter some Wild Pkm",
-    ]
-    const dialogues = this.tuto(temps_d, temp_p, 'continueGame_tuto')
+    ];
+    const dialogues = this.tuto(temps_d, temp_p, "continueGame_tuto");
 
     this.UI.set(
       UI_TYPE.CHOICE,
       { content: CHOICES.ACTION_MAIN_MENU },
-      UI_STYLE.DEFAULT, {
-        content: dialogues})
+      UI_STYLE.DEFAULT,
+      {
+        content: dialogues,
+      },
+    );
 
+        /*this.world.getPlayer().setUpToSix(); // UP TO SIX*/
     switch (response) {
       case UI_MENU.TEAM:
-        /*this.world.getPlayer().setUpToSix(); // UP TO SIX*/
-        const team= this.var_team((pkm: PkmModel) => pkm);
+        const team = this.var_team((pkm: PkmModel) => pkm);
 
         if (team.length > 0) {
           this.UI.setDialogues([
@@ -272,26 +278,32 @@ export class GameController {
         }
 
         this.UI.setChoices([
-            ...CHOICES.ACTION_TEAM_MENU,
-            ...CHOICES.ACTION_BACK,
+          ...CHOICES.ACTION_TEAM_MENU,
+          ...CHOICES.ACTION_BACK,
         ]);
 
         this.nextAction = this.menu_team;
         break;
 
       case UI_MENU.PKMCENTER:
-        this.UI.set(UI_TYPE.CHOICE, { content: [
-            ...CHOICES.ACTION_PKMCENTER_MENU,
-            ...CHOICES.ACTION_BACK,
-          ]}, undefined, { content:[
-          UI_CHARACTER.NURSE,
-          `Welcome to the PkmCenter !`,
-          "Sorry for the mess, we are still under construction ...",
-          "   - I can revive your knock out partner, you can consult your log.",
-          "   - You can consult your log.",
-          " ",
-          "And soon many more to come !",
-        ]});
+        this.UI.set(
+          UI_TYPE.CHOICE,
+          {
+            content: [...CHOICES.ACTION_PKMCENTER_MENU, ...CHOICES.ACTION_BACK],
+          },
+          undefined,
+          {
+            content: [
+              UI_CHARACTER.NURSE,
+              `Welcome to the PkmCenter !`,
+              "Sorry for the mess, we are still under construction ...",
+              "   - I can revive your knock out partner, you can consult your log.",
+              "   - You can consult your log.",
+              " ",
+              "And soon many more to come !",
+            ],
+          },
+        );
 
         this.nextAction = this.menu_pkmCenter;
         break;
@@ -299,14 +311,14 @@ export class GameController {
       case UI_MENU.TRAVEL:
         if (this.isRandomEvent(1, 2)) {
           this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
-            content: [`You have encountered a wild Pokémon!`]
+            content: [`You have encountered a wild Pokémon!`],
           });
           this.nextAction = this.travel_event;
         } else {
           this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
             content: [
               `Nothing happened today, you can continue your journey !`,
-            ]
+            ],
           });
           this.nextAction = this.travel_nothing;
         }
@@ -316,7 +328,7 @@ export class GameController {
     }
   }
 
-  public menu_pkmCenter(response: string) {
+  private menu_pkmCenter(response: string) {
     this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE });
     this.nextAction = this.menu_pkmCenter;
 
@@ -348,7 +360,7 @@ export class GameController {
     }
   }
 
-  public menu_team(response: string) {
+  private menu_team(response: string) {
     const team = this.world.getPlayer().getTeam();
     console.log(team);
 
@@ -402,26 +414,24 @@ export class GameController {
     }
   }
 
-  // YES/NO/DEFAULT
+  /* MENU OPTION */
   // Release Pkm
-  public releasePkm_A(response: string) {
+  private releasePkm_A(response: string) {
     const temp_pkm = this.findPkm(response);
-    if (!temp_pkm) { // todo a refactor mais je crois que c'est bon
-        this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
-            content: [`Something went wrong, please try again !`],
-        });
-        this.nextAction = this.menu_team;
-        return;
+
+    if (!temp_pkm) {
+      this.warning(this.menu_team);
+      return;
     }
 
-    this.RAM.pkm = temp_pkm
+    this.RAM.pkm = temp_pkm;
     this.UI.set(UI_TYPE.CHOICE, { content: CHOICES.BOOLEANS }, undefined, {
       content: [`Are you sure you want to release ${this.RAM.pkm.getName()} ?`],
     });
     this.nextAction = this.releasePkm_B;
   }
 
-  public releasePkm_B(response: string) {
+  private releasePkm_B(response: string) {
     console.log(response);
 
     switch (response) {
@@ -454,7 +464,7 @@ export class GameController {
   }
 
   // Rename Pkm
-  public renamePkm_A(response: string) {
+  private renamePkm_A(response: string) {
     if (response === UI_BUTTON.BACK) {
       this.menu_main(UI_MENU.TEAM);
       return;
@@ -468,7 +478,12 @@ export class GameController {
     this.nextAction = this.renamePkm_B;
   }
 
-  public renamePkm_B(response: string) {
+  private renamePkm_B(response: string) {
+    if (response === UI_BUTTON.ABORT) {
+        this.menu_main(UI_MENU.TEAM);
+        return;
+    }
+
     const entry = new Entry(response);
 
     if (this.isValidInput(entry)) {
@@ -481,6 +496,11 @@ export class GameController {
       });
       this.nextAction = this.renamePkm_C;
     } else {
+
+      this.UI.setNotification([
+        'Entry should be between 1 and 10 characters long with no special chars ( &, <, >, ", !, _ )'
+      ])
+
       this.UI.setDialogues([
         UI_CHARACTER.PROF,
         `I didn't get that, please enter a valid name !`,
@@ -489,8 +509,7 @@ export class GameController {
     }
   }
 
-  // YES/NO/DEFAULT
-  public renamePkm_C(response: string) {
+  private renamePkm_C(response: string) {
     switch (response) {
       case UI_BUTTON.YES:
         this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
@@ -504,56 +523,42 @@ export class GameController {
         if (this.RAM.pkm && this.RAM.pkmName_new) {
           this.RAM.pkm.setName(this.RAM.pkmName_new);
           this.addLog(
-              `You have chosen to rename ${this.RAM.pkm?.getName()} in ${this.RAM.pkmName_new}!`,
+            `You have chosen to rename ${this.RAM.pkm?.getName()} in ${this.RAM.pkmName_new}!`,
           );
 
           delete this.RAM.pkmName_old;
           delete this.RAM.pkmName_new;
-
         } else {
-            this.UI.set( //todo possibleto refactor enfin je crois
-              UI_TYPE.PRESS,
-              { content: CHOICES.CONTINUE },
-              undefined,
-              {
-                content: [
-                  UI_CHARACTER.PROF,
-                  "Something went wrong, we'll retry again later !",
-                ],
-              },
-            );
-              this.menu_main(UI_MENU.TEAM);
-          }
+          this.warning(this.menu_team);
+          this.menu_main(UI_MENU.TEAM);
+        }
         break;
       case UI_BUTTON.NO:
         this.menu_main(UI_MENU.TEAM);
-        break;
+        break
       default:
         this.menu_main();
         break;
     }
   }
 
-    // Travel
-  public travel_event(response: string) {
+  // Travel
+  private travel_event(response: string) {
     switch (response) {
       case UI_BUTTON.YES:
         this.UI.set(
-            UI_TYPE.CHOICE,
-            { content: this.var_teamChoices() },
-            undefined,
-            {
-              content: [
-                `Choose one of your pkm`,
-                ...this.world
-                    .getPlayer()
-                    .getTeam()
-                    .map((pkm: PkmModel) => pkm.display()),
-              ],
-            },
+          UI_TYPE.CHOICE,
+          { content: this.var_teamChoices() },
+          undefined,
+          {
+            content: [
+              `Choose one of your pkm`,
+                ...this.var_team((pkm: PkmModel) => pkm.display()),
+            ],
+          },
         );
 
-        this.nextAction = this.menu_main; //temp
+        this.nextAction = this.event_battle;
 
         break;
       case UI_BUTTON.NO:
@@ -571,11 +576,29 @@ export class GameController {
         break;
     }
   }
-  public travel_nothing() {
+
+  private travel_nothing() {
     this.world.oneDayPasses();
     this.nextAction = this.menu_main;
     this.menu_main();
   }
+
+
+  // Battle
+  private event_battle(response: string) {
+    const playerChoice = this.findPkm(response);
+    console.log(playerChoice);
+    if (!playerChoice) {
+      this.warning(this.menu_main);
+      return;
+    }
+
+
+
+
+
+  }
+
 
   //  REFACTORED - OK
   /* VAR DATA */
@@ -589,30 +612,30 @@ export class GameController {
     });
   }
 
-  private var_teamNames(): string {
-    return this.var_team((pkm: PkmModel) => pkm.getName()).join(", ");
-  }
-
   private var_playerName(): string {
     return this.world.getPlayer().getName();
   }
 
   /* TOOL BOX*/
   // Divers
-  private tuto(dialogues: string[], pushDialogues: string[], ramAttribut: keyof RAM) {
+  private tuto(
+    dialogues: string[],
+    pushDialogues: string[],
+    ramAttribut: keyof RAM,
+  ) {
     if (this.RAM[ramAttribut]) {
       this.RAM[ramAttribut] = false;
-      dialogues.push(...pushDialogues)
+      dialogues.push(...pushDialogues);
     }
 
-    return dialogues
+    return dialogues;
   }
 
   private findPkm(id: string): PkmModel | undefined {
     return this.world
-        .getPlayer()
-        .getTeam()
-        .find((pkm: PkmModel) => pkm.getID().toString() === id);
+      .getPlayer()
+      .getTeam()
+      .find((pkm: PkmModel) => pkm.getID().toString() === id);
   }
 
   public extractData() {
@@ -658,16 +681,23 @@ export class GameController {
       this.menu_main();
     } else if ([String(UI_BUTTON.NEW_GAME), UI_BUTTON.NO].includes(response)) {
       this.resetUI(false);
-      await this.performOverWriteSaveData(); // Assurez-vous que `eraseGame` est terminé avant de réinitialiser
+      await this.perform_overWriteSaveData(); // Assurez-vous que `eraseGame` est terminé avant de réinitialiser
       await this.start(); // Recommencer le jeu après réinitialisation
     } else {
     }
   }
 
+  private warning(action: (...args: any) => void) {
+    this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
+      content: [`Something went wrong, please try again !`],
+    });
+    this.nextAction = action;
+  }
+
   // Test
   private isRandomEvent(
-      eventTriggerChance: number,
-      eventChanceRange: number,
+    eventTriggerChance: number,
+    eventChanceRange: number,
   ): boolean {
     const eventOutcome = Math.floor(Math.random() * eventChanceRange);
     return eventOutcome < eventTriggerChance;
@@ -675,15 +705,15 @@ export class GameController {
 
   private isValidInput(entry: Entry, minLength = 1, maxLength = 10): boolean {
     return (
-        entry.inputLength({ min: minLength, max: maxLength }) &&
-        !entry.HTMLSpecialChars_test()
+      entry.inputLength({ min: minLength, max: maxLength }) &&
+      !entry.HTMLSpecialChars_test()
     );
   }
 
   // Perform
   // Game action
   public async game_save() {
-    await this.performSaveData();
+    await this.perform_saveData();
     this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
       content: ["You have saved the game !"],
     });
@@ -696,7 +726,7 @@ export class GameController {
     switch (response) {
       case UI_BUTTON.YES:
         this.UI.setDialogues(["You saved the game! Have a good day!"]);
-        await this.performSaveData();
+        await this.perform_saveData();
         break;
       case UI_BUTTON.NO:
         this.UI.setDialogues(["You have chosen not to save !"]);
@@ -707,24 +737,24 @@ export class GameController {
         break;
       default:
         this.UI.set(
-            UI_TYPE.CHOICE,
-            { content: [...CHOICES.BOOLEANS, ...CHOICES.ACTION_BACK] },
-            undefined,
-            {
-              content: [
-                "If you quit now, your progress will be lost !",
-                "Do you want to save before ?",
-              ],
-            },
+          UI_TYPE.CHOICE,
+          { content: [...CHOICES.BOOLEANS, ...CHOICES.ACTION_BACK] },
+          undefined,
+          {
+            content: [
+              "If you quit now, your progress will be lost !",
+              "Do you want to save before ?",
+            ],
+          },
         );
         this.nextAction = this.game_quit;
     }
   }
 
-  private async performStarterInit() {
+  private async perform_starterInit() {
     const dexController = PkDexController.getInstance();
 
-    await this.performGameOperation(
+    await this.perform_operation(
       async () => {
         let temp = await dexController.getStarterEntries();
         this.RAM.starterChoices = temp.map((pkm: any) => new PkmModel(pkm, 5));
@@ -734,10 +764,10 @@ export class GameController {
     );
   }
 
-  private async performSaveData() {
+  private async perform_saveData() {
     this.RAM.lastSave = JSON.stringify(this.extractData()); // peu être un souci ici 🤷 ?
 
-    await this.performGameOperation(
+    await this.perform_operation(
       () =>
         fetch("/api/save/update", {
           method: "PUT",
@@ -751,8 +781,8 @@ export class GameController {
     );
   }
 
-  private async performOverWriteSaveData() {
-    await this.performGameOperation(
+  private async perform_overWriteSaveData() {
+    await this.perform_operation(
       () =>
         fetch("/api/save/update", {
           method: "PUT",
@@ -766,7 +796,7 @@ export class GameController {
     );
   }
 
-  private async performGameOperation<T>(
+  private async perform_operation<T>(
     operation: () => Promise<T>,
     successMessage: string,
     errorMessage: string,
@@ -774,7 +804,7 @@ export class GameController {
     if (this.isLoading.state()) {
       this.isLoading.whileLoading(
         true,
-        this.performGameOperation.bind(
+        this.perform_operation.bind(
           this,
           operation,
           successMessage,

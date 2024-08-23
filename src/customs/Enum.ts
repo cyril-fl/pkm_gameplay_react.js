@@ -20,6 +20,7 @@ export enum UI_BUTTON {
   NO = "No",
   CONTINUE = "Continue",
   NEW_GAME = "New game",
+  ABORT = "_ABORT",
 }
 export enum UI_STYLE {
   START = "START",

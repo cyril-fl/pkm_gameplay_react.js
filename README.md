@@ -17,18 +17,18 @@ Of course you can start a new game whenever you want.
 
 #### Pkm Center
 
-- **Revive Pokémon**: Restore your Pokémon's health when they're K.O. *(Coming Soon...)*
-- **View Logs**: Check your activity logs. *(Coming Soon...)*
+- **Revive Pokémon**: Restore your Pokémon's health when they're K.O. _(Coming Soon...)_
+- **View Logs**: Check your activity logs. _(Coming Soon...)_
 
 #### Team
 
-- **Heal**: Heal your team. *(Coming Soon...)*
+- **Heal**: Heal your team. _(Coming Soon...)_
 - **Rename**: Change one of your partner name's.
 - **Release**: Give its freedom back to one of your partner.
 
 #### Adventure
 
-- **Random Battle**: Engage in random battles with wild Pokémon. *(Coming Soon...)*
+- **Random Battle**: Engage in random battles with wild Pokémon. _(Coming Soon...)_
 
 ### Technologies
 

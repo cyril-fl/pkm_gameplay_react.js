@@ -12,6 +12,7 @@ export class Entry {
       ">": "&gt;",
       '"': "&quot;",
       "'": "&#039;",
+      "_": "&#95;",
     };
 
     this.content = this.content.replace(/[&<>"']/g, function (m) {
@@ -20,7 +21,7 @@ export class Entry {
   }
 
   public HTMLSpecialChars_test() {
-    const specialCharsRegex = /[&<>"']/;
+    const specialCharsRegex = /[&<>"'_]/;
     return specialCharsRegex.test(this.content);
   }
 
