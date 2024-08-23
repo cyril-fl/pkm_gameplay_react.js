@@ -9,6 +9,7 @@ export const useStyleUI = (ref: GameUIModel | null) => {
     header__button:
       "bg-GameBoy-black text-GameBoy-white hover:bg-GameBoy-white hover:text-GameBoy-black border-2 border-GameBoy-white hover:border-GameBoy-black active:border-zinc-700 active:bg-zinc-700 active:text-white rounded-sm px-2 py-0.5",
     header__p: "",
+    close_button: "",
   };
 
   const memorized_style = useMemo(() => {
@@ -24,6 +25,7 @@ export const useStyleUI = (ref: GameUIModel | null) => {
           dialogue__p: "text-9xl font-jacquard-24",
           header__button: "hidden",
           header__p: "hidden",
+          close_button: "hidden",
         };
         break;
       case UI_STYLE.SHOW_LAST_SAVE:
@@ -40,6 +42,7 @@ export const useStyleUI = (ref: GameUIModel | null) => {
           ...style,
           header__button: "hidden",
           header__p: "hidden",
+          close_button: "hidden",
         };
         break;
       case UI_STYLE.ERROR:

@@ -43,8 +43,8 @@ const jacquard24 = Jacquard_24({
 });
 
 export const metadata: Metadata = {
-  title: "Pkm gameplay",
-  description: "Pkm gameplay project",
+  title: "SQL gameplay",
+  description: "SQL gameplay project",
 };
 
 export default function RootLayout({

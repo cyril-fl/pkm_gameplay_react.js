@@ -1,11 +1,10 @@
-import { number } from "prop-types";
-import { pkmType } from "@customs/Interface";
+import { type, move } from "@customs/Interface";
 
 export class PkdDexEntry {
   public name: string;
   public id: number;
   public description: string;
-  public types: pkmType[];
+  public types: type[];
   public evolution_id: string | null;
   public evolution_lvl: number | null;
   public atk_min: number;
@@ -16,6 +15,7 @@ export class PkdDexEntry {
   public hp_max: number;
   public spd_min: number;
   public spd_max: number;
+  public moves: move[];
   public is_starter: boolean;
 
   constructor(entry: any) {
@@ -33,6 +33,7 @@ export class PkdDexEntry {
     this.hp_max = entry.hp_max;
     this.spd_min = entry.spd_min;
     this.spd_max = entry.spd_max;
-    this.is_starter = entry.is_starter === 1 ? true : false; // Convert to boolean
+    this.moves = entry.moves;
+    this.is_starter = entry.is_starter === 1; // Convert to boolean
   }
 }

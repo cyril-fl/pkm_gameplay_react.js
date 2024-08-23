@@ -13,7 +13,7 @@ import {
   UI_STYLE,
   UI_TYPE,
 } from "@customs/Enum";
-import { Choice, RAM } from "@customs/Interface";
+import {Choice, move, RAM} from "@customs/Interface";
 
 // Todo: regarder la list des todo et voir ce qui peu être fait
 // Todo : instancier le player et vérifier les impermanence de type sur son content
@@ -141,10 +141,6 @@ export class GameController {
         return starter;
       }
     });
-    console.log(response);
-    console.log(typeof response);
-    console.log(starterList);
-    console.log("playerChoice", playerChoice);
 
     if (playerChoice) {
       this.world.getPlayer().catchPkm(playerChoice);
@@ -214,10 +210,9 @@ export class GameController {
           });
           this.nextAction = this.starterRename_B;
         } else {
-
           this.UI.setNotification([
-              'Entry should be between 1 and 10 characters long with no special chars ( &, <, >, ", !, _ )'
-          ])
+            'Entry should be between 1 and 10 characters long with no special chars ( &, <, >, ", !, _ )',
+          ]);
 
           this.UI.setDialogues([
             UI_CHARACTER.PROF,
@@ -244,12 +239,13 @@ export class GameController {
 
   /* MENU */
   private menu_main(response: string = "") {
+    console.log(this.world.getPlayer().getTeam())
     const temps_d = [`Welcome in ${this.world.getLocation()} !`];
     const temp_p = [
       "Here are some basic :",
       "1) You can monitor your team",
       "2) You can go to the PkmCenter",
-      "3) You can go forward and eventually Reach the next town or encounter some Wild Pkm",
+      "3) You can go forward and eventually Reach the next town or encounter some Wild SQL",
     ];
     const dialogues = this.tuto(temps_d, temp_p, "continueGame_tuto");
 
@@ -262,7 +258,7 @@ export class GameController {
       },
     );
 
-        /*this.world.getPlayer().setUpToSix(); // UP TO SIX*/
+    /*this.world.getPlayer().setUpToSix(); // UP TO SIX*/
     switch (response) {
       case UI_MENU.TEAM:
         const team = this.var_team((pkm: PkmModel) => pkm);
@@ -362,8 +358,6 @@ export class GameController {
 
   private menu_team(response: string) {
     const team = this.world.getPlayer().getTeam();
-    console.log(team);
-
     switch (response) {
       case UI_MENU.HEAL:
         this.UI.setDialogues([
@@ -415,16 +409,15 @@ export class GameController {
   }
 
   /* MENU OPTION */
-  // Release Pkm
+  // Release SQL
   private releasePkm_A(response: string) {
-    console.log(response);
     const temp_pkm = this.findPkm(response);
 
     if (!temp_pkm) {
       if (response === UI_BUTTON.BACK) {
         this.menu_main(UI_MENU.TEAM);
       } else {
-      this.warning(this.menu_team);
+        this.warning(this.menu_team);
       }
       return;
     }
@@ -437,8 +430,6 @@ export class GameController {
   }
 
   private releasePkm_B(response: string) {
-    console.log(response);
-
     switch (response) {
       case UI_BUTTON.YES:
         this.world
@@ -468,7 +459,7 @@ export class GameController {
     }
   }
 
-  // Rename Pkm
+  // Rename SQL
   private renamePkm_A(response: string) {
     if (response === UI_BUTTON.BACK) {
       this.menu_main(UI_MENU.TEAM);
@@ -485,8 +476,8 @@ export class GameController {
 
   private renamePkm_B(response: string) {
     if (response === UI_BUTTON.ABORT) {
-        this.menu_main(UI_MENU.TEAM);
-        return;
+      this.menu_main(UI_MENU.TEAM);
+      return;
     }
 
     const entry = new Entry(response);
@@ -501,10 +492,9 @@ export class GameController {
       });
       this.nextAction = this.renamePkm_C;
     } else {
-
       this.UI.setNotification([
-        'Entry should be between 1 and 10 characters long with no special chars ( &, <, >, ", !, _ )'
-      ])
+        'Entry should be between 1 and 10 characters long with no special chars ( &, <, >, ", !, _ )',
+      ]);
 
       this.UI.setDialogues([
         UI_CHARACTER.PROF,
@@ -540,7 +530,7 @@ export class GameController {
         break;
       case UI_BUTTON.NO:
         this.menu_main(UI_MENU.TEAM);
-        break
+        break;
       default:
         this.menu_main();
         break;
@@ -558,7 +548,7 @@ export class GameController {
           {
             content: [
               `Choose one of your pkm`,
-                ...this.var_team((pkm: PkmModel) => pkm.display()),
+              ...this.var_team((pkm: PkmModel) => pkm.display()),
             ],
           },
         );
@@ -588,7 +578,6 @@ export class GameController {
     this.menu_main();
   }
 
-
   // Battle
   private event_battle(response: string) {
     const playerChoice = this.findPkm(response);
@@ -598,21 +587,15 @@ export class GameController {
       return;
     }
 
-    const playerChoiceMove = [
-      { label: "1", value: "1" },
-      { label: "2", value: "2" },
-      { label: "3", value: "3" },
-      { label: "4", value: "4" },
-    ]
+    const playerChoiceMove: Choice[] = this.var_pkmMovePool(playerChoice, (move: move):Choice => {
+      return { label: move.name, value: move.name };
+    });
 
-
-    this.UI.set(UI_TYPE.BATTLE, { content: playerChoiceMove}, undefined, {content: [`You have chosen ${playerChoice.getName()} !`]});
-
-
-    console.log(this.UI.getChoices())
+    this.UI.set(UI_TYPE.BATTLE, { content: playerChoiceMove }, undefined, {
+      content: [`You have chosen ${playerChoice.getName()} !`],
+    });
 
   }
-
 
   //  REFACTORED - OK
   /* VAR DATA */
@@ -628,6 +611,10 @@ export class GameController {
 
   private var_playerName(): string {
     return this.world.getPlayer().getName();
+  }
+
+  private var_pkmMovePool(pkm: PkmModel, action: (move: move) => any): any[] {
+    return pkm.getMoves().map(action);
   }
 
   /* TOOL BOX*/
@@ -771,7 +758,11 @@ export class GameController {
     await this.perform_operation(
       async () => {
         let temp = await dexController.getStarterEntries();
+
+
+        console.log('perform_operation sarter', temp);
         this.RAM.starterChoices = temp.map((pkm: any) => new PkmModel(pkm, 5));
+        console.log(this.RAM.starterChoices)
       },
       "Dex successfully initialized.",
       "Error initializing dex",

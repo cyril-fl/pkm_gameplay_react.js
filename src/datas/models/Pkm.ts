@@ -1,7 +1,8 @@
 import { PkdDexEntry } from "@models/PkmDex";
-import { pkmType } from "@customs/Interface";
+import {move, type} from "@customs/Interface";
 
 const NEUTRAL_POKEMON = {
+  dex_entry: 0,
   name: "Neutral",
   id: 0,
   description: "Neutral",
@@ -14,17 +15,46 @@ const NEUTRAL_POKEMON = {
   def_max: 0,
   hp_min: 0,
   hp_max: 0,
+  spd_min: 0,
+  spd_max: 0,
+  moves: [
+    {
+      name: "Neutral",
+      damage: 0,
+      type: { id: 1, name: "Neutral" },
+      crit: { success: 0, fail: 0 },
+    },
+    {
+      name: "Neutral",
+      damage: 0,
+      type: { id: 1, name: "Neutral" },
+      crit: { success: 0, fail: 0 },
+    },
+    {
+      name: "Neutral",
+      damage: 0,
+      type: { id: 1, name: "Neutral" },
+      crit: { success: 0, fail: 0 },
+    },
+    {
+      name: "Neutral",
+      damage: 0,
+      type: { id: 1, name: "Neutral" },
+      crit: { success: 0, fail: 0 },
+    },
+
+  ],
+    is_starter: false,
+
 };
 
 export class PkmModel {
-  static nativId = 0;
-  // inserer DexEntry
-  // ATK [min, max]
-  // DEF [min, max]
-  // HP [min, max]
+
+  static ID = 0;
+  private dex_entry: number;
   private name: string;
   private level: number;
-  private types: pkmType[];
+  private types: type[];
   private isShiny: boolean;
   private experienceMeter: number;
   private experienceGiver: number;
@@ -33,12 +63,14 @@ export class PkmModel {
   private spd: number;
   private hp: number;
   private hp_max: number;
-  private id: number;
+  private moves: move[];
+  private id: string = ""; // format : 0000 (dex entry) - 0000 (type1 type2 ) - 0000 (static ID)
 
   constructor(
     pkm: PkdDexEntry = new PkdDexEntry(NEUTRAL_POKEMON),
     level: number = 1,
   ) {
+    this.dex_entry = pkm.id
     this.name = pkm.name;
     this.level = level;
     this.types = pkm.types;
@@ -62,12 +94,30 @@ export class PkmModel {
       min: pkm.spd_min,
       max: pkm.spd_max,
     });
-    this.id = ++PkmModel.nativId;
+    this.moves = pkm.moves;
+    this.setID(12);
   }
+
 
   /* SETTERS */
   public setName(name: string) {
     this.name = name;
+  }
+  private setID(wishedLength: number) {
+    if (this.id == "" ) {
+      const tempID = ++PkmModel.ID
+      const oneThird = Math.ceil(wishedLength/3);
+      const oneSixth = Math.ceil(oneThird/2)
+
+      let A =  this.dex_entry.toString().padStart(oneThird, '0');
+
+      let B = this.types.map((t) => t.id.toString().padStart(oneSixth, '0')).join('')
+      B = B.length < oneThird ? B.padEnd(oneThird, '0') : B;
+
+      let C = tempID.toString().padStart(oneThird, '0');
+
+      this.id = `${A}-${B}-${C}`;
+    }
   }
   /*  GETTERS*/
 
@@ -83,26 +133,13 @@ export class PkmModel {
     return this.name;
   }
 
-  getData() {
-    return {
-      name: this.name,
-      level: this.level,
-      types: this.types,
-      isShiny: this.isShiny,
-      experienceMeter: this.experienceMeter,
-      experienceGiver: this.experienceGiver,
-      attackRange: this.atk,
-      defenseRange: this.dfs,
-      maxHealthPool: this.hp_max,
-      healthPool: this.hp,
-      // catchPhrase: this.catchPhrase,
-      id: this.id,
-    };
-  }
-
   getTypes() {
     console.log(this.types);
     return this.types.map((type) => type.name);
+  }
+
+  getMoves() {
+    return this.moves;
   }
 
   display() {

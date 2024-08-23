@@ -12,7 +12,7 @@ export class Entry {
       ">": "&gt;",
       '"': "&quot;",
       "'": "&#039;",
-      "_": "&#95;",
+      _: "&#95;",
     };
 
     this.content = this.content.replace(/[&<>"']/g, function (m) {

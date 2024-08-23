@@ -10,21 +10,19 @@ const config: Config = {
   ],
   theme: {
     extend: {
-
       keyframes: {
         slideAndFade: {
-          '0%': { opacity: '0', transform: 'translateY(0)' },
-          '20%': { opacity: '1', transform: 'translateY(100px)' },
-          '40%': { opacity: '1', transform: 'translateY(100px)' },
-          '70%': { opacity: '1', transform: 'translateY(100px)' },
-          '90%': { opacity: '0', transform: 'translateY(0)' },
-          '100%': { opacity: '0', transform: 'translateY(0)' },
+          "0%": { opacity: "0", transform: "translateY(0)" },
+          "20%": { opacity: "1", transform: "translateY(100px)" },
+          "40%": { opacity: "1", transform: "translateY(100px)" },
+          "70%": { opacity: "1", transform: "translateY(100px)" },
+          "90%": { opacity: "0", transform: "translateY(0)" },
+          "100%": { opacity: "0", transform: "translateY(0)" },
         },
       },
       animation: {
-        slideAndFade: 'slideAndFade 4s ease-in-out',
+        slideAndFade: "slideAndFade 4s ease-in-out",
       },
-
 
       fontFamily: {
         "jersey-10": ["var(--jersey-10)", "sans-serif"],

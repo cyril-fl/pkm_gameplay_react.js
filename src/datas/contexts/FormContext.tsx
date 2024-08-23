@@ -12,7 +12,7 @@ import React, {
 import { useAppContext } from "@/hooks/useContext";
 import { GameController } from "@controllers/Game";
 import { FormContextType } from "@customs/Interface";
-import {UI_BUTTON, UI_MENU} from "@customs/Enum";
+import { UI_BUTTON, UI_MENU } from "@customs/Enum";
 
 export const FormContext = createContext<FormContextType | null>(null);
 
@@ -68,7 +68,7 @@ export const FormProvider: React.FC<{ children: ReactNode }> = ({
           break;
         case "ABORT":
           temp = nextAction(UI_BUTTON.ABORT);
-          break
+          break;
         default:
           break;
       }

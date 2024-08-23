@@ -35,9 +35,9 @@ export class GameUIModel {
   public getStyle() {
     return this.style;
   }
-    public getNotification() {
-      return this.notification;
-    }
+  public getNotification() {
+    return this.notification;
+  }
 
   // Setters
   public set(
@@ -48,6 +48,8 @@ export class GameUIModel {
   ) {
     // Set Types
     // Set Choices
+    // Todo : refactor.
+
     if (type) {
       this.type = type;
 
@@ -80,10 +82,7 @@ export class GameUIModel {
     this.type = type;
   }
 
-  public setChoices(
-    choices: Choice[],
-    push: boolean = false,
-  ) {
+  public setChoices(choices: Choice[], push: boolean = false) {
     if (push) {
       this.choices.push(...choices);
     } else {
@@ -95,10 +94,7 @@ export class GameUIModel {
     this.style = style;
   }
 
-  public setDialogues(
-    dialogues: string[],
-    push: boolean = false,
-  ) {
+  public setDialogues(dialogues: string[], push: boolean = false) {
     if (push) {
       this.dialogues.push(...dialogues);
     } else {
@@ -106,11 +102,7 @@ export class GameUIModel {
     }
   }
 
-  public setNotification(
-      notification: string[],
-      push: boolean = false,
-      ) {
-
+  public setNotification(notification: string[], push: boolean = false) {
     if (push) {
       this.notification.push(...notification);
     } else {

@@ -35,11 +35,23 @@ export interface log {
   day: number;
   message: string;
 }
-//Pkm
-export interface pkmType {
+
+// PkdDexEntry
+export interface type {
   id: number;
   name: string;
 }
+export interface crit {
+  success: number;
+  fail: number;
+}
+export interface move {
+  name: string;
+  damage: number;
+  type: type;
+  crit: crit;
+}
+
 // Game UI
 export interface Choice {
   label: string;
