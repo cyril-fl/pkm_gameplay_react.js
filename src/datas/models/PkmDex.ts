@@ -1,4 +1,5 @@
 import { type, move } from "@customs/Interface";
+import {MOCKUP_DEX_ENTRY} from "@/datas/mockup/dex_entry";
 
 export class PkdDexEntry {
   private _name: string;
@@ -18,7 +19,7 @@ export class PkdDexEntry {
   private _moves: move[];
   private _is_starter: boolean;
 
-  constructor(entry: any) {
+  constructor(entry: any = MOCKUP_DEX_ENTRY) {
     this._name = entry.name;
     this._id = entry.id;
     this._description = entry.description;
