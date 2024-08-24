@@ -3,11 +3,15 @@ import { log } from "@customs/Interface";
 import {MOCKUP_SAVE_MODEL} from "@/datas/mockup/save_model";
 
 export class SaveModel {
-  /* Todo : Ajouter les Interface des attributs , bags */
+  /*
+  *  Todo : Ajouter les Interface des attributs , bags
+  *  Todo : Trouver un moyen de rendre private avec getter et setter
+  */
+
   player_name: string;
   player_team: PkmModel[];
   player_bags: any;
-  player_dex: any;
+  player_dex: number[];
   world_day: number;
   world_location: string;
   world_logs: log[];

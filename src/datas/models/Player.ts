@@ -4,9 +4,9 @@ import { PkdDexEntry } from "@models/PkmDex";
 
 export class PlayerModel {
   private _name: string;
-  private _team: PkmModel[];
-  private _bag: any[]; // Todo: Gérer le type bagItem
-  private _pkdex: number[];
+  private readonly _team: PkmModel[];
+  private readonly _bag: any[]; // Todo: Gérer le type bagItem
+  private readonly _pkdex: number[];
 
   constructor(
     name: string,
@@ -21,15 +21,8 @@ export class PlayerModel {
   }
 
   /* SET */
-
   set name(name: string) {
     this._name = name;
-  }
-  set team(team: PkmModel[]) {
-    this._team = team;
-  }
-  set bag(bag: any[]) {
-    this._bag = bag;
   }
 
   /*  GET */
@@ -42,45 +35,49 @@ export class PlayerModel {
   get bag() {
     return this._bag;
   }
-    get dex() {
-        return this._pkdex;
-    }
+  get dex() {
+      return this._pkdex;
+  }
 
   /* Tools */
-  async setUpToSix() {
-    if (this._team.length >= 6) {
-      return;
-    }
+  public setUpToSix(dex: PkdDexEntry[]) {
+     const teamMaxLength = 6;
+     const starterNumber = 9; // 3 starters * 3 evolutions
+     const addedPkmName = []
 
-    const dexController = PkDexController.getInstance();
-    const dex = await dexController.getDex();
+     if (this._team.length < teamMaxLength) {
+       const tempEntries = new Set();
+       const pkmTotalNumber = dex.length - starterNumber; // Total PKM - 9 starters
+       const totalEntries = teamMaxLength - this._team.length;
 
-    const tempDexEntry = new Set();
-    const nb_pkm = 59; // 68 pkm différents dans ce jeu - 9 starters
-    const totalEntries = 6 - this._team.length;
+       while (tempEntries.size < totalEntries) {
+         let random = Math.floor(Math.random() * pkmTotalNumber + starterNumber); // évite d'avoir un starter
+         tempEntries.add(random); // Ajoute le nombre au Set (aucun doublon possible)
+       }
 
-    while (tempDexEntry.size < totalEntries) {
-      let random = Math.floor(Math.random() * nb_pkm + 9); // Evite d'avoir un starter
-      tempDexEntry.add(random); // Ajoute le nombre au Set (aucun doublon possible)
-    }
+       const uniqueEntries = Array.from(tempEntries);
 
-    const uniqueDexEntries = Array.from(tempDexEntry);
-
-    for (let i = 0; i < totalEntries; i++) {
-      const pkm = dex[Number(uniqueDexEntries[i])];
-      this._team.push(new PkmModel(pkm, 5));
-    }
+       for (let i = 0; i < totalEntries; i++) {
+         const pkm = dex[Number(uniqueEntries[i])];
+         addedPkmName.push(pkm.name);
+         this._team.push(new PkmModel(pkm, 5));
+       }
+     }
+    return addedPkmName
   }
 
-  public catchPkm(pkm: PkmModel) {
-    console.log("Catching", pkm);
+  public catch(pkm: PkmModel) {
     this._team.push(pkm);
   }
-  public releasePkm(pkm: PkmModel) {
-    this._team = this._team.filter((p) => p !== pkm);
+
+  public release(pkm: PkmModel) {
+    const index = this._team.indexOf(pkm);
+    if (index > -1) {
+      this._team.splice(index, 1);
+    }
   }
 
-  public addPkdexEntry(pkdex: PkdDexEntry) {
+  public addEntry(pkdex: PkdDexEntry) {
     this._pkdex.push(pkdex.id);
   }
 }

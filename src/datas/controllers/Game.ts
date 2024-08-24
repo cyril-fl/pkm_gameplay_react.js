@@ -107,7 +107,7 @@ export class GameController {
 
         if (this.isValidInput(entry)) {
           this.world.player.name = entry.content;
-          this.addLog(`Hi ${entry.content}, you have started your journey !`);
+          this.world.addLog([`Hi ${entry.content}, you have started your journey !`]);
 
           this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
             content: [
@@ -142,9 +142,6 @@ export class GameController {
       return { label: pkm.name, value: pkm.id.toString() };
     });
 
-    console.log('starterChoices', starterList);
-    console.log('starterChoices', response);
-
     const playerChoice = starterList.find((starter: PkmModel) => {
       if (starter.id === response) {
         return starter;
@@ -152,11 +149,8 @@ export class GameController {
     });
 
     if (playerChoice) {
-      console.log('playerChoice', playerChoice);
-
-
       this.catchPkm(playerChoice);
-      this.addLog(`You have chosen ${playerChoice.name} as your first pkm !`);
+      this.world.addLog([`You have chosen ${playerChoice.name} as your first pkm !`]);
       this.UI.set(UI_TYPE.CHOICE, { content: CHOICES.BOOLEANS }, undefined, {
         content: [
           UI_CHARACTER.PROF,
@@ -208,8 +202,8 @@ export class GameController {
         if (this.isValidInput(entry)) {
           const oldName = thisStarter.name;
           thisStarter.name = entry.content;
-          this.addLog(
-            `You have chosen to name ${oldName} as ${entry.content}.`,
+          this.world.addLog(
+            [`You have chosen to name ${oldName} as ${entry.content}.`],
           );
 
           this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
@@ -249,9 +243,8 @@ export class GameController {
 
   /* MENU */
   private menu_main(response: string = "") {
-    console.log("PLAYER", this.world.player);
+    // this.upToSix();
 
-    console.log(this.world.player.team);
     const temps_d = [`Welcome in ${this.world.location} !`];
     const temp_p = [
       "Here are some basic :",
@@ -270,7 +263,8 @@ export class GameController {
       },
     );
 
-    /*this.world.getPlayer().setUpToSix(); // UP TO SIX*/
+
+
     switch (response) {
       case UI_MENU.TEAM:
         const team = this.var_team((pkm: PkmModel) => pkm);
@@ -450,10 +444,10 @@ export class GameController {
       case UI_BUTTON.YES:
         this.world.player.team.forEach((pkm: PkmModel) => {
           if (pkm === this.RAM.pkm) {
-            this.world.player.releasePkm(pkm);
+            this.world.player.release(pkm);
           }
         });
-        this.addLog(`You have chosen to release ${this.RAM.pkm?.name} !`);
+        this.world.addLog([`You have chosen to release ${this.RAM.pkm?.name} !`]);
         this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
           content: [
             UI_CHARACTER.PROF,
@@ -530,8 +524,8 @@ export class GameController {
 
         if (this.RAM.pkm && this.RAM.pkmName_new) {
           this.RAM.pkm.name = this.RAM.pkmName_new;
-          this.addLog(
-            `You have chosen to rename ${this.RAM.pkm?.name} in ${this.RAM.pkmName_new}!`,
+          this.world.addLog(
+            [`You have chosen to rename ${this.RAM.pkm?.name} in ${this.RAM.pkmName_new}!`],
           );
 
           delete this.RAM.pkmName_old;
@@ -619,7 +613,9 @@ export class GameController {
     });
   }
 
-  //  REFACTORED - OK
+
+  //  REFACTORED - plus si ok
+
   /* VAR DATA */
   private var_team<T>(operation: (model: PkmModel) => T): T[] {
     return this.world.player.team.map(operation);
@@ -654,6 +650,17 @@ export class GameController {
     return dialogues;
   }
 
+  private upToSix() {
+    if (this.world.dex) {
+      const returnedName = this.world.player.setUpToSix(this.world.dex);
+      if (returnedName.length > 0) {
+        const namesString = returnedName.join(", ");
+        this.world.addLog([`You find a way to summon ${namesString} ... are you a sorcerer?`]);
+      }
+    }
+  }
+
+
   private findPkm(id: string): PkmModel | undefined {
     return this.world.player.team.find(
       (pkm: PkmModel) => pkm.id.toString() === id,
@@ -661,14 +668,16 @@ export class GameController {
   }
 
   private catchPkm(response: PkmModel) {
-    this.world.player.catchPkm(response);
+    this.world.player.catch(response);
 
     const dexEntry = this.world.dex?.find(
       (pkm: PkdDexEntry) => pkm.id === response.dexEntry,
     );
     if (dexEntry) {
-      this.world.player.addPkdexEntry(dexEntry);
-      this.addLog(`You have caught ${dexEntry.name} !`);
+      this.world.player.addEntry(dexEntry);
+      if (!dexEntry.isStarter) {
+        this.world.addLog([`You have caught ${dexEntry.name} !`]);
+      }
     }
   }
 
@@ -688,15 +697,6 @@ export class GameController {
     console.log("RESET UI", data);
     this.world = new WorldModel(data);
     this.nextAction = this.start;
-  }
-
-  private addLog(message: string) {
-    this.world.addLog([
-      {
-        day: this.world.day,
-        message: message,
-      },
-    ]);
   }
 
   private async launchGame(response: string) {
@@ -799,23 +799,6 @@ export class GameController {
       "Error initializing dex",
     );
   }
-
-  /*  private async perform_DexInit() {
-    const dexController = PkDexController.getInstance();
-
-    await this.perform_operation(
-        async () => {
-          let temp = await dexController.getDex();
-          let temp_index = Math.floor(Math.random() * temp.length);
-
-          // todo : ajouter un algo pour calculer le leve en random
-          this.RAM.pkm = new PkmModel(temp[temp_index], 5);
-          console.log(this.RAM.pkm)
-        },
-        "Wild pkm successfully initialized.",
-        "Error initializing dex",
-    );
-  }*/
 
   private async perform_saveData() {
     this.RAM.lastSave = JSON.stringify(this.extractData); // peu être un souci ici 🤷 ?

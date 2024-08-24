@@ -60,10 +60,4 @@ export class PkDexController {
       return [];
     }
   }
-
-  public async getStarterEntries(): Promise<any[]> {
-    const dex = await this.getDex();
-    const starterEntries = dex.filter((pkm: any) => pkm.is_starter === true);
-    return starterEntries;
-  }
 }

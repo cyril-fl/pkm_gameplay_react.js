@@ -60,7 +60,9 @@ export class WorldModel {
   public oneDayPasses() {
     this._day += 1;
   }
-  public addLog(message: log[]) {
-    message.forEach((m) => this._logs.push(m));
+  public addLog(message: string[]) {
+    message.forEach((m) => {
+        this._logs.push({ day: this._day, message: m });
+    });
   }
 }
