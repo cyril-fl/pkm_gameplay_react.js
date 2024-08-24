@@ -1,11 +1,13 @@
 import {
   UI_Compiler_Choice,
   UI_Compiler_Dialogue,
-  Choice,
+  Choice, arena,
 } from "@customs/Interface";
 import { CHOICES, UI_STYLE, UI_TYPE } from "@customs/Enum";
+import { PkmModel } from "@models/Pkm";
 
-interface update {
+// todo deplacer
+export interface update {
   newType?: string;
   newChoice?: UI_Compiler_Choice;
   newStyle?: string;
@@ -18,6 +20,7 @@ export class GameUIModel {
   private _type: string;
   private _style: string;
   private _notification: string[];
+  private _arena: arena;
 
   constructor() {
     this._dialogues = ["Pokemon"];
@@ -25,6 +28,10 @@ export class GameUIModel {
     this._type = UI_TYPE.PRESS;
     this._style = UI_STYLE.START;
     this._notification = [];
+    this._arena = {
+        playerPkm: new PkmModel(),
+        wildPkm: new PkmModel(),
+    }
   }
 
   /* GETTERS */
@@ -43,6 +50,16 @@ export class GameUIModel {
   get notification() {
     return this._notification;
   }
+  get arena() {
+      return this._arena
+  }
+  get arenaPlayerPkm() {
+    return this._arena.playerPkm;
+  }
+  get arenaWildPkm() {
+      return this._arena.wildPkm;
+  }
+
 
   /* SETTERS */
   set style(newStyle: string) {
@@ -50,6 +67,9 @@ export class GameUIModel {
   }
   set type(type: string) {
     this._type = type;
+  }
+  set arena(newArena: arena) {
+    this._arena = newArena;
   }
 
   /* TOOLS */

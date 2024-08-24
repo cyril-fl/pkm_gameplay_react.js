@@ -1,5 +1,5 @@
 import { PkdDexEntry } from "@models/PkmDex";
-import { move, type } from "@customs/Interface";
+import {Choice, move, type} from "@customs/Interface";
 
 export class PkmModel {
   static ID = 0;
@@ -8,7 +8,8 @@ export class PkmModel {
   private readonly _level: number;
   private readonly _types: type[];
   private readonly _isShiny: boolean;
-  private readonly _experienceMeter: number;
+  private  _experience_current: number;
+  private _experience_nextLvL: number;
   private readonly _experienceGiver: number;
   private readonly _atk: number;
   private readonly _dfs: number;
@@ -24,7 +25,8 @@ export class PkmModel {
     this._level = level;
     this._types = pkm.types;
     this._isShiny = Math.random() < 0.001;
-    this._experienceMeter = 0;
+    this._experience_current = 0;
+    this._experience_nextLvL = 20 * level;
     this._experienceGiver = this.getRandomNumber({ min: 10, max: 20 }) * level;
     this._atk = this.getRandomNumber({
       min: pkm.atkMin,
@@ -62,7 +64,7 @@ export class PkmModel {
   get name() {
     return this._name;
   }
-  get level() {
+  get lvl() {
     return this._level;
   }
   get types() {
@@ -74,8 +76,11 @@ export class PkmModel {
   get isShiny() {
     return this._isShiny;
   }
-  get experienceMeter() {
-    return this._experienceMeter;
+  get currentXP() {
+    return this._experience_current;
+  }
+  get nextLvlXP() {
+      return this._experience_nextLvL;
   }
   get experienceGiver() {
     return this._experienceGiver;
@@ -92,12 +97,19 @@ export class PkmModel {
   get hp() {
     return this._hp;
   }
-  get hp_max() {
+  get hpMax() {
     return this._hp_max;
   }
   get moves() {
     return this._moves;
   }
+  get movesPoolChoices () {
+    return this._moves.map((move): Choice => {
+      return {
+        label: move.name, value: move.name
+      }})
+  }
+
   get id() {
     return this._id;
   }
@@ -131,9 +143,14 @@ export class PkmModel {
       this._hp = 0;
     }
     return (
-      `${this.name} LVL : ${this.level} \n` +
-      `( PV : ${this.hp} / ${this.hp_max} | ATK : ${this.atk}` +
-      ` | DEF : ${this.dfs} )`
+      `${this.name} LVL : ${this.lvl} \n` +
+      `( PV : ${this.hp} / ${this.hpMax} | ATK : ${this.atk}` +
+      ` | DEF : ${this.dfs} ) | SPD : ${this.spd}`
     );
   }
+
+  private setNextLevel() {
+    this._experience_nextLvL = 20 * this.lvl;
+  }
+
 }

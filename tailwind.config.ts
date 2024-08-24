@@ -45,8 +45,10 @@ const config: Config = {
         "GameBoy-body-l": "#BDBDBD",
         "GameBoy-body-xl": "#8F8F8F",
         "GameBoy-body-xxl": "#8C8C8C",
-        "GameBoy-white": "#FFFFFF",
-        "GameBoy-black": "#1F1F1F",
+        // "GameBoy-white": "#FFFFFF",
+        // "GameBoy-black": "#1F1F1F",
+        "GameBoy-black": "#FFFFFF",
+        "GameBoy-white": "#1F1F1F",
       },
       aspectRatio: {
         "3/2": "3 / 2",

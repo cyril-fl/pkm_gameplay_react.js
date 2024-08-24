@@ -8,9 +8,8 @@ export class RAM {
   private declare _starter_choices?: PkmModel[];
   private declare dex: PkdDexEntry[];
   private declare pkmName_old: string;
-  private declare pkmName_new: string;
+  private declare _pkmName_new: string;
   private declare _pkm: PkmModel;
-  private declare arena: arena;
 
   constructor() {}
 
@@ -45,6 +44,9 @@ export class RAM {
   get pkm() {
     return this._pkm;
   }
+  get pkmNewName() {
+    return this._pkmName_new;
+  }
 
   /* SETTERS */
   set tuto_CG(bool: boolean) {
@@ -58,10 +60,13 @@ export class RAM {
       .filter((pkm: any) => pkm.isStarter)
       .map((pkm: any) => new PkmModel(pkm, 5));
   }
-
   set pkm(pkm: PkmModel) {
     this._pkm = pkm;
   }
+  set pkmNewName(name: string) {
+    this._pkmName_new = name;
+  }
+
 
   /* TOOLS */
   public resetStarter() {

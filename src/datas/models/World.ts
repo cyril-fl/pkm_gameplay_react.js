@@ -38,6 +38,10 @@ export class WorldModel {
   get dex(): PkdDexEntry[] {
     return this._dex;
   }
+  get randomPkm(): PkdDexEntry {
+    return this._dex[Math.floor(Math.random() * this._dex.length)];
+
+  }
 
   /* SET */
   set day(data: number) {
