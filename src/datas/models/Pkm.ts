@@ -1,23 +1,22 @@
 import { PkdDexEntry } from "@models/PkmDex";
 import { move, type } from "@customs/Interface";
 
-// todo : mettre getter et setter pour les variables privées
 export class PkmModel {
   static ID = 0;
-  private _dex_entry: number; // readonly todo
+  private readonly _dex_entry: number;
   private _name: string;
-  private _level: number;
-  private readonly _types: type[]; // readonly todo
-  private readonly _isShiny: boolean; // readonly todo
-  private _experienceMeter: number;
-  private _experienceGiver: number;
-  private _atk: number;
-  private _dfs: number;
-  private _spd: number;
+  private readonly _level: number;
+  private readonly _types: type[];
+  private readonly _isShiny: boolean
+  private readonly _experienceMeter: number;
+  private readonly _experienceGiver: number;
+  private readonly _atk: number;
+  private readonly _dfs: number;
+  private readonly _spd: number;
   private _hp: number;
-  private _hp_max: number;
-  private _moves: move[];
-  private _id: string = ""; // format : 0000 (dex entry) - 0000 (type1 type2 ) - 0000 (static ID) // readonly todo
+  private readonly _hp_max: number;
+  private readonly _moves: move[];
+  protected declare _id: string; // format : 0000 (dex entry) - 0000 (type1 type2 ) - 0000 (static ID) // readonly todo
 
   constructor(pkm: PkdDexEntry = new PkdDexEntry(), level: number = 1) {
     this._dex_entry = pkm.id;
@@ -52,9 +51,10 @@ export class PkmModel {
   set name(name: string) {
     this._name = name;
   }
-  set level(level: number) {
-    this._level = level;
-  }
+  set hp(hp: number) {
+        this._hp = hp;
+    }
+
 
   /*  GETTERS*/
   get dexEntry() {
@@ -106,13 +106,11 @@ export class PkmModel {
   }
 
   private setID(wishedLength: number) {
-    if (this._id == "") {
+    if (this._id === undefined) {
       const tempID = ++PkmModel.ID;
       const oneThird = Math.ceil(wishedLength / 3);
       const oneSixth = Math.ceil(oneThird / 2);
 
-      console.log("1",this.dexEntry);
-      console.log("2",this._dex_entry);
       let A = this.dexEntry.toString().padStart(oneThird, "0");
 
       let B = this.types
@@ -131,9 +129,9 @@ export class PkmModel {
       this._hp = 0;
     }
     return (
-      `${this._name} LVL : ${this._level} \n` +
-      `( PV : ${this._hp} / ${this._hp_max} | ATK : ${this._atk}` +
-      ` | DEF : ${this._dfs} )`
+      `${this.name} LVL : ${this.level} \n` +
+      `( PV : ${this.hp} / ${this.hp_max} | ATK : ${this.atk}` +
+      ` | DEF : ${this.dfs} )`
     );
   }
 }
