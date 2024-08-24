@@ -68,6 +68,9 @@ export class PkmModel {
   get types() {
     return this._types.map((type) => type);
   }
+  get typesName() {
+    return this._types.map((type) => type.name);
+  }
   get isShiny() {
     return this._isShiny;
   }

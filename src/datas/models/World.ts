@@ -8,7 +8,7 @@ export class WorldModel {
   private _location: string;
   private _logs: log[];
   private _player: PlayerModel;
-  private _dex: PkdDexEntry[] = [];
+  private declare _dex: PkdDexEntry[];
 
   constructor(data: SaveModel) {
     this._player = new PlayerModel(
@@ -35,7 +35,7 @@ export class WorldModel {
   get player(): PlayerModel {
     return this._player;
   }
-  get dex(): PkdDexEntry[] | null {
+  get dex(): PkdDexEntry[] {
     return this._dex;
   }
 

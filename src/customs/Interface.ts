@@ -23,7 +23,9 @@ export interface FormContextType {
 
 /* GAME */
 // Game Controller
-export interface RAM {
+
+// a surprimer si plus bespoin Todo
+export interface RAM_interface {
   lastSave?: any;
   continueGame_tuto?: boolean;
   starterChoices?: PkmModel[];
@@ -33,7 +35,9 @@ export interface RAM {
   pkm?: PkmModel;
   arena?: arena;
 }
-interface arena {
+// ---
+
+export interface arena {
   playerPkm: PkmModel;
   wildPkm: PkmModel;
 }

@@ -9,7 +9,6 @@ export const DialoguesCard = () => {
 
   const dialogues = useMemo(() => {
     if (ui) {
-      console.log("UI DATA", ui);
       return ui.dialogues;
     } else {
       return [""];
