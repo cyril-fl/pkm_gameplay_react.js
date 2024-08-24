@@ -9,7 +9,7 @@ export const EntryInput = () => {
   const { submit } = useFormContext();
 
   const handleAbortAction = () => {
-    ui.setType("ABORT");
+    ui.type = "ABORT";
     submit();
   };
 

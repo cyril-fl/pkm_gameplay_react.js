@@ -3,6 +3,7 @@ export enum UI_TYPE {
   PRESS = "PRESS",
   ENTRY = "ENTRY",
   BATTLE = "BATTLE",
+  ABORT = "ABORT",
 }
 export enum UI_MENU {
   // MENU

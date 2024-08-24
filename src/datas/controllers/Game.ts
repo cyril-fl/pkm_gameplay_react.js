@@ -41,7 +41,7 @@ export class GameController {
     const isPlayerTeamZero = this.world.player.team.length === 0;
 
     if (isPlayerTeamZero) {
-      this.UI.set(
+      this.UI.update(
         UI_TYPE.CHOICE,
         { content: CHOICES.BOOLEANS },
         UI_STYLE.PROF_GREETINGS,
@@ -59,7 +59,7 @@ export class GameController {
       this.nextAction = this.playerInit;
       this.RAM.continueGame_tuto = true;
     } else {
-      this.UI.set(
+      this.UI.update(
         UI_TYPE.CHOICE,
         { content: CHOICES.ACTION_LAST_SAVE },
         UI_STYLE.SHOW_LAST_SAVE,
@@ -81,7 +81,7 @@ export class GameController {
   private playerInit(response: string) {
     switch (response) {
       case UI_BUTTON.YES:
-        this.UI.set(UI_TYPE.ENTRY, undefined, undefined, {
+        this.UI.update(UI_TYPE.ENTRY, undefined, undefined, {
           content: [
             UI_CHARACTER.PROF,
             "You have chosen to embark on the journey !",
@@ -92,7 +92,7 @@ export class GameController {
         break;
 
       case UI_BUTTON.NO:
-        this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
+        this.UI.update(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
           content: [
             UI_CHARACTER.PROF,
             "You have chosen not to embark on the journey !",
@@ -109,7 +109,7 @@ export class GameController {
           this.world.player.name = entry.content;
           this.world.addLog([`Hi ${entry.content}, you have started your journey !`]);
 
-          this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
+          this.UI.update(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
             content: [
               UI_CHARACTER.PROF,
               `Ok ${entry.content}, are you ready to pick your first Pkm ?`,
@@ -120,7 +120,7 @@ export class GameController {
           this.nextAction = this.starterSelect;
           this.starterSelect();
         } else {
-          this.UI.setDialogues([
+          this.UI.updateDialogues([
             UI_CHARACTER.PROF,
             `I didn't get that, please enter a valid name !`,
             'it should be between 1 and 10 characters long with no special chars ( &, <, >, ", ! )',
@@ -151,7 +151,7 @@ export class GameController {
     if (playerChoice) {
       this.catchPkm(playerChoice);
       this.world.addLog([`You have chosen ${playerChoice.name} as your first pkm !`]);
-      this.UI.set(UI_TYPE.CHOICE, { content: CHOICES.BOOLEANS }, undefined, {
+      this.UI.update(UI_TYPE.CHOICE, { content: CHOICES.BOOLEANS }, undefined, {
         content: [
           UI_CHARACTER.PROF,
           `Would you like to name your ${playerChoice.name} ?`,
@@ -165,7 +165,7 @@ export class GameController {
         return pkm.display() + ` the ${pkmTypes} pkm`;
       });
 
-      this.UI.set(UI_TYPE.CHOICE, { content: starterChoices }, undefined, {
+      this.UI.update(UI_TYPE.CHOICE, { content: starterChoices }, undefined, {
         content: new_dialogues,
         push: true,
       });
@@ -177,7 +177,7 @@ export class GameController {
 
     switch (response) {
       case UI_BUTTON.YES:
-        this.UI.set(UI_TYPE.ENTRY, undefined, undefined, {
+        this.UI.update(UI_TYPE.ENTRY, undefined, undefined, {
           content: [
             UI_CHARACTER.PROF,
             `Ok, what would you like to name your ${thisStarter.name} ?`,
@@ -186,7 +186,7 @@ export class GameController {
         break;
 
       case UI_BUTTON.NO:
-        this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
+        this.UI.update(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
           content: [
             UI_CHARACTER.PROF,
             "Okay, you have chosen not to name your pkm ,",
@@ -206,7 +206,7 @@ export class GameController {
             [`You have chosen to name ${oldName} as ${entry.content}.`],
           );
 
-          this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
+          this.UI.update(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
             content: [
               UI_CHARACTER.PROF,
               `Ok, you have chosen to name your ${oldName} in ${entry.content} !`,
@@ -214,11 +214,11 @@ export class GameController {
           });
           this.nextAction = this.starterRename_B;
         } else {
-          this.UI.setNotification([
+          this.UI.updateNotification([
             'Entry should be between 1 and 10 characters long with no special chars ( &, <, >, ", !, _ )',
           ]);
 
-          this.UI.setDialogues([
+          this.UI.updateDialogues([
             UI_CHARACTER.PROF,
             `I didn't get that, please enter a valid name !`,
             'it should be between 1 and 10 characters long with no special chars ( &, <, >, ", !, _ )',
@@ -229,7 +229,7 @@ export class GameController {
   }
 
   private async starterRename_B() {
-    this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
+    this.UI.update(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
       content: [
         UI_CHARACTER.PROF,
         "You are now ready to start your journey !",
@@ -254,7 +254,7 @@ export class GameController {
     ];
     const dialogues = this.tuto(temps_d, temp_p, "continueGame_tuto");
 
-    this.UI.set(
+    this.UI.update(
       UI_TYPE.CHOICE,
       { content: CHOICES.ACTION_MAIN_MENU },
       UI_STYLE.DEFAULT,
@@ -270,16 +270,16 @@ export class GameController {
         const team = this.var_team((pkm: PkmModel) => pkm);
 
         if (team.length > 0) {
-          this.UI.setDialogues([
+          this.UI.updateDialogues([
             UI_CHARACTER.PROF,
             `Here is your team :`,
             ...this.var_team<string>((pkm: PkmModel) => pkm.display()),
           ]);
         } else {
-          this.UI.setDialogues(["You have no pkm in your team!"], true);
+          this.UI.updateDialogues(["You have no pkm in your team!"], true);
         }
 
-        this.UI.setChoices([
+        this.UI.updateChoices([
           ...CHOICES.ACTION_TEAM_MENU,
           ...CHOICES.ACTION_BACK,
         ]);
@@ -288,7 +288,7 @@ export class GameController {
         break;
 
       case UI_MENU.PKMCENTER:
-        this.UI.set(
+        this.UI.update(
           UI_TYPE.CHOICE,
           {
             content: [...CHOICES.ACTION_PKMCENTER_MENU, ...CHOICES.ACTION_BACK],
@@ -312,7 +312,7 @@ export class GameController {
 
       case UI_MENU.TRAVEL:
         if (this.isRandomEvent(1, 2)) {
-          this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
+          this.UI.update(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
             content: [`You have encountered a wild Pokémon!`],
           });
 
@@ -323,7 +323,7 @@ export class GameController {
           // Ou le faire come javais prévu pour le pokédex.
           // await this.perform_wildPkmInit()
         } else {
-          this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
+          this.UI.update(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
             content: [
               `Nothing happened today, you can continue your journey !`,
             ],
@@ -337,12 +337,12 @@ export class GameController {
   }
 
   private menu_pkmCenter(response: string) {
-    this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE });
+    this.UI.update(UI_TYPE.PRESS, { content: CHOICES.CONTINUE });
     this.nextAction = this.menu_pkmCenter;
 
     switch (response) {
       case UI_MENU.REVIVE:
-        this.UI.setDialogues([
+        this.UI.updateDialogues([
           UI_CHARACTER.PROF,
           `You have chosen to revive your team !`,
         ]);
@@ -350,7 +350,7 @@ export class GameController {
         break;
       case UI_MENU.CONSULT_LOG:
         // Todo: Add a way to paginate the logs
-        this.UI.setDialogues([
+        this.UI.updateDialogues([
           `Your log :`,
           ...this.world.logs.map((log) => `Day ${log.day} : ${log.message}`),
         ]);
@@ -370,7 +370,7 @@ export class GameController {
     const team = this.world.player.team;
     switch (response) {
       case UI_MENU.HEAL:
-        this.UI.setDialogues([
+        this.UI.updateDialogues([
           UI_CHARACTER.PROF,
           `You have chosen to heal your team !`,
         ]);
@@ -378,7 +378,7 @@ export class GameController {
         break;
 
       case UI_MENU.RENAME:
-        this.UI.set(
+        this.UI.update(
           UI_TYPE.CHOICE,
           {
             content: [...this.var_teamChoices(), ...CHOICES.ACTION_BACK],
@@ -391,12 +391,12 @@ export class GameController {
 
       case UI_MENU.RELEASE:
         if (team.length <= 1) {
-          this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
+          this.UI.update(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
             content: [`You can't release your last pkm !`],
           });
           this.nextAction = this.menu_team;
         } else {
-          this.UI.set(
+          this.UI.update(
             UI_TYPE.CHOICE,
             {
               content: [...this.var_teamChoices(), ...CHOICES.ACTION_BACK],
@@ -433,7 +433,7 @@ export class GameController {
     }
 
     this.RAM.pkm = temp_pkm;
-    this.UI.set(UI_TYPE.CHOICE, { content: CHOICES.BOOLEANS }, undefined, {
+    this.UI.update(UI_TYPE.CHOICE, { content: CHOICES.BOOLEANS }, undefined, {
       content: [`Are you sure you want to release ${this.RAM.pkm.name} ?`],
     });
     this.nextAction = this.releasePkm_B;
@@ -448,7 +448,7 @@ export class GameController {
           }
         });
         this.world.addLog([`You have chosen to release ${this.RAM.pkm?.name} !`]);
-        this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
+        this.UI.update(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
           content: [
             UI_CHARACTER.PROF,
             `You have chosen to release ${this.RAM.pkm?.name}!`,
@@ -475,7 +475,7 @@ export class GameController {
 
     this.RAM.pkm = this.findPkm(response);
 
-    this.UI.set(UI_TYPE.ENTRY, undefined, undefined, {
+    this.UI.update(UI_TYPE.ENTRY, undefined, undefined, {
       content: [`What would you like to name ${this.RAM.pkm?.name} ?`],
     });
     this.nextAction = this.renamePkm_B;
@@ -492,18 +492,18 @@ export class GameController {
     if (this.isValidInput(entry)) {
       this.RAM.pkmName_new = entry.content;
 
-      this.UI.set(UI_TYPE.CHOICE, { content: CHOICES.BOOLEANS }, undefined, {
+      this.UI.update(UI_TYPE.CHOICE, { content: CHOICES.BOOLEANS }, undefined, {
         content: [
           `Are you sure you want to rename ${this.RAM.pkm?.name} in ${this.RAM.pkmName_new} ?`,
         ],
       });
       this.nextAction = this.renamePkm_C;
     } else {
-      this.UI.setNotification([
+      this.UI.updateNotification([
         'Entry should be between 1 and 10 characters long with no special chars ( &, <, >, ", !, _ )',
       ]);
 
-      this.UI.setDialogues([
+      this.UI.updateDialogues([
         UI_CHARACTER.PROF,
         `I didn't get that, please enter a valid name !`,
         'it should be between 1 and 10 characters long with no special chars ( &, <, >, ", ! )',
@@ -514,7 +514,7 @@ export class GameController {
   private renamePkm_C(response: string) {
     switch (response) {
       case UI_BUTTON.YES:
-        this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
+        this.UI.update(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
           content: [
             UI_CHARACTER.PROF,
             `You have chosen to rename ${this.RAM.pkm?.name}!`,
@@ -548,7 +548,7 @@ export class GameController {
   private travel_event(response: string) {
     switch (response) {
       case UI_BUTTON.YES:
-        this.UI.set(
+        this.UI.update(
           UI_TYPE.CHOICE,
           { content: this.var_teamChoices() },
           undefined,
@@ -564,13 +564,13 @@ export class GameController {
 
         break;
       case UI_BUTTON.NO:
-        this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
+        this.UI.update(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
           content: [`You ran away ...`],
         });
         this.nextAction = this.menu_main;
         break;
       default:
-        this.UI.set(UI_TYPE.CHOICE, { content: CHOICES.BOOLEANS }, undefined, {
+        this.UI.update(UI_TYPE.CHOICE, { content: CHOICES.BOOLEANS }, undefined, {
           content: [
             `Wild ${this.RAM.pkm?.name} appears ! Do you want to battle ?`,
           ],
@@ -608,7 +608,7 @@ export class GameController {
       },
     );
 
-    this.UI.set(UI_TYPE.BATTLE, { content: playerChoiceMove }, undefined, {
+    this.UI.update(UI_TYPE.BATTLE, { content: playerChoiceMove }, undefined, {
       content: [`You have chosen ${playerChoice.name} !`],
     });
   }
@@ -712,7 +712,7 @@ export class GameController {
   }
 
   private warning(action: (...args: any) => void) {
-    this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
+    this.UI.update(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
       content: [`Something went wrong, please try again !`],
     });
     this.nextAction = action;
@@ -738,29 +738,29 @@ export class GameController {
   // Game action
   public async game_save() {
     await this.perform_saveData();
-    this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
+    this.UI.update(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
       content: ["You have saved the game !"],
     });
   }
 
   public async game_quit(response: string = "") {
-    this.UI.set(UI_TYPE.PRESS, { content: CHOICES.CONTINUE });
+    this.UI.update(UI_TYPE.PRESS, { content: CHOICES.CONTINUE });
     this.nextAction = this.resetUI;
 
     switch (response) {
       case UI_BUTTON.YES:
-        this.UI.setDialogues(["You saved the game! Have a good day!"]);
+        this.UI.updateDialogues(["You saved the game! Have a good day!"]);
         await this.perform_saveData();
         break;
       case UI_BUTTON.NO:
-        this.UI.setDialogues(["You have chosen not to save !"]);
+        this.UI.updateDialogues(["You have chosen not to save !"]);
         break;
       case UI_BUTTON.BACK:
         this.nextAction = this.menu_main;
         this.menu_main();
         break;
       default:
-        this.UI.set(
+        this.UI.update(
           UI_TYPE.CHOICE,
           { content: [...CHOICES.BOOLEANS, ...CHOICES.ACTION_BACK] },
           undefined,

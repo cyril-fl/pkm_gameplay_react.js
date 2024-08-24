@@ -20,8 +20,7 @@ export class GameUIModel {
     this._notification = [];
   }
 
-  /* Getters && Setters */
-  // Getters
+  /* GETTERS */
   get dialogues() {
     return this._dialogues;
   }
@@ -38,75 +37,63 @@ export class GameUIModel {
     return this._notification;
   }
 
-  // Setters
-  public set(
-    type?: string,
-    choice?: UI_Compiler_Choice,
-    style?: string,
-    dialogues?: UI_Compiler_Dialogue,
-  ) {
-    // Set Types
-    // Set Choices
-    // Todo : refactor.
-
-    if (type) {
-      this._type = type;
-
-      if (type === UI_TYPE.PRESS && choice) {
-        this.setChoices(choice.content);
-      }
-      if (type === UI_TYPE.CHOICE && choice) {
-        this.setChoices(choice.content, choice.push);
-      }
-      if (type === UI_TYPE.BATTLE && choice) {
-        this.setChoices(choice.content, choice.push);
-      }
-      if (type === "ENTRY") {
-        this.setChoices([]);
-      }
-    }
-
-    // Set Style
-    if (style) {
-      this.setStyle(style);
-    }
-
-    // Set Dialogues
-    if (dialogues) {
-      this.setDialogues(dialogues.content, dialogues.push);
-    }
+  /* SETTERS */
+  set style(newStyle: string) {
+    this._style = newStyle;
   }
-
-  public setType(type: string) {
+  set type(type: string) {
     this._type = type;
   }
 
-  public setChoices(choices: Choice[], push: boolean = false) {
-    if (push) {
-      this._choices.push(...choices);
-    } else {
-      this._choices = choices;
+  /* TOOLS */
+  public update(
+    newType?: string,
+    newChoice?: UI_Compiler_Choice,
+    newStyle?: string,
+    newDialogues?: UI_Compiler_Dialogue,
+  ) {
+    // Todo : refactor.
+    if (newType) {
+      this.type = newType;
+
+      if (newType === "ENTRY") {
+        this.updateChoices([]);
+      }
+    }
+
+    if (newStyle) {
+      this.style = newStyle;
+    }
+
+    if (newChoice) {
+      switch (this.type) {
+        case UI_TYPE.PRESS:
+          this.updateChoices(newChoice.content);
+            break;
+        case UI_TYPE.CHOICE:
+        case UI_TYPE.BATTLE:
+            this.updateChoices(newChoice.content, newChoice.push);
+            break;
+        default:
+            break;
+      }
+    }
+
+    if (newDialogues) {
+      this.updateDialogues(newDialogues.content, newDialogues.push);
     }
   }
 
-  public setStyle(style: string) {
-    this._style = style;
+  public updateChoices(choices: Choice[], push: boolean = false) {
+    this._choices = push ? [...this._choices, ...choices] : choices;
   }
 
-  public setDialogues(dialogues: string[], push: boolean = false) {
-    if (push) {
-      this._dialogues.push(...dialogues);
-    } else {
-      this._dialogues = dialogues;
-    }
+  public updateDialogues(dialogues: string[], push: boolean = false) {
+    this._dialogues = push ? [...this._dialogues, ...dialogues] : dialogues;
   }
 
-  public setNotification(notification: string[], push: boolean = false) {
-    if (push) {
-      this._notification.push(...notification);
-    } else {
-      this._notification = notification;
-    }
+  public updateNotification(notification: string[], push: boolean = false) {
+    this._notification = push ? [...this._notification, ...notification] : notification;
 
     setTimeout(() => {
       this._notification = [];
