@@ -1,6 +1,6 @@
 /*
-* Todo : A voir s'il sert vraiment sinon le supprimer
-*/
+ * Todo : A voir s'il sert vraiment sinon le supprimer
+ */
 
 export class Loading {
   private loading: boolean = false;

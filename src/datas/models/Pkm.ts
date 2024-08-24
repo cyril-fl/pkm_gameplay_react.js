@@ -7,7 +7,7 @@ export class PkmModel {
   private _name: string;
   private readonly _level: number;
   private readonly _types: type[];
-  private readonly _isShiny: boolean
+  private readonly _isShiny: boolean;
   private readonly _experienceMeter: number;
   private readonly _experienceGiver: number;
   private readonly _atk: number;
@@ -52,9 +52,8 @@ export class PkmModel {
     this._name = name;
   }
   set hp(hp: number) {
-        this._hp = hp;
-    }
-
+    this._hp = hp;
+  }
 
   /*  GETTERS*/
   get dexEntry() {

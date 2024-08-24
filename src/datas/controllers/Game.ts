@@ -41,36 +41,11 @@ export class GameController {
     const isPlayerTeamZero = this.world.player.team.length === 0;
 
     if (isPlayerTeamZero) {
-      this.UI.update(
-        UI_TYPE.CHOICE,
-        { content: CHOICES.BOOLEANS },
-        UI_STYLE.PROF_GREETINGS,
-        {
-          content: [
-            UI_CHARACTER.PROF,
-            "You seem to be a new face around here !",
-            "Welcome to the fantastic world of pkm,",
-            "You are about to embark on a journey of a life time !",
-            "You will face many challenges and make many choices !",
-            "Are you ready ?",
-          ],
-        },
-      );
+      this.updateUIForNewGame();
       this.nextAction = this.playerInit;
       this.RAM.continueGame_tuto = true;
     } else {
-      this.UI.update(
-        UI_TYPE.CHOICE,
-        { content: CHOICES.ACTION_LAST_SAVE },
-        UI_STYLE.SHOW_LAST_SAVE,
-        {
-          content: [
-            `Day : ${this.world.day} , Location : ${this.world.location}`,
-            `Player : ${this.var_playerName()}`,
-            `Team : ${this.var_team((pkm: PkmModel) => pkm.name).join(", ")}`,
-          ],
-        },
-      );
+      this.updateUIForLastSave();
       this.RAM.continueGame_tuto = false;
       this.nextAction = this.launchGame;
     }
@@ -81,57 +56,22 @@ export class GameController {
   private playerInit(response: string) {
     switch (response) {
       case UI_BUTTON.YES:
-        this.UI.update(UI_TYPE.ENTRY, undefined, undefined, {
-          content: [
-            UI_CHARACTER.PROF,
-            "You have chosen to embark on the journey !",
-            "You will be given a pkm to start your journey !",
-            "But first tell me your name ?",
-          ],
-        });
+        this.updateUIPlayerInitYes();
         break;
 
       case UI_BUTTON.NO:
-        this.UI.update(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
-          content: [
-            UI_CHARACTER.PROF,
-            "You have chosen not to embark on the journey !",
-            "You will be returned to the main menu !",
-          ],
-        });
+        this.updateUIPlayerInitNO();
         this.nextAction = this.resetUI;
         break;
 
       default:
-        const entry = new Entry(response);
-
-        if (this.isValidInput(entry)) {
-          this.world.player.name = entry.content;
-          this.world.addLog([`Hi ${entry.content}, you have started your journey !`]);
-
-          this.UI.update(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
-            content: [
-              UI_CHARACTER.PROF,
-              `Ok ${entry.content}, are you ready to pick your first Pkm ?`,
-              "You will be given a choice of 3 pkm to choose from !",
-            ],
-          });
-
-          this.nextAction = this.starterSelect;
-          this.starterSelect();
-        } else {
-          this.UI.updateDialogues([
-            UI_CHARACTER.PROF,
-            `I didn't get that, please enter a valid name !`,
-            'it should be between 1 and 10 characters long with no special chars ( &, <, >, ", ! )',
-          ]);
-        }
+        this.handlePlayerName(response);
+        break;
     }
   }
 
-  // // DONNER UN ELPTE DEX AU PLAUER, ET QUAND IL CAPTURER ON COPIER L'ENTRE DU WILD VER LE DEX.
-  // await this.perform_dexInit()
-  // this.dexInit()
+
+
 
   private starterSelect(response: string = "") {
     const starterList = this.RAM.starterChoices;
@@ -150,7 +90,9 @@ export class GameController {
 
     if (playerChoice) {
       this.catchPkm(playerChoice);
-      this.world.addLog([`You have chosen ${playerChoice.name} as your first pkm !`]);
+      this.world.addLog([
+        `You have chosen ${playerChoice.name} as your first pkm !`,
+      ]);
       this.UI.update(UI_TYPE.CHOICE, { content: CHOICES.BOOLEANS }, undefined, {
         content: [
           UI_CHARACTER.PROF,
@@ -186,13 +128,18 @@ export class GameController {
         break;
 
       case UI_BUTTON.NO:
-        this.UI.update(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
-          content: [
-            UI_CHARACTER.PROF,
-            "Okay, you have chosen not to name your pkm ,",
-            "You could do that later !",
-          ],
-        });
+        this.UI.update(
+          UI_TYPE.PRESS,
+          { content: CHOICES.CONTINUE },
+          undefined,
+          {
+            content: [
+              UI_CHARACTER.PROF,
+              "Okay, you have chosen not to name your pkm ,",
+              "You could do that later !",
+            ],
+          },
+        );
         this.nextAction = this.starterRename_B;
         break;
 
@@ -202,16 +149,21 @@ export class GameController {
         if (this.isValidInput(entry)) {
           const oldName = thisStarter.name;
           thisStarter.name = entry.content;
-          this.world.addLog(
-            [`You have chosen to name ${oldName} as ${entry.content}.`],
-          );
+          this.world.addLog([
+            `You have chosen to name ${oldName} as ${entry.content}.`,
+          ]);
 
-          this.UI.update(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
-            content: [
-              UI_CHARACTER.PROF,
-              `Ok, you have chosen to name your ${oldName} in ${entry.content} !`,
-            ],
-          });
+          this.UI.update(
+            UI_TYPE.PRESS,
+            { content: CHOICES.CONTINUE },
+            undefined,
+            {
+              content: [
+                UI_CHARACTER.PROF,
+                `Ok, you have chosen to name your ${oldName} in ${entry.content} !`,
+              ],
+            },
+          );
           this.nextAction = this.starterRename_B;
         } else {
           this.UI.updateNotification([
@@ -263,8 +215,6 @@ export class GameController {
       },
     );
 
-
-
     switch (response) {
       case UI_MENU.TEAM:
         const team = this.var_team((pkm: PkmModel) => pkm);
@@ -312,9 +262,14 @@ export class GameController {
 
       case UI_MENU.TRAVEL:
         if (this.isRandomEvent(1, 2)) {
-          this.UI.update(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
-            content: [`You have encountered a wild Pokémon!`],
-          });
+          this.UI.update(
+            UI_TYPE.PRESS,
+            { content: CHOICES.CONTINUE },
+            undefined,
+            {
+              content: [`You have encountered a wild Pokémon!`],
+            },
+          );
 
           this.nextAction = this.travel_event;
 
@@ -323,11 +278,16 @@ export class GameController {
           // Ou le faire come javais prévu pour le pokédex.
           // await this.perform_wildPkmInit()
         } else {
-          this.UI.update(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
-            content: [
-              `Nothing happened today, you can continue your journey !`,
-            ],
-          });
+          this.UI.update(
+            UI_TYPE.PRESS,
+            { content: CHOICES.CONTINUE },
+            undefined,
+            {
+              content: [
+                `Nothing happened today, you can continue your journey !`,
+              ],
+            },
+          );
           this.nextAction = this.travel_nothing;
         }
         break;
@@ -391,9 +351,14 @@ export class GameController {
 
       case UI_MENU.RELEASE:
         if (team.length <= 1) {
-          this.UI.update(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
-            content: [`You can't release your last pkm !`],
-          });
+          this.UI.update(
+            UI_TYPE.PRESS,
+            { content: CHOICES.CONTINUE },
+            undefined,
+            {
+              content: [`You can't release your last pkm !`],
+            },
+          );
           this.nextAction = this.menu_team;
         } else {
           this.UI.update(
@@ -447,13 +412,20 @@ export class GameController {
             this.world.player.release(pkm);
           }
         });
-        this.world.addLog([`You have chosen to release ${this.RAM.pkm?.name} !`]);
-        this.UI.update(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
-          content: [
-            UI_CHARACTER.PROF,
-            `You have chosen to release ${this.RAM.pkm?.name}!`,
-          ],
-        });
+        this.world.addLog([
+          `You have chosen to release ${this.RAM.pkm?.name} !`,
+        ]);
+        this.UI.update(
+          UI_TYPE.PRESS,
+          { content: CHOICES.CONTINUE },
+          undefined,
+          {
+            content: [
+              UI_CHARACTER.PROF,
+              `You have chosen to release ${this.RAM.pkm?.name}!`,
+            ],
+          },
+        );
         this.nextAction = this.menu_team;
         delete this.RAM.pkm;
         break;
@@ -514,19 +486,24 @@ export class GameController {
   private renamePkm_C(response: string) {
     switch (response) {
       case UI_BUTTON.YES:
-        this.UI.update(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
-          content: [
-            UI_CHARACTER.PROF,
-            `You have chosen to rename ${this.RAM.pkm?.name}!`,
-          ],
-        });
+        this.UI.update(
+          UI_TYPE.PRESS,
+          { content: CHOICES.CONTINUE },
+          undefined,
+          {
+            content: [
+              UI_CHARACTER.PROF,
+              `You have chosen to rename ${this.RAM.pkm?.name}!`,
+            ],
+          },
+        );
         this.nextAction = this.menu_team;
 
         if (this.RAM.pkm && this.RAM.pkmName_new) {
           this.RAM.pkm.name = this.RAM.pkmName_new;
-          this.world.addLog(
-            [`You have chosen to rename ${this.RAM.pkm?.name} in ${this.RAM.pkmName_new}!`],
-          );
+          this.world.addLog([
+            `You have chosen to rename ${this.RAM.pkm?.name} in ${this.RAM.pkmName_new}!`,
+          ]);
 
           delete this.RAM.pkmName_old;
           delete this.RAM.pkmName_new;
@@ -564,18 +541,28 @@ export class GameController {
 
         break;
       case UI_BUTTON.NO:
-        this.UI.update(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
-          content: [`You ran away ...`],
-        });
+        this.UI.update(
+          UI_TYPE.PRESS,
+          { content: CHOICES.CONTINUE },
+          undefined,
+          {
+            content: [`You ran away ...`],
+          },
+        );
         this.nextAction = this.menu_main;
         break;
       default:
-        this.UI.update(UI_TYPE.CHOICE, { content: CHOICES.BOOLEANS }, undefined, {
-          content: [
-            `Wild ${this.RAM.pkm?.name} appears ! Do you want to battle ?`,
-          ],
-          push: true,
-        });
+        this.UI.update(
+          UI_TYPE.CHOICE,
+          { content: CHOICES.BOOLEANS },
+          undefined,
+          {
+            content: [
+              `Wild ${this.RAM.pkm?.name} appears ! Do you want to battle ?`,
+            ],
+            push: true,
+          },
+        );
         this.nextAction = this.travel_event;
         break;
     }
@@ -612,7 +599,6 @@ export class GameController {
       content: [`You have chosen ${playerChoice.name} !`],
     });
   }
-
 
   //  REFACTORED - plus si ok
 
@@ -655,11 +641,12 @@ export class GameController {
       const returnedName = this.world.player.setUpToSix(this.world.dex);
       if (returnedName.length > 0) {
         const namesString = returnedName.join(", ");
-        this.world.addLog([`You find a way to summon ${namesString} ... are you a sorcerer?`]);
+        this.world.addLog([
+          `You find a way to summon ${namesString} ... are you a sorcerer?`,
+        ]);
       }
     }
   }
-
 
   private findPkm(id: string): PkmModel | undefined {
     return this.world.player.team.find(
@@ -787,7 +774,6 @@ export class GameController {
           this.RAM.starterChoices = temp_dex
             .filter((pkm: any) => pkm.isStarter)
             .map((pkm: any) => new PkmModel(pkm, 5));
-
         } else {
           this.warning(this.start);
         }
@@ -871,6 +857,24 @@ export class GameController {
     }
   }
 
+  /* HANDLE */
+  private handlePlayerName = (response: string) => {
+    const entry = new Entry(response);
+
+    if (this.isValidInput(entry)) {
+      this.world.player.name = entry.content;
+      this.world.addLog([
+        `Hi ${entry.content}, you have started your journey !`,
+      ]);
+
+      this.updateUIPlayerInitValidName(entry.content);
+      this.nextAction = this.starterSelect;
+      this.starterSelect();
+    } else {
+      this.updateUIValidEntry();
+    }
+  }
+
   /* GETTERS */
   get extractData() {
     return {
@@ -883,4 +887,127 @@ export class GameController {
       world_logs: this.world.logs,
     };
   }
+
+  /* STORYBOARD */
+
+  /*  private updateUIFor() {
+      const update = {
+        newType: '',
+        newChoice: '',
+        newStyle: '',
+        newDialogues: '',
+      };
+
+      this.UI.update_V2(update);
+    }*/
+
+  private updateUIForNewGame() {
+    const update = {
+      newType: UI_TYPE.CHOICE,
+      newChoice: { content: CHOICES.BOOLEANS },
+      newStyle: UI_STYLE.PROF_GREETINGS,
+      newDialogues: {
+        content: [
+          UI_CHARACTER.PROF,
+          "You seem to be a new face around here !",
+          "Welcome to the fantastic world of pkm,",
+          "You are about to embark on a journey of a life time !",
+          "You will face many challenges and make many choices !",
+          "Are you ready ?",
+        ],
+      },
+    };
+
+    this.UI.update_V2(update);
+  }
+
+  private updateUIForLastSave() {
+    const update = {
+      newType: UI_TYPE.CHOICE,
+      newChoice: { content: CHOICES.ACTION_LAST_SAVE },
+      newStyle: UI_STYLE.SHOW_LAST_SAVE,
+      newDialogues: {
+        content: [
+          `Day : ${this.world.day} , Location : ${this.world.location}`,
+          `Player : ${this.var_playerName()}`,
+          `Team : ${this.var_team((pkm: PkmModel) => pkm.name).join(", ")}`,
+        ],
+      },
+    };
+
+    this.UI.update_V2(update);
+  }
+
+  private updateUIPlayerInitYes() {
+    const update = {
+      newType: UI_TYPE.ENTRY,
+      newChoice: undefined,
+      newStyle: undefined,
+      newDialogues: {
+        content: [
+          UI_CHARACTER.PROF,
+          "You have chosen to embark on the journey !",
+          "You will be given a pkm to start your journey !",
+          "But first tell me your name ?",
+        ],
+      },
+    };
+
+    this.UI.update_V2(update);
+  }
+
+  private updateUIPlayerInitNO() {
+    const update = {
+      newType: UI_TYPE.PRESS,
+      newChoice: { content: CHOICES.CONTINUE },
+      newStyle: undefined,
+      newDialogues: {
+        content: [
+          UI_CHARACTER.PROF,
+          "You have chosen not to embark on the journey !",
+          "You will be returned to the main menu !",
+        ],
+      },
+    };
+
+    this.UI.update_V2(update);
+  }
+
+  private updateUIPlayerInitValidName(_var: string) {
+    const update = {
+      newType:UI_TYPE.PRESS,
+      newChoice: { content: CHOICES.CONTINUE },
+      newStyle: undefined,
+      newDialogues: {
+        content: [
+          UI_CHARACTER.PROF,
+          `Ok ${_var} are you ready to pick your first Pkm ?`,
+          "You will be given a choice of 3 pkm to choose from !",
+        ],
+      },
+
+    }
+
+    this.UI.update_V2(update);
+  }
+
+  private updateUIValidEntry() {
+    const update = {
+      newType: undefined,
+      newChoice: undefined,
+      newStyle: undefined,
+      newDialogues: {
+        content: [
+          UI_CHARACTER.PROF,
+          `I didn't get that, please enter a valid name !`,
+          'it should be between 1 and 10 characters long with no special chars ( &, <, >, ", ! )',
+        ],
+      },
+    };
+
+    this.UI.update_V2(update);
+  }
+
+
+
 }

@@ -5,6 +5,13 @@ import {
 } from "@customs/Interface";
 import { CHOICES, UI_STYLE, UI_TYPE } from "@customs/Enum";
 
+interface update {
+  newType?: string;
+  newChoice?: UI_Compiler_Choice;
+  newStyle?: string;
+  newDialogues?: UI_Compiler_Dialogue;
+}
+
 export class GameUIModel {
   private _dialogues: string[];
   private _choices: Choice[];
@@ -69,18 +76,54 @@ export class GameUIModel {
       switch (this.type) {
         case UI_TYPE.PRESS:
           this.updateChoices(newChoice.content);
-            break;
+          break;
         case UI_TYPE.CHOICE:
         case UI_TYPE.BATTLE:
-            this.updateChoices(newChoice.content, newChoice.push);
-            break;
+          this.updateChoices(newChoice.content, newChoice.push);
+          break;
         default:
-            break;
+          break;
       }
     }
 
     if (newDialogues) {
       this.updateDialogues(newDialogues.content, newDialogues.push);
+    }
+  }
+
+  public update_V2(update: update) {
+    // Todo : refactor.
+    if (update.newType) {
+      this.type = update.newType;
+
+      if (update.newType === "ENTRY") {
+        this.updateChoices([]);
+      }
+    }
+
+    if (update.newStyle) {
+      this.style = update.newStyle;
+    }
+
+    if (update.newChoice) {
+      switch (this.type) {
+        case UI_TYPE.PRESS:
+          this.updateChoices(update.newChoice.content);
+          break;
+        case UI_TYPE.CHOICE:
+        case UI_TYPE.BATTLE:
+          this.updateChoices(update.newChoice.content, update.newChoice.push);
+          break;
+        default:
+          break;
+      }
+    }
+
+    if (update.newDialogues) {
+      this.updateDialogues(
+        update.newDialogues.content,
+        update.newDialogues.push,
+      );
     }
   }
 
@@ -93,7 +136,9 @@ export class GameUIModel {
   }
 
   public updateNotification(notification: string[], push: boolean = false) {
-    this._notification = push ? [...this._notification, ...notification] : notification;
+    this._notification = push
+      ? [...this._notification, ...notification]
+      : notification;
 
     setTimeout(() => {
       this._notification = [];

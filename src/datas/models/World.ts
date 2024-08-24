@@ -15,7 +15,7 @@ export class WorldModel {
       data.player_name,
       data.player_team,
       data.player_bags,
-      data.player_dex
+      data.player_dex,
     );
     this._day = data.world_day;
     this._location = data.world_location;
@@ -62,7 +62,7 @@ export class WorldModel {
   }
   public addLog(message: string[]) {
     message.forEach((m) => {
-        this._logs.push({ day: this._day, message: m });
+      this._logs.push({ day: this._day, message: m });
     });
   }
 }

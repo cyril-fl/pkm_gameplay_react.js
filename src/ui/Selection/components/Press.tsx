@@ -26,10 +26,9 @@ export const PressInput = () => {
 
   const choices = useMemo(
     () =>
-      ui?.choices
-        .map((text: Choice, index: number) => (
-          <span key={index}>{display(text.value)}</span>
-        )),
+      ui?.choices.map((text: Choice, index: number) => (
+        <span key={index}>{display(text.value)}</span>
+      )),
     [ui.choices],
   );
 

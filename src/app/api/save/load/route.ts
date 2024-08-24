@@ -3,7 +3,7 @@ import { SaveController } from "@controllers/Save";
 
 export async function GET() {
   try {
-    const temp = await new SaveController()
+    const temp = await new SaveController();
     const data = await temp.read();
     return NextResponse.json({ response: data }, { status: 200 });
   } catch (e: any) {

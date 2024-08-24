@@ -26,7 +26,7 @@ export class SaveController {
           defaultSave.player_name,
           JSON.stringify(defaultSave.player_team), // Convertir en JSON string
           JSON.stringify(defaultSave.player_bags), // Convertir en JSON string
-        JSON.stringify(defaultSave.player_dex), // Convertir en JSON string
+          JSON.stringify(defaultSave.player_dex), // Convertir en JSON string
           defaultSave.world_day,
           defaultSave.world_location,
           JSON.stringify(defaultSave.world_logs), // Convertir en JSON string

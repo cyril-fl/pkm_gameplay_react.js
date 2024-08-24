@@ -11,7 +11,7 @@ import { GameController } from "@controllers/Game";
 import { GameUIModel } from "@models/GameUI";
 import { useSave } from "@/hooks/useSave";
 import { PkmModel } from "@models/Pkm";
-import {MOCKUP_DEX_ENTRY} from "@/datas/mockup/dex_entry";
+import { MOCKUP_DEX_ENTRY } from "@/datas/mockup/dex_entry";
 
 export const AppContext = createContext<any>({});
 
