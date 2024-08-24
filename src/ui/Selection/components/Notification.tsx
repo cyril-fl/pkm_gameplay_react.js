@@ -6,7 +6,7 @@ export const NotificationCard = () => {
   const [isNotified, setIsNotified] = React.useState<boolean>(false);
 
   const notification = useMemo<string[]>(
-    () => ui?.getNotification(),
+    () => ui?.notification,
     [ui.notification],
   );
 

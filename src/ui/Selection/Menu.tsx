@@ -11,7 +11,7 @@ export const SelectMenu = () => {
   // console.log("UI", ui);
   const gameType = useMemo(() => {
     if (ui) {
-      return ui.getType();
+      return ui.type;
     } else {
       return [""];
     }

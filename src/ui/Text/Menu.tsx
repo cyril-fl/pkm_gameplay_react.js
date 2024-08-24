@@ -11,7 +11,7 @@ export const TextMenu = () => {
 
   const gameType = useMemo(() => {
     if (ui) {
-      return ui.getType();
+      return ui.type;
     } else {
       return [""];
     }

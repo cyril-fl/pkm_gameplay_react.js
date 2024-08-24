@@ -11,7 +11,7 @@ export const ChoiceInput = () => {
   const [selected, setSelected] = useState<Choice>(DEFAULT_CHOICE);
 
   const choices = useMemo<Choice[]>(
-    () => ui?.getChoices() || [DEFAULT_CHOICE],
+    () => ui?.choices || [DEFAULT_CHOICE],
     [ui.choices],
   );
 

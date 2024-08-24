@@ -25,7 +25,6 @@ export class PkDexController {
     if (this.dex.length > 0) return;
     try {
       const data = await this.fetch();
-      console.log("PkDexController set", data);
       this.dex = data.map((Pkm: any) => new PkdDexEntry(Pkm));
     } catch (error) {
       console.error("Error fetching data:", error);

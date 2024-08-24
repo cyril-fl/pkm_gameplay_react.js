@@ -784,13 +784,10 @@ export class GameController {
         const temp_dex = await dexController.getDex();
         if (temp_dex) {
           this.world.dex = temp_dex;
-          console.log('perform_dexInit temp_dex',temp_dex);
           this.RAM.starterChoices = temp_dex
             .filter((pkm: any) => pkm.isStarter)
             .map((pkm: any) => new PkmModel(pkm, 5));
 
-
-          console.log('perform_dexInit this.RAM.starterChoices',this.RAM.starterChoices);
         } else {
           this.warning(this.start);
         }

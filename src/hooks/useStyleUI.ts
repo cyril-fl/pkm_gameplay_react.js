@@ -17,7 +17,7 @@ export const useStyleUI = (ref: GameUIModel | null) => {
 
     let style = { ...DEFAULT_STYLE };
 
-    switch (ref.getStyle()) {
+    switch (ref.style) {
       case UI_STYLE.START:
         style = {
           ...style,
@@ -57,7 +57,7 @@ export const useStyleUI = (ref: GameUIModel | null) => {
     }
 
     return style;
-  }, [ref, ref?.getStyle()]);
+  }, [ref, ref?.style]);
 
   return memorized_style;
 };

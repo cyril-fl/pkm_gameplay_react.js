@@ -1,42 +1,41 @@
 import {
   UI_Compiler_Choice,
   UI_Compiler_Dialogue,
-  UI_Compiler,
   Choice,
 } from "@customs/Interface";
 import { CHOICES, UI_STYLE, UI_TYPE } from "@customs/Enum";
 
 export class GameUIModel {
-  private dialogues: string[];
-  private choices: Choice[];
-  private type: string;
-  private style: string;
-  private notification: string[];
+  private _dialogues: string[];
+  private _choices: Choice[];
+  private _type: string;
+  private _style: string;
+  private _notification: string[];
 
   constructor() {
-    this.dialogues = ["Pokemon"];
-    this.choices = CHOICES.CONTINUE;
-    this.type = UI_TYPE.PRESS;
-    this.style = UI_STYLE.START;
-    this.notification = [];
+    this._dialogues = ["Pokemon"];
+    this._choices = CHOICES.CONTINUE;
+    this._type = UI_TYPE.PRESS;
+    this._style = UI_STYLE.START;
+    this._notification = [];
   }
 
   /* Getters && Setters */
   // Getters
-  public getDialogues() {
-    return this.dialogues;
+  get dialogues() {
+    return this._dialogues;
   }
-  public getChoices() {
-    return this.choices;
+  get choices() {
+    return this._choices;
   }
-  public getType() {
-    return this.type;
+  get type() {
+    return this._type;
   }
-  public getStyle() {
-    return this.style;
+  get style() {
+    return this._style;
   }
-  public getNotification() {
-    return this.notification;
+  get notification() {
+    return this._notification;
   }
 
   // Setters
@@ -51,7 +50,7 @@ export class GameUIModel {
     // Todo : refactor.
 
     if (type) {
-      this.type = type;
+      this._type = type;
 
       if (type === UI_TYPE.PRESS && choice) {
         this.setChoices(choice.content);
@@ -79,38 +78,38 @@ export class GameUIModel {
   }
 
   public setType(type: string) {
-    this.type = type;
+    this._type = type;
   }
 
   public setChoices(choices: Choice[], push: boolean = false) {
     if (push) {
-      this.choices.push(...choices);
+      this._choices.push(...choices);
     } else {
-      this.choices = choices;
+      this._choices = choices;
     }
   }
 
   public setStyle(style: string) {
-    this.style = style;
+    this._style = style;
   }
 
   public setDialogues(dialogues: string[], push: boolean = false) {
     if (push) {
-      this.dialogues.push(...dialogues);
+      this._dialogues.push(...dialogues);
     } else {
-      this.dialogues = dialogues;
+      this._dialogues = dialogues;
     }
   }
 
   public setNotification(notification: string[], push: boolean = false) {
     if (push) {
-      this.notification.push(...notification);
+      this._notification.push(...notification);
     } else {
-      this.notification = notification;
+      this._notification = notification;
     }
 
     setTimeout(() => {
-      this.notification = [];
+      this._notification = [];
     }, 100);
   }
 }
