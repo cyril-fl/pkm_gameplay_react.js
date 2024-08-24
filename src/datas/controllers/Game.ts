@@ -37,7 +37,7 @@ export class GameController {
 
   /* INIT PHASE*/
   private async start() {
-    this.RAM.lastSave = JSON.stringify(this.data);
+    this.RAM.lastSave = JSON.stringify(this.extractData);
     const isPlayerTeamZero = this.world.player.team.length === 0;
 
     if (isPlayerTeamZero) {
@@ -685,6 +685,7 @@ export class GameController {
 
     this.RAM = {};
     this.UI = new GameUIModel();
+    console.log("RESET UI", data);
     this.world = new WorldModel(data);
     this.nextAction = this.start;
   }
@@ -783,11 +784,13 @@ export class GameController {
         const temp_dex = await dexController.getDex();
         if (temp_dex) {
           this.world.dex = temp_dex;
-          console.log(temp_dex);
+          console.log('perform_dexInit temp_dex',temp_dex);
           this.RAM.starterChoices = temp_dex
             .filter((pkm: any) => pkm.isStarter)
             .map((pkm: any) => new PkmModel(pkm, 5));
-          console.log(this.RAM.starterChoices);
+
+
+          console.log('perform_dexInit this.RAM.starterChoices',this.RAM.starterChoices);
         } else {
           this.warning(this.start);
         }
@@ -815,7 +818,7 @@ export class GameController {
   }*/
 
   private async perform_saveData() {
-    this.RAM.lastSave = JSON.stringify(this.data); // peu être un souci ici 🤷 ?
+    this.RAM.lastSave = JSON.stringify(this.extractData); // peu être un souci ici 🤷 ?
 
     await this.perform_operation(
       () =>
@@ -824,7 +827,7 @@ export class GameController {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(this.data),
+          body: JSON.stringify(this.extractData),
         }),
       "Game saved successfully:",
       "Error saving game",
@@ -889,7 +892,7 @@ export class GameController {
   }
 
   /* GETTERS */
-  get data() {
+  get extractData() {
     return {
       player_name: this.world.player.name,
       player_team: this.world.player.team,

@@ -25,8 +25,7 @@ export const FormProvider: React.FC<{ children: ReactNode }> = ({
 
   const saveData = useMemo(() => {
     if (game.data) {
-      // refactor this name todo
-      return game.data.data;
+      return game.data.extractData;
     }
     return null;
   }, [game.data]);
@@ -45,8 +44,6 @@ export const FormProvider: React.FC<{ children: ReactNode }> = ({
 
   const handleSubmit = (e: any) => {
     e?.preventDefault();
-
-    // console.log("handleSubmit", e);
     const updatedGame = new GameController(saveData);
     // console.log(formRef.current);
     if (formRef.current) {

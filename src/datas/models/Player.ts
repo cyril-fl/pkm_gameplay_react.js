@@ -6,13 +6,13 @@ export class PlayerModel {
   private _name: string;
   private _team: PkmModel[];
   private _bag: any[]; // Todo: Gérer le type bagItem
-  private _pkdex: PkdDexEntry[];
+  private _pkdex: number[];
 
   constructor(
     name: string,
     team: PkmModel[],
     bag: any[],
-    pkdex: PkdDexEntry[],
+    pkdex: number[],
   ) {
     this._name = name;
     this._team = team;
@@ -79,7 +79,8 @@ export class PlayerModel {
   public releasePkm(pkm: PkmModel) {
     this._team = this._team.filter((p) => p !== pkm);
   }
+
   public addPkdexEntry(pkdex: PkdDexEntry) {
-    this._pkdex.push(pkdex);
+    this._pkdex.push(pkdex.id);
   }
 }

@@ -11,7 +11,6 @@ export class WorldModel {
   private _dex: PkdDexEntry[] = [];
 
   constructor(data: SaveModel) {
-    console.log("WorldModel constructor", data);
     this._player = new PlayerModel(
       data.player_name,
       data.player_team,

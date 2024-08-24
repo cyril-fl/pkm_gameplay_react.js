@@ -20,7 +20,6 @@ export class PkmModel {
   private _id: string = ""; // format : 0000 (dex entry) - 0000 (type1 type2 ) - 0000 (static ID) // readonly todo
 
   constructor(pkm: PkdDexEntry = new PkdDexEntry(), level: number = 1) {
-    console.log("PkmModel constructor", pkm);
     this._dex_entry = pkm.id;
     this._name = pkm.name;
     this._level = level;
