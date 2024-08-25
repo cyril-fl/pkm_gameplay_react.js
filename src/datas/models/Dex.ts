@@ -1,7 +1,7 @@
 import { type, move } from "@customs/Interface";
 import { MOCKUP_DEX_ENTRY } from "@/datas/mockup/dex_entry";
 
-export class PkdDexEntry {
+export class DexEntry {
   private readonly _name: string;
   private readonly _id: number;
   private readonly _description: string;

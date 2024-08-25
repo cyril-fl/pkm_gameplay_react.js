@@ -1,6 +1,6 @@
 import { PkmModel } from "@models/Pkm";
-import { PkDexController } from "@controllers/PkmDex";
-import { PkdDexEntry } from "@models/PkmDex";
+import { DexController } from "@controllers/Dex";
+import { DexEntry } from "@models/Dex";
 
 export class PlayerModel {
   private _name: string;
@@ -35,7 +35,7 @@ export class PlayerModel {
   }
 
   /* Tools */
-  public setUpToSix(dex: PkdDexEntry[]) {
+  public setUpToSix(dex: DexEntry[]) {
     const teamMaxLength = 6;
     const starterNumber = 9; // 3 starters * 3 evolutions
     const addedPkmName = [];
@@ -60,19 +60,21 @@ export class PlayerModel {
     }
     return addedPkmName;
   }
-
   public catch(pkm: PkmModel) {
     this._team.push(pkm);
   }
-
   public release(pkm: PkmModel) {
     const index = this._team.indexOf(pkm);
     if (index > -1) {
       this._team.splice(index, 1);
     }
   }
-
-  public addEntry(pkdex: PkdDexEntry) {
+  public addEntry(pkdex: DexEntry) {
     this._pkdex.push(pkdex.id);
+  }
+  public revive() {
+    this._team.forEach((pkm) => {
+      pkm.hp = pkm.hpMax;
+    });
   }
 }

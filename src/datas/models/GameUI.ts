@@ -165,7 +165,7 @@ export class GameUIModel {
     }, 100);
   }
 
-  public resteArena() {
+  public resetArena() {
     this.arena = {
       playerPkm: new PkmModel(),
       wildPkm: new PkmModel(),

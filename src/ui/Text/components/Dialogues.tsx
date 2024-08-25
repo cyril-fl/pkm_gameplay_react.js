@@ -1,6 +1,7 @@
 import { useAppContext } from "@/hooks/useContext";
 import { useMemo } from "react";
 import { useStyleUI } from "@/hooks/useStyleUI";
+import {NotificationCard} from "@/ui/Selection/components/Notification";
 
 export const DialoguesCard = () => {
   const { ui } = useAppContext();

@@ -16,7 +16,7 @@
 
 #### Pokémon Center
 
-- **Revive Pokémon**: Restore your Pokémon's health when they're knocked out. _(Coming Soon...)_
+- **Revive Pokémon**: Restore your Pokémon's health when they're knocked out.
 - **View Logs**: Check your activity logs. _(Coming Soon...)_
 
 #### Team Management

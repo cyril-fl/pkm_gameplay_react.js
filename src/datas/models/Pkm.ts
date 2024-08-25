@@ -1,4 +1,4 @@
-import { PkdDexEntry } from "@models/PkmDex";
+import { DexEntry } from "@models/Dex";
 import { Choice, move, type } from "@customs/Interface";
 
 export class PkmModel {
@@ -11,15 +11,15 @@ export class PkmModel {
   private _experience_current: number;
   private _experience_nextLvL: number;
   private readonly _experienceGiver: number;
-  private readonly _atk: number;
-  private readonly _dfs: number;
-  private readonly _spd: number;
+  private _atk: number;
+  private _dfs: number;
+  private _spd: number;
   private _hp: number;
-  private readonly _hp_max: number;
+  private _hp_max: number;
   private readonly _moves: move[];
   protected declare _id: string; // format : 0000 (dex entry) - 0000 (type1 type2 ) - 0000 (static ID) // readonly todo
 
-  constructor(pkm: PkdDexEntry = new PkdDexEntry(), level: number = 1) {
+  constructor(pkm: DexEntry = new DexEntry(), level: number = 1) {
     this._dex_entry = pkm.id;
     this._name = pkm.name;
     this._level = level;
@@ -65,15 +65,6 @@ export class PkmModel {
     this.setNextLevel();
   }
 
-  set currentXP(xp: number) {
-    this._experience_current += xp;
-
-    if (this._experience_current >= this._experience_nextLvL) {
-      this._level++;
-      // rise stats todo
-      this.currentXP = this._experience_nextLvL - this._experience_current;
-    }
-  }
 
   /*  GETTERS*/
   get dexEntry() {
@@ -191,5 +182,24 @@ export class PkmModel {
     } else {
       return null;
     }
+  }
+
+  public gainXP(xp: number) {
+    this._experience_current += xp;
+
+    while (this._experience_current >= this._experience_nextLvL) {
+      this._level++;
+      this._experience_current -= this._experience_nextLvL;
+      this.riseStats();
+      this.setNextLevel();
+    }
+  }
+  private riseStats() {
+    this._atk += this.getRandomNumber({ min: 1, max: 3 });
+    this._dfs += this.getRandomNumber({ min: 1, max: 3 });
+    this._spd += this.getRandomNumber({ min: 1, max: 3 });
+    this._hp_max += this.getRandomNumber({ min: 5, max: 10 });
+    this._hp = this._hp + 3;
+
   }
 }

@@ -15,7 +15,6 @@ export const EntryInput = () => {
 
   return (
     <div className="fixed top-0 z-20 w-full h-full flex grow flex-col items-center bg-zinc-500 bg-opacity-80 backdrop-filter backdrop-blur-sm">
-      <NotificationCard />
       <div className="flex flex-row gap-1 grow justify-self-center items-center">
         <input
           type="text"

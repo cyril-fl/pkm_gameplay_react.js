@@ -36,7 +36,6 @@ body {
   width: 100vw;
   overflow: hidden;
   display: flex;
-  @apply p-4;
 }
 
 main {

@@ -15,6 +15,12 @@ export enum UI_MENU {
   RELEASE = "Release",
   REVIVE = "Revive",
   CONSULT_LOG = "Consult log",
+  RUN = "Run",
+  ATTACK = "Attack",
+  CATCH = "Catch",
+
+
+
 }
 export enum UI_BUTTON {
   BACK = "Back",
@@ -30,6 +36,7 @@ export enum UI_STYLE {
   DEFAULT = "DEFAULT",
   SHOW_LAST_SAVE = "SHOW_LAST_SAVE",
   ERROR = "ERROR",
+  BATTLE_CHOICE = "BATTLE_CHOICE",
 }
 export enum UI_CHARACTER {
   PROF = "PROFESSOR:",
@@ -48,8 +55,8 @@ export const CHOICES = {
   ],
   ACTION_MAIN_MENU: [
     { label: UI_MENU.TRAVEL, value: UI_MENU.TRAVEL },
-    { label: UI_MENU.TEAM, value: UI_MENU.TEAM },
     { label: UI_MENU.PKMCENTER, value: UI_MENU.PKMCENTER },
+    { label: UI_MENU.TEAM, value: UI_MENU.TEAM },
   ],
   ACTION_TEAM_MENU: [
     { label: UI_MENU.HEAL, value: UI_MENU.HEAL },
@@ -61,4 +68,11 @@ export const CHOICES = {
     { label: UI_MENU.CONSULT_LOG, value: UI_MENU.CONSULT_LOG },
   ],
   ACTION_BACK: [{ label: UI_BUTTON.BACK, value: UI_BUTTON.BACK }],
+
+  ACTION_BATTLE:[
+    { label: UI_MENU.ATTACK, value: UI_MENU.ATTACK },
+    { label: UI_MENU.RUN, value: UI_MENU.RUN },
+    { label: UI_MENU.CATCH, value: UI_MENU.CATCH },
+    { label: UI_MENU.HEAL, value: UI_MENU.HEAL },
+  ]
 };

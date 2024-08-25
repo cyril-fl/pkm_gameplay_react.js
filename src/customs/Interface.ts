@@ -3,7 +3,7 @@ import { GameUIModel } from "@models/GameUI";
 import { GameController } from "@controllers/Game";
 import { submitEvent } from "@customs/Types";
 import { PkmModel } from "@models/Pkm";
-import { PkdDexEntry } from "@models/PkmDex";
+import { DexEntry } from "@models/Dex";
 
 /* CONTEXT */
 // AppContext
@@ -29,7 +29,7 @@ export interface RAM_interface {
   lastSave?: any;
   continueGame_tuto?: boolean;
   starterChoices?: PkmModel[];
-  dex?: PkdDexEntry[];
+  dex?: DexEntry[];
   pkmName_old?: string;
   pkmName_new?: string;
   pkm?: PkmModel;

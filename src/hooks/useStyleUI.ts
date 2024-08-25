@@ -10,6 +10,7 @@ export const useStyleUI = (ref: GameUIModel | null) => {
       "bg-GameBoy-black text-GameBoy-white hover:bg-GameBoy-white hover:text-GameBoy-black border-2 border-GameBoy-white hover:border-GameBoy-black active:border-zinc-700 active:bg-zinc-700 active:text-white rounded-sm px-2 py-0.5",
     header__p: "",
     close_button: "",
+    notif: "w-full absolute m-10 flex items-center justify-center bg-zinc-600",
   };
 
   const memorized_style = useMemo(() => {
@@ -45,11 +46,17 @@ export const useStyleUI = (ref: GameUIModel | null) => {
           close_button: "hidden",
         };
         break;
+      case UI_STYLE.BATTLE_CHOICE:
+        style = {
+          ...style,
+          dialogue__art: "bg-GameBoy-black",
+          dialogue__p: "text-5xl",
+        };
+        break;
       case UI_STYLE.ERROR:
         style = {
           ...style,
-          dialogue__art: "bg-red-400",
-          dialogue__p: "text-5xl",
+          notif: "text-5xl",
         };
         break;
       default:

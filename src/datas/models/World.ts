@@ -1,14 +1,14 @@
 import { SaveModel } from "@models/Save";
 import { PlayerModel } from "@models/Player";
 import { log } from "@customs/Interface";
-import { PkdDexEntry } from "@models/PkmDex";
+import { DexEntry } from "@models/Dex";
 
 export class WorldModel {
   private _day: number;
   private _location: string;
   private _logs: log[];
   private _player: PlayerModel;
-  private declare _dex: PkdDexEntry[];
+  private declare _dex: DexEntry[];
 
   constructor(data: SaveModel) {
     this._player = new PlayerModel(
@@ -35,10 +35,10 @@ export class WorldModel {
   get player(): PlayerModel {
     return this._player;
   }
-  get dex(): PkdDexEntry[] {
+  get dex(): DexEntry[] {
     return this._dex;
   }
-  get randomPkm(): PkdDexEntry {
+  get randomPkm(): DexEntry {
     return this._dex[Math.floor(Math.random() * this._dex.length)];
   }
 
@@ -55,7 +55,7 @@ export class WorldModel {
   set player(data: PlayerModel) {
     this._player = data;
   }
-  set dex(data: PkdDexEntry[]) {
+  set dex(data: DexEntry[]) {
     this._dex = data;
   }
 
@@ -67,5 +67,10 @@ export class WorldModel {
     message.forEach((m) => {
       this._logs.push({ day: this._day, message: m });
     });
+  }
+  public revive() {
+    this._player.revive();
+      this.addLog([`You revived your team at ${this.location} PkmCenter!`]);
+
   }
 }
