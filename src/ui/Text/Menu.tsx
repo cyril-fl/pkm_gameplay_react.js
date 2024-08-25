@@ -5,7 +5,7 @@ import { EntryInput } from "@/ui/Selection/components/Entry";
 import { PressInput } from "@/ui/Selection/components/Press";
 import { useAppContext } from "@/hooks/useContext";
 import { UI_TYPE } from "@customs/Enum";
-import {Arena} from "@/ui/Text/components/Arena";
+import { Arena } from "@/ui/Text/components/Arena";
 
 export const TextMenu = () => {
   const { ui } = useAppContext();
@@ -21,7 +21,7 @@ export const TextMenu = () => {
   const renderMenu = useMemo(() => {
     switch (gameType) {
       case UI_TYPE.BATTLE:
-        return <Arena />
+        return <Arena />;
 
       default:
         return <DialoguesCard />;

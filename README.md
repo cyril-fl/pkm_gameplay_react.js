@@ -39,6 +39,10 @@
 > - **Snd**: `{ name: "...", ... }`
 > - **Trd**: `{ name: "...", ... }`
 
+- **Battle**: What could be added to the battle system?
+  - PP (Power Points) for each move.
+  -
+
 ### Technologies
 
 #### Frontend

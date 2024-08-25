@@ -41,9 +41,6 @@ export class GameController {
   private async start() {
     this.RAM.lastSave = this.extractData;
 
-    console.log("Game started");
-    console.log("ram2", this.RAM.lastSave);
-    console.log("team", this.world.player.team);
     const isPlayerTeamZero = this.world.player.team.length === 0;
 
     if (isPlayerTeamZero) {
@@ -145,7 +142,7 @@ export class GameController {
 
   /* MENU */
   private menu_main(response: string = "") {
-    // this.upToSix();
+    this.upToSix();
     this.updateUI_MainMenu();
 
     switch (response) {
@@ -160,7 +157,7 @@ export class GameController {
         break;
 
       case UI_MENU.TRAVEL:
-        const randomEvent = this.isRandomEvent(1, 2);
+        const randomEvent = this.isRandomEvent(1, 1);
         this.updateUI_MainMenu_TravelEvent(randomEvent);
         this.nextAction = randomEvent ? this.travel_event : this.travel_nothing;
         if (!randomEvent) {
@@ -341,14 +338,14 @@ export class GameController {
   private travel_event(response: string) {
     switch (response) {
       case UI_BUTTON.YES:
-       this.updateUI_TravelEventYes();
-       this.nextAction = this.event_battle;
+        this.updateUI_TravelEventYes();
+        this.nextAction = this.event_battle;
         break;
 
       case UI_BUTTON.NO:
         this.updateUI_TravelEventNO();
         this.nextAction = this.menu_main;
-          break;
+        break;
 
       default:
         this.updateUI_TravelEvent();
@@ -378,6 +375,64 @@ export class GameController {
     };
 
     this.updateUI_BattleEvent(playerChoice);
+
+    this.nextAction = this.battle_round;
+  }
+
+  private battle_round(response: string) {
+    const playerPkm = this.UI.arena.playerPkm;
+    const wildPkm = this.UI.arena.wildPkm;
+
+    console.trace();
+    const playerMove = playerPkm.calculator_atk(response);
+    const randomMove = Math.ceil(Math.random() * 4) - 1;
+    console.log("battle round playerMove", playerMove);
+    const wildMove = wildPkm.calculator_atk(wildPkm.moves[randomMove].name);
+    console.log("battle round wildMove ", wildMove);
+
+    if (!playerMove || !wildMove) {
+      this.warning(this.menu_main);
+      return;
+    }
+
+    let KO = new PkmModel();
+    if (playerPkm.spd > wildPkm.spd) {
+      this.damageStep_calculator(playerPkm, wildPkm, playerMove);
+      if (wildPkm.hp > 0) {
+        this.damageStep_calculator(wildPkm, playerPkm, wildMove);
+      } else {
+        KO = wildPkm;
+        playerPkm.currentXP = wildPkm.experienceGiver;
+      }
+    } else {
+      this.damageStep_calculator(wildPkm, playerPkm, wildMove);
+      if (playerPkm.hp > 0) {
+        this.damageStep_calculator(playerPkm, wildPkm, playerMove);
+      } else {
+        KO = playerPkm;
+        wildPkm.currentXP = playerPkm.experienceGiver;
+      }
+    }
+
+    if (playerPkm.hp === 0 || wildPkm.hp === 0) {
+      console.log("FIGHT IS OVER");
+      this.UI.resteArena();
+      this.world.oneDayPasses();
+      this.nextAction = this.menu_main;
+      this.updateUI_BattleEvent_damageStepCCL(KO);
+    }
+  }
+
+  private damageStep_calculator(
+    attacker: PkmModel,
+    defender: PkmModel,
+    movePower: number,
+  ) {
+    const atkRation = attacker.atk / defender.dfs;
+    const multiplier = 0.5;
+    const baseDamage = movePower * atkRation * multiplier;
+    console.log(baseDamage);
+    defender.hp -= baseDamage;
   }
 
   /* TOOL BOX*/
@@ -523,7 +578,6 @@ export class GameController {
 
   /* PERFORM*/
   private async perform_dexInit() {
-    console.log("Dex init");
     const dexController = PkDexController.getInstance();
 
     await this.perform_operation(
@@ -571,6 +625,7 @@ export class GameController {
       "Game erased successfully:",
       "Error erasing game",
     );
+
   }
 
   private async perform_operation<T>(
@@ -676,6 +731,7 @@ export class GameController {
     };
 
     this.UI.update_V2(update);
+    return;
   }
 
   private updateUI_LastSave() {
@@ -693,6 +749,7 @@ export class GameController {
     };
 
     this.UI.update_V2(update);
+    return;
   }
 
   private updateUI_PlayerInitYes() {
@@ -711,6 +768,7 @@ export class GameController {
     };
 
     this.UI.update_V2(update);
+    return;
   }
 
   private updateUI_PlayerInitNO() {
@@ -728,6 +786,7 @@ export class GameController {
     };
 
     this.UI.update_V2(update);
+    return;
   }
 
   private updateUI_PlayerInitValidEntry(_var: string) {
@@ -745,6 +804,7 @@ export class GameController {
     };
 
     this.UI.update_V2(update);
+    return;
   }
 
   private updateUI_InvalidEntry() {
@@ -766,6 +826,7 @@ export class GameController {
     ]);
 
     this.UI.update_V2(update);
+    return;
   }
 
   private updateUI_StarterChoiceTrue(props: string) {
@@ -779,6 +840,7 @@ export class GameController {
     };
 
     this.UI.update_V2(update);
+    return;
   }
 
   private updateUI_StarterChoiceFalse() {
@@ -793,6 +855,7 @@ export class GameController {
     };
 
     this.UI.update_V2(update);
+    return;
   }
 
   private updateUI_StarterRenameYes(props: string) {
@@ -809,6 +872,7 @@ export class GameController {
     };
 
     this.UI.update_V2(update);
+    return;
   }
 
   private updateUI_StarterRenameNo() {
@@ -826,6 +890,7 @@ export class GameController {
     };
 
     this.UI.update_V2(update);
+    return;
   }
 
   private updateUI_StarterRenameValidEntry(propsA: string, propsB: string) {
@@ -842,6 +907,7 @@ export class GameController {
     };
 
     this.UI.update_V2(update);
+    return;
   }
 
   private updateUI_StartAdventure() {
@@ -859,6 +925,7 @@ export class GameController {
     };
 
     this.UI.update_V2(update);
+    return;
   }
 
   private updateUI_MainMenu() {
@@ -874,6 +941,7 @@ export class GameController {
     };
 
     this.UI.update_V2(update);
+    return;
   }
 
   private updateUI_MainMenu_Team() {
@@ -900,6 +968,7 @@ export class GameController {
     };
 
     this.UI.update_V2(update);
+    return;
   }
 
   private updateUI_MainMenu_Pkmcenter() {
@@ -923,6 +992,7 @@ export class GameController {
     };
 
     this.UI.update_V2(update);
+    return;
   }
 
   private updateUI_MainMenu_TravelEvent(props: boolean) {
@@ -942,6 +1012,7 @@ export class GameController {
     };
 
     this.UI.update_V2(update);
+    return;
   }
 
   private updateUI_MenuPkmcenter_Revive() {
@@ -955,6 +1026,7 @@ export class GameController {
     };
 
     this.UI.update_V2(update);
+    return;
   }
 
   private updateUI_MenuPkmcenter_Log() {
@@ -971,6 +1043,7 @@ export class GameController {
     };
 
     this.UI.update_V2(update);
+    return;
   }
 
   private updateUI_MenuTeam_Heal() {
@@ -984,6 +1057,7 @@ export class GameController {
     };
 
     this.UI.update_V2(update);
+    return;
   }
 
   private updateUI_MenuTeam_Rename() {
@@ -1000,6 +1074,7 @@ export class GameController {
     };
 
     this.UI.update_V2(update);
+    return;
   }
 
   private updateUI_MenuTeam_Release(props: boolean) {
@@ -1019,6 +1094,7 @@ export class GameController {
     };
 
     this.UI.update_V2(update);
+    return;
   }
 
   private updateUI_TeamAction_Release_A() {
@@ -1032,6 +1108,7 @@ export class GameController {
     };
 
     this.UI.update_V2(update);
+    return;
   }
 
   private updateUI_TeamAction_Release_B() {
@@ -1048,6 +1125,7 @@ export class GameController {
     };
 
     this.UI.update_V2(update);
+    return;
   }
 
   private updateUI_TeamAction_Rename_A() {
@@ -1061,6 +1139,7 @@ export class GameController {
     };
 
     this.UI.update_V2(update);
+    return;
   }
 
   private updateUI_TeamAction_Rename_B() {
@@ -1076,6 +1155,7 @@ export class GameController {
     };
 
     this.UI.update_V2(update);
+    return;
   }
 
   private updateUI_TeamAction_Rename_C() {
@@ -1092,6 +1172,7 @@ export class GameController {
     };
 
     this.UI.update_V2(update);
+    return;
   }
 
   private updateUI_TravelEvent() {
@@ -1108,6 +1189,7 @@ export class GameController {
     };
 
     this.UI.update_V2(update);
+    return;
   }
 
   private updateUI_TravelEventYes() {
@@ -1118,12 +1200,13 @@ export class GameController {
       newDialogues: {
         content: [
           `Choose one of your pkm`,
-          ...this.var_team<string>((pkm: PkmModel) => pkm.display())
+          ...this.var_team<string>((pkm: PkmModel) => pkm.display()),
         ],
       },
     };
 
     this.UI.update_V2(update);
+    return;
   }
 
   private updateUI_TravelEventNO() {
@@ -1132,17 +1215,16 @@ export class GameController {
       newChoice: { content: CHOICES.CONTINUE },
       newStyle: undefined,
       newDialogues: {
-        content: [
-          `You ran away ...`,
-        ],
+        content: [`You ran away ...`],
       },
     };
 
     this.UI.update_V2(update);
+    return;
   }
 
   private updateUI_BattleEvent(props: PkmModel) {
-    const choices: Choice[] = props.movesPoolChoices
+    const choices: Choice[] = props.movesPoolChoices;
 
     const update = {
       newType: UI_TYPE.BATTLE,
@@ -1157,6 +1239,20 @@ export class GameController {
     };
 
     this.UI.update_V2(update);
+    return;
   }
 
+  private updateUI_BattleEvent_damageStepCCL(props: PkmModel) {
+    const update = {
+      newType: UI_TYPE.PRESS,
+      newChoice: { content: CHOICES.CONTINUE },
+      newStyle: undefined,
+      newDialogues: {
+        content: [`${props.name} is KO`],
+      },
+    };
+
+    this.UI.update_V2(update);
+    return;
+  }
 }

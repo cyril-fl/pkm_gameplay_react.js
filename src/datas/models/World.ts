@@ -40,7 +40,6 @@ export class WorldModel {
   }
   get randomPkm(): PkdDexEntry {
     return this._dex[Math.floor(Math.random() * this._dex.length)];
-
   }
 
   /* SET */

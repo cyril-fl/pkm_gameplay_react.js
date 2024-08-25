@@ -42,3 +42,10 @@ body {
 main {
   margin: auto;
 }
+
+.arena__card {
+  @apply w-1/3 bg-GameBoy-black text-GameBoy-white m-4 p-6 rounded border-4 border-GameBoy-white outline outline-GameBoy-black;
+}
+.arena__card__progressBar {
+  @apply flex justify-start items-center gap-4 text-lg;
+}

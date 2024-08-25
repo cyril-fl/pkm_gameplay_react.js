@@ -12,7 +12,7 @@ import React, {
 import { useAppContext } from "@/hooks/useContext";
 import { GameController } from "@controllers/Game";
 import { FormContextType } from "@customs/Interface";
-import { UI_BUTTON, UI_MENU } from "@customs/Enum";
+import { UI_BUTTON, UI_MENU, UI_TYPE } from "@customs/Enum";
 
 export const FormContext = createContext<FormContextType | null>(null);
 
@@ -53,18 +53,19 @@ export const FormProvider: React.FC<{ children: ReactNode }> = ({
       let temp;
 
       switch (ui.type) {
-        case "CHOICE":
+        case UI_TYPE.BATTLE:
+        case UI_TYPE.CHOICE:
           const selectedChoice = formData.get("selected");
           temp = nextAction(selectedChoice);
           break;
-        case "ENTRY":
+        case UI_TYPE.ENTRY:
           const entryValue = formData.get("inputValue");
           temp = nextAction(entryValue);
           break;
-        case "PRESS":
+        case UI_TYPE.PRESS:
           temp = nextAction();
           break;
-        case "ABORT":
+        case UI_TYPE.ABORT:
           temp = nextAction(UI_BUTTON.ABORT);
           break;
         default:

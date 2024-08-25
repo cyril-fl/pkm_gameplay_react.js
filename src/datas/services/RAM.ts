@@ -67,7 +67,6 @@ export class RAM {
     this._pkmName_new = name;
   }
 
-
   /* TOOLS */
   public resetStarter() {
     this._starter_choices = [];

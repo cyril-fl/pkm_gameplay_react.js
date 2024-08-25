@@ -1,14 +1,14 @@
 import { PkdDexEntry } from "@models/PkmDex";
-import {Choice, move, type} from "@customs/Interface";
+import { Choice, move, type } from "@customs/Interface";
 
 export class PkmModel {
   static ID = 0;
   private readonly _dex_entry: number;
   private _name: string;
-  private readonly _level: number;
+  private _level: number;
   private readonly _types: type[];
   private readonly _isShiny: boolean;
-  private  _experience_current: number;
+  private _experience_current: number;
   private _experience_nextLvL: number;
   private readonly _experienceGiver: number;
   private readonly _atk: number;
@@ -54,7 +54,25 @@ export class PkmModel {
     this._name = name;
   }
   set hp(hp: number) {
-    this._hp = hp;
+    if (hp < 0) {
+      this._hp = 0;
+    } else {
+      this._hp = Math.ceil(hp);
+    }
+  }
+  set lvl(lvl: number) {
+    this._level = lvl;
+    this.setNextLevel();
+  }
+
+  set currentXP(xp: number) {
+    this._experience_current += xp;
+
+    if (this._experience_current >= this._experience_nextLvL) {
+      this._level++;
+      // rise stats todo
+      this.currentXP = this._experience_nextLvL - this._experience_current;
+    }
   }
 
   /*  GETTERS*/
@@ -80,7 +98,7 @@ export class PkmModel {
     return this._experience_current;
   }
   get nextLvlXP() {
-      return this._experience_nextLvL;
+    return this._experience_nextLvL;
   }
   get experienceGiver() {
     return this._experienceGiver;
@@ -103,11 +121,13 @@ export class PkmModel {
   get moves() {
     return this._moves;
   }
-  get movesPoolChoices () {
+  get movesPoolChoices() {
     return this._moves.map((move): Choice => {
       return {
-        label: move.name, value: move.name
-      }})
+        label: move.name,
+        value: move.name,
+      };
+    });
   }
 
   get id() {
@@ -153,4 +173,23 @@ export class PkmModel {
     this._experience_nextLvL = 20 * this.lvl;
   }
 
+  public calculator_atk(movesName: string) {
+    const pkmMove = this.moves.find((move: move) => move.name === movesName);
+    console.log("battle round", pkmMove);
+
+    if (pkmMove) {
+      const random = Math.round(Math.random() * 100) / 100;
+      if (random > 1 - pkmMove.crit.success) {
+        console.log("crit success");
+        return (Number(pkmMove.damage) * 1) / 5;
+      } else if (random < pkmMove.crit.fail) {
+        console.log("crit fail");
+        return Number(pkmMove.damage) / 1.5;
+      } else {
+        return Number(pkmMove.damage);
+      }
+    } else {
+      return null;
+    }
+  }
 }

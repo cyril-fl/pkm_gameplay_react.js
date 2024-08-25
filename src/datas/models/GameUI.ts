@@ -1,7 +1,8 @@
 import {
   UI_Compiler_Choice,
   UI_Compiler_Dialogue,
-  Choice, arena,
+  Choice,
+  arena,
 } from "@customs/Interface";
 import { CHOICES, UI_STYLE, UI_TYPE } from "@customs/Enum";
 import { PkmModel } from "@models/Pkm";
@@ -29,9 +30,9 @@ export class GameUIModel {
     this._style = UI_STYLE.START;
     this._notification = [];
     this._arena = {
-        playerPkm: new PkmModel(),
-        wildPkm: new PkmModel(),
-    }
+      playerPkm: new PkmModel(),
+      wildPkm: new PkmModel(),
+    };
   }
 
   /* GETTERS */
@@ -51,15 +52,14 @@ export class GameUIModel {
     return this._notification;
   }
   get arena() {
-      return this._arena
+    return this._arena;
   }
   get arenaPlayerPkm() {
     return this._arena.playerPkm;
   }
   get arenaWildPkm() {
-      return this._arena.wildPkm;
+    return this._arena.wildPkm;
   }
-
 
   /* SETTERS */
   set style(newStyle: string) {
@@ -163,5 +163,12 @@ export class GameUIModel {
     setTimeout(() => {
       this._notification = [];
     }, 100);
+  }
+
+  public resteArena() {
+    this.arena = {
+      playerPkm: new PkmModel(),
+      wildPkm: new PkmModel(),
+    };
   }
 }
