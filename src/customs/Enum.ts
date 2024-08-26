@@ -1,9 +1,12 @@
+import { Choice } from "@customs/Interface";
+
 export enum UI_TYPE {
   CHOICE = "CHOICE",
   PRESS = "PRESS",
   ENTRY = "ENTRY",
   BATTLE = "BATTLE",
   ABORT = "ABORT",
+  SCROLL = "SCROLL",
 }
 export enum UI_MENU {
   // MENU
@@ -18,9 +21,7 @@ export enum UI_MENU {
   RUN = "Run",
   ATTACK = "Attack",
   CATCH = "Catch",
-
-
-
+  DEX = "Dex",
 }
 export enum UI_BUTTON {
   BACK = "Back",
@@ -44,11 +45,6 @@ export enum UI_CHARACTER {
 }
 
 export const CHOICES = {
-  CONTINUE: [{ label: "*", value: "any" }],
-  BOOLEANS: [
-    { label: UI_BUTTON.YES, value: UI_BUTTON.YES },
-    { label: UI_BUTTON.NO, value: UI_BUTTON.NO },
-  ],
   ACTION_LAST_SAVE: [
     { label: UI_BUTTON.CONTINUE, value: UI_BUTTON.CONTINUE },
     { label: UI_BUTTON.NEW_GAME, value: UI_BUTTON.NEW_GAME },
@@ -62,6 +58,7 @@ export const CHOICES = {
     { label: UI_MENU.HEAL, value: UI_MENU.HEAL },
     { label: UI_MENU.RENAME, value: UI_MENU.RENAME },
     { label: UI_MENU.RELEASE, value: UI_MENU.RELEASE },
+    { label: UI_MENU.DEX, value: UI_MENU.DEX },
   ],
   ACTION_PKMCENTER_MENU: [
     { label: UI_MENU.REVIVE, value: UI_MENU.REVIVE },
@@ -69,10 +66,16 @@ export const CHOICES = {
   ],
   ACTION_BACK: [{ label: UI_BUTTON.BACK, value: UI_BUTTON.BACK }],
 
-  ACTION_BATTLE:[
+  ACTION_BATTLE: [
     { label: UI_MENU.ATTACK, value: UI_MENU.ATTACK },
     { label: UI_MENU.RUN, value: UI_MENU.RUN },
     { label: UI_MENU.CATCH, value: UI_MENU.CATCH },
     { label: UI_MENU.HEAL, value: UI_MENU.HEAL },
-  ]
+  ],
+  BOOLEANS: [
+    { label: UI_BUTTON.YES, value: UI_BUTTON.YES },
+    { label: UI_BUTTON.NO, value: UI_BUTTON.NO },
+  ],
+  CONTINUE: [{ label: "*", value: "any" }],
+  DEFAULT_CHOICE: [{ label: "Invalid", value: "null" }],
 };

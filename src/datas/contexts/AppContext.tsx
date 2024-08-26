@@ -12,7 +12,7 @@ import { GameUIModel } from "@models/GameUI";
 import { useSave } from "@/hooks/useSave";
 import { PkmModel } from "@models/Pkm";
 import { MOCKUP_DEX_ENTRY } from "@/datas/mockup/dex_entry";
-import {NotificationCard} from "@/ui/Selection/components/Notification";
+import { NotificationCard } from "@/ui/Selection/components/Notification";
 
 export const AppContext = createContext<any>({});
 
@@ -77,7 +77,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
         ui: GameUI,
       }}
     >
-
       <NotificationCard />
 
       <main className="w-11/12 h-5/6 flex flex-col gap-4 justify-between font-jersey-25">

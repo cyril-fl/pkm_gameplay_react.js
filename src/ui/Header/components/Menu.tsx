@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useAppContext } from "@/hooks/useContext";
 import { useStyleUI } from "@/hooks/useStyleUI";
 
@@ -12,8 +12,10 @@ export const HeaderMenu = () => {
     }
   };
 
+  const isEntryMode = useMemo(() => ui.type === "ENTRY", [ui.type]);
+
   return (
-    <div className="flex gap-4">
+    <div className={`flex gap-4 ${isEntryMode ? "" : "z-30"}`}>
       <button
         onClick={() => handleAction("SAVE")}
         className={style.header__button}

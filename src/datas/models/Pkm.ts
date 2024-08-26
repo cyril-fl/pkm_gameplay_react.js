@@ -56,6 +56,8 @@ export class PkmModel {
   set hp(hp: number) {
     if (hp < 0) {
       this._hp = 0;
+    } else if (hp > this.hpMax) {
+      this._hp = this.hpMax;
     } else {
       this._hp = Math.ceil(hp);
     }
@@ -64,7 +66,6 @@ export class PkmModel {
     this._level = lvl;
     this.setNextLevel();
   }
-
 
   /*  GETTERS*/
   get dexEntry() {
@@ -166,15 +167,11 @@ export class PkmModel {
 
   public calculator_atk(movesName: string) {
     const pkmMove = this.moves.find((move: move) => move.name === movesName);
-    console.log("battle round", pkmMove);
-
     if (pkmMove) {
       const random = Math.round(Math.random() * 100) / 100;
       if (random > 1 - pkmMove.crit.success) {
-        console.log("crit success");
         return (Number(pkmMove.damage) * 1) / 5;
       } else if (random < pkmMove.crit.fail) {
-        console.log("crit fail");
         return Number(pkmMove.damage) / 1.5;
       } else {
         return Number(pkmMove.damage);
@@ -200,6 +197,5 @@ export class PkmModel {
     this._spd += this.getRandomNumber({ min: 1, max: 3 });
     this._hp_max += this.getRandomNumber({ min: 5, max: 10 });
     this._hp = this._hp + 3;
-
   }
 }

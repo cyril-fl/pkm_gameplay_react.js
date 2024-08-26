@@ -70,7 +70,6 @@ export class WorldModel {
   }
   public revive() {
     this._player.revive();
-      this.addLog([`You revived your team at ${this.location} PkmCenter!`]);
-
+    this.addLog([`You revived your team at ${this.location} PkmCenter!`]);
   }
 }

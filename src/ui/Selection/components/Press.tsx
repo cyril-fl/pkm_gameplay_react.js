@@ -27,7 +27,7 @@ export const PressInput = () => {
   const choices = useMemo(
     () =>
       ui?.choices.map((text: Choice, index: number) => (
-        <span key={index}>{display(text.value)}</span>
+        <span key={index}>{display(text.label)}</span>
       )),
     [ui.choices],
   );
@@ -39,5 +39,10 @@ export const PressInput = () => {
     };
   }, [submit]);
 
-  return <p className=""> Press {choices} to continue</p>;
+  return (
+    <p className="cursor-pointer" onClick={handleKeyDown}>
+      {" "}
+      Press {choices} to continue
+    </p>
+  );
 };

@@ -16,7 +16,7 @@ import {
 import { Choice, move, RAM_interface } from "@customs/Interface";
 import { DexEntry } from "@models/Dex";
 import { RAM } from "@services/RAM";
-import {Simulate} from "react-dom/test-utils";
+import { Simulate } from "react-dom/test-utils";
 import keyDown = Simulate.keyDown;
 
 // Todo: regarder la list des todo et voir ce qui peu être fait
@@ -145,7 +145,7 @@ export class GameController {
 
   /* MENU */
   private menu_main(response: string = "") {
-    this.upToSix();
+    // this.upToSix();
     this.updateUI_MainMenu();
 
     switch (response) {
@@ -160,7 +160,8 @@ export class GameController {
         break;
 
       case UI_MENU.TRAVEL:
-        const randomEvent = this.isRandomEvent(1, 1);
+        // 50% chance to encounter a wild pkm
+        const randomEvent = this.isRandomEvent(1, 2);
         this.updateUI_MainMenu_TravelEvent(randomEvent);
         this.nextAction = randomEvent ? this.travel_event : this.travel_nothing;
         if (!randomEvent) {
@@ -203,12 +204,15 @@ export class GameController {
   private menu_team(response: string) {
     switch (response) {
       case UI_MENU.HEAL:
-        this.updateUI_MenuTeam_Heal();
+        this.updateUI_MenuTeam_Choice("heal");
+        this.nextAction = this.healPkm_A;
+
+        // this.updateUI_MenuTeam_Heal();
         // todo: add a way to heal the team with items de type "potion" , potion extend item, ...
         break;
 
       case UI_MENU.RENAME:
-        this.updateUI_MenuTeam_Rename();
+        this.updateUI_MenuTeam_Choice("rename");
         this.nextAction = this.renamePkm_A;
         break;
 
@@ -217,6 +221,11 @@ export class GameController {
         const teamLengthBool = team.length <= 1;
         this.updateUI_MenuTeam_Release(teamLengthBool);
         this.nextAction = teamLengthBool ? this.menu_team : this.releasePkm_A;
+        break;
+
+      case UI_MENU.DEX:
+        this.updateUI_MenuTeam_Dex();
+        this.dexDisplay();
         break;
 
       case UI_BUTTON.BACK:
@@ -230,6 +239,40 @@ export class GameController {
   }
 
   /* MENU OPTION */
+  // Dex
+  private dexDisplay() {
+    const dex = this.world.player.dex;
+    this.UI.dex = this.world.dex.filter((entry) => dex.includes(entry.id))
+    this.nextAction = this.menu_main;
+
+  }
+
+  // Heal
+  private healPkm_A(response: string) {
+    const temp_pkm = this.findPkm(response);
+
+    if (response === UI_BUTTON.BACK) {
+      this.menu_main(UI_MENU.TEAM);
+      return;
+    } else if (!temp_pkm) {
+      this.warning(this.menu_team);
+      return;
+    }
+
+    if (temp_pkm.hp === temp_pkm.hpMax) {
+      this.UI.updateNotification([
+        `${temp_pkm.name} is already in good shape !`,
+      ]);
+      return;
+    } else {
+      const message = [`${temp_pkm.name} has been healed !`];
+      temp_pkm.hp += temp_pkm.getRandomNumber({ min: 10, max: 20 });
+      this.UI.updateNotification(message);
+      this.world.addLog(message);
+    }
+    this.nextAction = this.menu_team;
+  }
+
   // Release
   private releasePkm_A(response: string) {
     const temp_pkm = this.findPkm(response);
@@ -343,7 +386,7 @@ export class GameController {
     switch (response) {
       case UI_BUTTON.YES:
         this.updateUI_TravelEventYes();
-        this.nextAction = this.event_battle;
+        this.nextAction = this.battleInitPhase;
         break;
 
       case UI_BUTTON.NO:
@@ -363,17 +406,16 @@ export class GameController {
     this.nextAction = this.menu_main;
     this.menu_main();
   }
-  //_____ REFACTORED jusqu'ici
 
   // Battle
-  private event_battle(response: string) {
+  private battleInitPhase(response: string) {
     const playerChoice = this.findPkm(response);
     if (!playerChoice || !this.RAM.pkm) {
       this.warning(this.menu_main);
       return;
     } else if (playerChoice.hp <= 0) {
       this.updateUI_BattleEvent_checkChoice(playerChoice);
-      return
+      return;
     }
 
     this.UI.arena = {
@@ -381,80 +423,80 @@ export class GameController {
       wildPkm: this.RAM.pkm,
     };
 
-    this.updateUI__battleEvent_actionPhase();
-    this.nextAction = this.battleChoicePhase;
+    this.updateUI_BattleEvent_actionPhase();
+    this.nextAction = this.battleActionPhase;
   }
 
-  private battleChoicePhase(response: string) {
+  private battleActionPhase(response: string) {
     switch (response) {
-        case UI_MENU.ATTACK:
-            this.updateUI_battleEvent_battlePhase();
-            this.nextAction = this.battlePhase;
-            break;
+      case UI_MENU.ATTACK: // -- seem OK
+        this.updateUI_BattleEvent_battlePhase();
+        this.nextAction = this.battlePhase;
+        break;
 
-        case UI_MENU.RUN:
-            this.updateUI_TravelEventNO(); // ajouter un random factor Todo
-            this.nextAction = this.menu_main;
-            break;
+      case UI_MENU.RUN:
+        // 66% chance to run away
+        const random = this.isRandomEvent(2, 3);
+        random
+          ? this.updateUI_TravelEventNO()
+          : this.UI.updateNotification(["You failed to run away !"]);
+        random ? (this.nextAction = this.menu_main) : this.battleAction_Fail();
+        break;
 
-        case UI_MENU.HEAL:
-            this.updateUI_MenuTeam_Heal();
-            this.nextAction = this.menu_team;
-            break
+      case UI_MENU.HEAL:
+        this.tryToHeal();
+        break;
 
-        case UI_MENU.CATCH:
-          alert("catch");
-            // this.updateUI_BattleEvent_Catch();
-            // this.nextAction = this.catchPkm;
-            break
+      case UI_MENU.CATCH:
+        this.tryToCatch();
+        break;
 
-
-        default:
-            this.warning(this.menu_main);
-            break
+      default:
+        this.warning(this.menu_main);
+        break;
     }
-
-
-
-
-    // this.updateUI_battleEvent_battlePhase();
-
   }
-
 
   private battlePhase(response: string) {
     const randomIndex = Math.ceil(Math.random() * 4) - 1;
-    const p_pkm = this.UI.arena.playerPkm;
-    const p_move = p_pkm.calculator_atk(response);
-    const w_pkm = this.UI.arena.wildPkm;
-    const w_move = w_pkm.calculator_atk(w_pkm.moves[randomIndex].name);
+    const p_move = this.UI.p_pkm.calculator_atk(response);
+    const w_move = this.UI.w_pkm.calculator_atk(this.UI.w_pkm.moves[randomIndex].name);
 
     if (!p_move || !w_move) {
       this.warning(this.menu_main);
       return;
     }
 
-    this.damageStep(p_pkm, w_pkm, p_move, w_move);
+    this.damageStep(this.UI.p_pkm, this.UI.w_pkm, p_move, w_move);
     return;
   }
 
-  private damageStep(p_pkm: PkmModel, w_pkm: PkmModel, p_move: number, w_move: number) {
+  private damageStep(
+    p_pkm: PkmModel,
+    w_pkm: PkmModel,
+    p_move: number,
+    w_move: number,
+  ) {
     let atker = p_pkm.spd > w_pkm.spd ? p_pkm : w_pkm;
     let dfser = p_pkm.spd < w_pkm.spd ? p_pkm : w_pkm;
     let a_move = p_pkm.spd > w_pkm.spd ? p_move : w_move;
     let d_move = p_pkm.spd < w_pkm.spd ? p_move : w_move;
-/*
+
     this.damageStep_calculator(atker, dfser, a_move);
-    this.damageStep_outcome(atker, dfser);
+    const roundOne = this.damageStep_outcome(atker, dfser);
 
-    this.damageStep_calculator(dfser, atker, d_move);
-    this.damageStep_outcome(atker, dfser);
-    */
+    if (roundOne) {
+      this.damageStep_calculator(dfser, atker, d_move);
+      this.damageStep_outcome(atker, dfser);
+    }
 
-    // Debug one way battle
-    this.damageStep_calculator(p_pkm, w_pkm, p_move);
-    this.damageStep_outcome(p_pkm, w_pkm);
+    // // Debug one way battle - player win
+    // this.damageStep_calculator(p_pkm, w_pkm, p_move);
+    // this.damageStep_outcome(p_pkm, w_pkm);
 
+    // // Debug one way battle - player lose
+    // this.damageStep_calculator(w_pkm, p_pkm, w_move);
+    // this.damageStep_outcome(w_pkm, p_pkm);
   }
 
   private damageStep_calculator(
@@ -462,55 +504,119 @@ export class GameController {
     defender: PkmModel,
     movePower: number,
   ) {
-    const atkRation = attacker.atk / defender.dfs;
-    const multiplier = 0.5;
-    const baseDamage = movePower * atkRation * multiplier;
-    console.log(baseDamage);
-    defender.hp -= baseDamage;
+    // 33% chance to miss
+    const random = this.isRandomEvent(1, 3);
+    if (random) {
+      this.UI.updateNotification([`${attacker.name}'s attack missed !`], true);
+    } else {
+      const atkRation = attacker.atk / defender.dfs;
+      const multiplier = 0.5;
+      const baseDamage = movePower * atkRation * multiplier;
+      defender.hp -= baseDamage;
+    }
   }
 
   private damageStep_outcome(attacker: PkmModel, defender: PkmModel) {
     if (attacker.hp <= 0 || defender.hp <= 0) {
       const KO = attacker.hp <= 0 ? attacker : defender;
       const isPlayerKO = this.UI.arena.playerPkm.hp <= 0;
-      const log = isPlayerKO ? `${attacker.name} has been knocked out !` : `Congrats you win against wild ${defender.name} !`;
-      this.world.addLog([log]);
 
-      if (!isPlayerKO) {
-        const prevLvl = attacker.lvl;
-        attacker.gainXP(defender.experienceGiver);
-        const newLvl = attacker.lvl;
-        if (newLvl > prevLvl) {
-          this.world.addLog([`${attacker.name} has leveled up to lvl ${newLvl} !`]);
-        }
+      if (isPlayerKO) {
+        this.battle_Lose();
+      } else {
+        this.battle_Win();
       }
 
       this.world.oneDayPasses();
       this.UI.resetArena();
-      this.nextAction = this.menu_main;
-      this.updateUI_BattleEvent_damageStepCCL(KO);
+      return false;
+    } else {
+      this.updateUI_BattleEvent_actionPhase();
+      this.nextAction = this.battleActionPhase;
+      return true;
     }
   }
 
+  private battle_Win() {
+    this.postBattle_gainXP(this.UI.p_pkm, this.UI.w_pkm);
+    this.updateUI_BattleEvent_damageStepCCL(this.UI.w_pkm);
+    this.world.addLog([`Congrats you win against wild ${this.UI.w_pkm.name} !`]);
+    this.nextAction = this.menu_main;
+    return;
+  }
 
+  private battle_Lose() {
+    if (this.postBattle_isTeamOut()) {
+      this.world.player.revive();
+      this.updateUI_BattleEvent_Urgency();
+      this.world.addLog([`${this.UI.p_pkm.name} has been knocked out !`]);
+      this.nextAction = this.menu_pkmCenter;
+      return;
+    }
+  }
 
+  private battleAction_Fail() {
+    const randomIndex = Math.ceil(Math.random() * 4) - 1;
+    const p_pkm = this.UI.arena.playerPkm;
+    const w_pkm = this.UI.arena.wildPkm;
+    const w_move = w_pkm.calculator_atk(w_pkm.moves[randomIndex].name);
 
+    if (!w_move) {
+      console.log("error in runFail");
+      this.warning(this.menu_main);
+      return;
+    }
 
+    this.damageStep_calculator(this.UI.w_pkm, this.UI.p_pkm, w_move);
+    this.damageStep_outcome(this.UI.p_pkm, this.UI.w_pkm);
+  }
 
+  private tryToCatch() {
+    const ballCaptureRate = 1;this.UI.w_pkm
+    const randomFactor = Math.random();
+    const captureRate =
+      ((this.UI.p_pkm.hpMax - this.UI.w_pkm.hp) / this.UI.w_pkm.hpMax) * ballCaptureRate;
 
+      // 0 at debug else :  CaptureRate >= randomFactor
+    if (captureRate >= randomFactor) {
+      if (this.world.player.team.length >= 6) {
+        this.updateUI_BattleEvent_CaptureFail();
+        this.UI.p_pkm.gainXP(this.UI.w_pkm.experienceGiver);
+        this.nextAction = this.menu_main;
+      } else {
+        this.updateUI_BattleEvent_CaptureSuccess();
+        this.UI.p_pkm.gainXP(this.UI.w_pkm.experienceGiver);
+        this.world.player.catch(this.UI.w_pkm);
+        this.nextAction = this.menu_main;
+      }
+    } else {
+      this.UI.updateNotification([
+        "The wild pkm has escaped from the PkmBall!",
+      ]);
+      this.battleAction_Fail();
+    }
+  }
 
+  private tryToHeal() {
+    this.UI.p_pkm.hp += this.UI.p_pkm.getRandomNumber({ min: 10, max: 20 });
+  }
 
+  private postBattle_gainXP(winner: PkmModel, loser: PkmModel) {
+    const prevLvl = winner.lvl;
+    winner.gainXP(loser.experienceGiver);
+    const newLvl = winner.lvl;
 
+    if (newLvl > prevLvl) {
+      this.world.addLog([`${winner.name} has leveled up to lvl ${newLvl} !`]);
+    }
+  }
 
-
-
-
-
-
-
-
-
-
+  private postBattle_isTeamOut() {
+    const teamMemberOut = this.world.player.team.filter(
+      (pkm: PkmModel) => pkm.hp <= 0,
+    );
+    return teamMemberOut.length == this.world.player.team.length;
+  }
 
   /* TOOL BOX*/
   private upToSix() {
@@ -523,7 +629,7 @@ export class GameController {
         ]);
       }
     }
-    return
+    return;
   }
 
   private findPkm(id: string): PkmModel | undefined {
@@ -547,7 +653,7 @@ export class GameController {
       this.world.player.addEntry(dexEntry);
       this.world.addLog([log]);
     }
-    return
+    return;
   }
 
   private resetUI(quit: boolean = true) {
@@ -565,7 +671,7 @@ export class GameController {
     this.UI = new GameUIModel();
     this.world = new WorldModel(data);
     this.nextAction = this.start;
-    return
+    return;
   }
 
   private warning(action: (...args: any) => void) {
@@ -575,7 +681,7 @@ export class GameController {
       content: [`Something went wrong, please try again !`],
     });
     this.nextAction = action;
-    return
+    return;
   }
 
   /* GETTERS */
@@ -615,7 +721,7 @@ export class GameController {
     this.UI.update(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
       content: ["You have saved the game !"],
     });
-    return
+    return;
   }
 
   public async game_quit(response: string = "") {
@@ -650,7 +756,7 @@ export class GameController {
         );
         this.nextAction = this.game_quit;
     }
-    return
+    return;
   }
 
   private async game_launch(response: string) {
@@ -663,7 +769,7 @@ export class GameController {
       await this.start(); // Recommencer le jeu après réinitialisation
     } else {
     }
-    return
+    return;
   }
 
   /* PERFORM*/
@@ -683,7 +789,7 @@ export class GameController {
       "Dex pkm successfully initialized.",
       "Error initializing dex",
     );
-    return
+    return;
   }
 
   private async perform_saveData() {
@@ -701,7 +807,7 @@ export class GameController {
       "Game saved successfully:",
       "Error saving game",
     );
-    return
+    return;
   }
 
   private async perform_overWriteSaveData() {
@@ -717,7 +823,7 @@ export class GameController {
       "Game erased successfully:",
       "Error erasing game",
     );
-    return
+    return;
   }
 
   private async perform_operation<T>(
@@ -759,7 +865,7 @@ export class GameController {
     } finally {
       this.isLoading.stop();
       console.log(`${successMessage} operation finished.`);
-      return
+      return;
     }
   }
 
@@ -1076,7 +1182,7 @@ export class GameController {
           UI_CHARACTER.NURSE,
           `Welcome to the PkmCenter !`,
           "Sorry for the mess, we are still under construction ...",
-          "   - I can revive your knock out partner, you can consult your log.",
+          "   - I can revive your knock out partner.",
           "   - You can consult your log.",
           " ",
           "And soon many more to come !",
@@ -1114,7 +1220,11 @@ export class GameController {
       newChoice: { content: CHOICES.CONTINUE },
       newStyle: undefined,
       newDialogues: {
-        content: [UI_CHARACTER.NURSE, `Everyone is healed and ready to go ! Have a nice day.`,`Take care !`],
+        content: [
+          UI_CHARACTER.NURSE,
+          `Everyone is healed and ready to go ! Have a nice day.`,
+          `Take care !`,
+        ],
       },
     };
 
@@ -1153,7 +1263,8 @@ export class GameController {
     return;
   }
 
-  private updateUI_MenuTeam_Rename() {
+  private updateUI_MenuTeam_Choice(props: string) {
+    // MIX NAME HEAL
     const update = {
       newType: UI_TYPE.CHOICE,
       newChoice: {
@@ -1161,7 +1272,7 @@ export class GameController {
       },
       newStyle: undefined,
       newDialogues: {
-        content: ["Which pkm would you like to rename ?"],
+        content: [`Which pkm would you like to ${props} ?`],
         push: true,
       },
     };
@@ -1188,6 +1299,21 @@ export class GameController {
 
     this.UI.update_V2(update);
     return;
+  }
+
+  private updateUI_MenuTeam_Dex() {
+    const update = {
+      newType: UI_TYPE.SCROLL,
+      newChoice: { content: CHOICES.CONTINUE },
+      newStyle: undefined,
+      newDialogues: {
+        content: [
+          `Welcome to the PKDEX !`,
+          `You can consult the dex to see all the pkm you have encountered !`,
+        ],
+      },
+    };
+    this.UI.update_V2(update);
   }
 
   private updateUI_TeamAction_Release_A() {
@@ -1317,32 +1443,30 @@ export class GameController {
   }
 
   private updateUI_BattleEvent_checkChoice(props: PkmModel) {
-    this.UI.updateNotification([`${props.name} is K.O, choose another Pkm ?`,
-    ]);
+    this.UI.updateNotification([`${props.name} is K.O, choose another Pkm ?`]);
     return;
   }
 
-  private updateUI__battleEvent_actionPhase() {
+  private updateUI_BattleEvent_actionPhase() {
     const update = {
       newType: UI_TYPE.BATTLE,
       newChoice: { content: CHOICES.ACTION_BATTLE },
       newStyle: undefined,
-      newDialogues:undefined,
+      newDialogues: undefined,
     };
 
     this.UI.update_V2(update);
     return;
   }
 
-
-  private updateUI_battleEvent_battlePhase() {
+  private updateUI_BattleEvent_battlePhase() {
     const choices: Choice[] = this.UI.arena.playerPkm.movesPoolChoices;
 
     const update = {
       newType: undefined,
       newChoice: { content: choices },
       newStyle: undefined,
-      newDialogues:undefined,
+      newDialogues: undefined,
     };
 
     this.UI.update_V2(update);
@@ -1363,5 +1487,56 @@ export class GameController {
     return;
   }
 
+  private updateUI_BattleEvent_CaptureFail() {
+    const message = [
+      `You have already 6 Pokémiltons in your team.\n`,
+      `Unfortunately, the PC box is not available yet.\n`,
+      `You release ${this.UI.arena.wildPkm.name} wild Pokemilton.`,
+    ];
 
+    this.world.addLog(message);
+
+    const update = {
+      newType: UI_TYPE.PRESS,
+      newChoice: { content: CHOICES.CONTINUE },
+      newStyle: undefined,
+      newDialogues: {
+        content: message,
+      },
+    };
+
+    this.UI.update_V2(update);
+  }
+
+  private updateUI_BattleEvent_CaptureSuccess() {
+    const message = [
+      `The ${this.UI.arena.wildPkm.name} wild Pkm has been successfully captured.`,
+    ];
+
+    this.world.addLog(message);
+
+    const update = {
+      newType: UI_TYPE.PRESS,
+      newChoice: { content: CHOICES.CONTINUE },
+      newStyle: undefined,
+      newDialogues: {
+        content: message,
+      },
+    };
+
+    this.UI.update_V2(update);
+  }
+
+  private updateUI_BattleEvent_Urgency() {
+    const update = {
+      newType: UI_TYPE.PRESS,
+      newChoice: { content: CHOICES.CONTINUE },
+      newStyle: undefined,
+      newDialogues: {
+        content: ["All your Pkm are KO. You run  to the PkmCenter."],
+      },
+    };
+
+    this.UI.update_V2(update);
+  }
 }

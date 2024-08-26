@@ -6,6 +6,7 @@ import {
 } from "@customs/Interface";
 import { CHOICES, UI_STYLE, UI_TYPE } from "@customs/Enum";
 import { PkmModel } from "@models/Pkm";
+import {DexEntry} from "@models/Dex";
 
 // todo deplacer
 export interface update {
@@ -22,6 +23,7 @@ export class GameUIModel {
   private _style: string;
   private _notification: string[];
   private _arena: arena;
+  private _dex: DexEntry[];
 
   constructor() {
     this._dialogues = ["Pokemon"];
@@ -33,6 +35,7 @@ export class GameUIModel {
       playerPkm: new PkmModel(),
       wildPkm: new PkmModel(),
     };
+    this._dex = [];
   }
 
   /* GETTERS */
@@ -54,11 +57,15 @@ export class GameUIModel {
   get arena() {
     return this._arena;
   }
-  get arenaPlayerPkm() {
+  get p_pkm() {
     return this._arena.playerPkm;
   }
-  get arenaWildPkm() {
+  get w_pkm() {
     return this._arena.wildPkm;
+  }
+
+  get dex() {
+    return this._dex;
   }
 
   /* SETTERS */
@@ -71,6 +78,10 @@ export class GameUIModel {
   set arena(newArena: arena) {
     this._arena = newArena;
   }
+  set dex(newDex: DexEntry[]) {
+    this._dex = newDex;
+  }
+
 
   /* TOOLS */
   public update(
@@ -161,8 +172,8 @@ export class GameUIModel {
       : notification;
 
     setTimeout(() => {
-      this._notification = [];
-    }, 100);
+      this._notification.shift();
+    }, 50);
   }
 
   public resetArena() {

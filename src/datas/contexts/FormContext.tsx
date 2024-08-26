@@ -56,6 +56,7 @@ export const FormProvider: React.FC<{ children: ReactNode }> = ({
         case UI_TYPE.BATTLE:
         case UI_TYPE.CHOICE:
           const selectedChoice = formData.get("selected");
+          console.log("selectedChoice", selectedChoice);
           temp = nextAction(selectedChoice);
           break;
         case UI_TYPE.ENTRY:
