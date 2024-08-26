@@ -18,14 +18,17 @@ export const DialoguesCard = () => {
 
   return (
     <div
-      className={`flex flex-col gap-4 ${style.dialogue__art}`}
-      // className=""
+      className={`flex flex-col gap-4 ${style.dialogue__art}  grow `} //overflow-scroll
     >
-      {dialogues.map((text: string, index: number) => (
-        <p key={index} className={`${style.dialogue__p} `}>
-          {text}
-        </p>
-      ))}
+
+      <div className={`${style.dialogue__art_bis}` }>
+        {dialogues.map((text: string, index: number) => (
+            <p key={index} className={`${style.dialogue__p} `}>
+              {text}
+            </p>
+        ))}
+      </div>
+
     </div>
   );
 };

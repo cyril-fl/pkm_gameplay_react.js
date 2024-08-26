@@ -79,7 +79,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     >
       <NotificationCard />
 
-      <main className="w-11/12 h-5/6 flex flex-col gap-4 justify-between font-jersey-25">
+      <main className="w-11/12 h-5/6 flex flex-col gap-4 justify-between font-jersey-25 max-h-full overflow-hidden">
         {children}
       </main>
     </AppContext.Provider>

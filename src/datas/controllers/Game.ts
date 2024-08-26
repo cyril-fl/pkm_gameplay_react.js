@@ -599,6 +599,7 @@ export class GameController {
 
   private tryToHeal() {
     this.UI.p_pkm.hp += this.UI.p_pkm.getRandomNumber({ min: 10, max: 20 });
+    this.battleAction_Fail();
   }
 
   private postBattle_gainXP(winner: PkmModel, loser: PkmModel) {
@@ -1236,7 +1237,7 @@ export class GameController {
     const update = {
       newType: UI_TYPE.PRESS,
       newChoice: { content: CHOICES.CONTINUE },
-      newStyle: undefined,
+      newStyle: UI_STYLE.SCROLL,
       newDialogues: {
         content: [
           `Your log :`,
@@ -1312,7 +1313,8 @@ export class GameController {
           `You can consult the dex to see all the pkm you have encountered !`,
         ],
       },
-    };
+    }
+
     this.UI.update_V2(update);
   }
 

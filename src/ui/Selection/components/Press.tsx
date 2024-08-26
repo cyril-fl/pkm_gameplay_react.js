@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo } from "react";
 import { useAppContext, useFormContext } from "@/hooks/useContext";
-import { ChoiceInput } from "@/ui/Selection/components/Choices";
 import { Choice } from "@customs/Interface";
 
 export const PressInput = () => {
@@ -20,7 +19,8 @@ export const PressInput = () => {
       case "*":
         return "any key";
       default:
-        return text;
+        console.log("display PressInput text", text);
+        return "any key";
     }
   };
 
@@ -42,7 +42,8 @@ export const PressInput = () => {
   return (
     <p className="cursor-pointer" onClick={handleKeyDown}>
       {" "}
-      Press {choices} to continue
+      {/*Press {choices} to continue*/}
+      Press any key to continue
     </p>
   );
 };

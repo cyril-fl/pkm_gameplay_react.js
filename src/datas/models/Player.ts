@@ -1,12 +1,13 @@
 import { PkmModel } from "@models/Pkm";
 import { DexController } from "@controllers/Dex";
 import { DexEntry } from "@models/Dex";
+import entry from "next/dist/server/typescript/rules/entry";
 
 export class PlayerModel {
   private _name: string;
   private readonly _team: PkmModel[];
   private readonly _bag: any[]; // Todo: Gérer le type bagItem
-  private readonly _pkdex: number[];
+  private _pkdex: number[];
 
   constructor(name: string, team: PkmModel[], bag: any[], pkdex: number[]) {
     this._name = name;
@@ -62,6 +63,10 @@ export class PlayerModel {
   }
   public catch(pkm: PkmModel) {
     this._team.push(pkm);
+
+    if (!this._pkdex.includes(pkm.dexEntry)) {
+      this._pkdex.push(pkm.dexEntry);
+    }
   }
   public release(pkm: PkmModel) {
     const index = this._team.indexOf(pkm);

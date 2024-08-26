@@ -11,7 +11,7 @@ export default function App() {
     <AppProvider>
       <Header />
 
-      <section className="w-full h-full border-2 border-black rounded-md flex flex-col gap-4 p-6 justify-between font-jersey-25">
+      <section className="w-full h-full border-2 border-black rounded-md flex flex-col gap-4 p-6 justify-between font-jersey-25 max-h-full overflow-hidden">
         <TextMenu />
         <FormProvider>
           <SelectMenu />

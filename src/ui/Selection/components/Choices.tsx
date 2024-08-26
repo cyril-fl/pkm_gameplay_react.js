@@ -69,22 +69,6 @@ export const ChoiceInput = () => {
     };
   }, [handleKeyDown]);
 
-  // Dynamic CCS class
-  const choiceClass = useMemo(() => {
-    switch (choices.length) {
-      case 2:
-      case 4:
-      // return "w-1/3";
-      case 3:
-      case 6:
-      // return "w-[24%]";
-      case 5:
-      // return "w-1/2 last:w-full";
-      default:
-      // return "basis-full";
-    }
-  }, [choices.length]);
-
   const selectedChoiceClass =
     "bg-GameBoy-black text-GameBoy-white hover:bg-zinc-700";
   const unselectedChoiceClass =
@@ -97,11 +81,7 @@ export const ChoiceInput = () => {
           key={index}
           className={`${
             selected === choice ? selectedChoiceClass : unselectedChoiceClass
-          } ${choice.value === UI_BUTTON.BACK ? "w-fit shrink-0" : "grow"} flex cursor-pointer items-center justify-between rounded-sm border-2 border-GameBoy-black px-4 py-2 transition duration-200 ease-in-out ${choiceClass} ${
-            index === choices.length - 1 && choices.length === 5
-              ? "basis-full"
-              : ""
-          }`}
+          } ${choice.value === UI_BUTTON.BACK ? "w-fit shrink-0" : "grow"} flex cursor-pointer items-center justify-between rounded-sm border-2 border-GameBoy-black px-4 py-2 transition duration-200 ease-in-out `}
           onClick={(e) => handleClick(e, choice)}
           onMouseEnter={() => setSelected(choice)}
         >
