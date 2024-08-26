@@ -43,7 +43,7 @@
 - **Battle**: What could be added to the battle system?
   - PP (Power Points) for each move.
 
-- **Bag**: Whit all sort of item as potion, ball etc.
+- **Bag**: All sort of items could be add ( potion, ball, etc. ).
 
 ### Technologies
 
