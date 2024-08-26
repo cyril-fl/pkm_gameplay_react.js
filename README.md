@@ -10,24 +10,25 @@
 
 ### Description
 
-**Pokémon Gameplay React** is a text-based gameplay loop inspired by the Pokémon universe. Create your character, choose your Pokémon, and embark on an adventure in this interactive game. You can start a new game anytime you want.
+**Pokémon Gameplay React** is a text-based gameplay loop inspired by the Pokémon universe. Create your character, choose your Pokémon, and embark on an adventure in this interactive game. You can start a new game anytime you want. Try to catch every 68 pokémon present in the game.
 
 ### Key Features
 
 #### Pokémon Center
 
-- **Revive Pokémon**: Restore your Pokémon's health when they're knocked out. _(Coming Soon...)_
-- **View Logs**: Check your activity logs. _(Coming Soon...)_
+- **Revive Pokémon**: Restore your Pokémon's health when they're knocked out.
+- **View Logs**: Check your activity logs. 
 
 #### Team Management
 
-- **Heal**: Heal your team. _(Coming Soon...)_
+- **Heal**: Heal your team.
 - **Rename**: Change one of your partner's names.
 - **Release**: Set one of your partners free.
+- **Pokédex**: Show the Pokédex entry of the monster caught so far.
 
 #### Adventure
 
-- **Random Battle**: Engage in random battles with wild Pokémon. _(Coming Soon...)_
+- **Random Battle**: Engage in random battles with wild Pokémon : attack, run, heal or try to catch the wild Pokémon in front of you
 
 ### Potential Future Features
 
@@ -41,7 +42,8 @@
 
 - **Battle**: What could be added to the battle system?
   - PP (Power Points) for each move.
-  -
+
+- **Bag**: Whit all sort of item as potion, ball etc.
 
 ### Technologies
 
