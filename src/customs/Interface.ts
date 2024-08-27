@@ -26,11 +26,11 @@ export interface RAM_interface {
   pkmName_old?: string;
   pkmName_new?: string;
   pkm?: PkmModel;
-  arena?: arena;
+  arena?: Arena;
 }
 // ---
 
-export interface arena {
+export interface Arena {
   playerPkm: PkmModel;
   wildPkm: PkmModel;
 }
@@ -62,7 +62,12 @@ export interface Choice {
   label: string;
   value: string;
 }
-
+export interface Update {
+  newType?: string;
+  newChoice?: UI_Compiler_Choice;
+  newStyle?: string;
+  newDialogues?: UI_Compiler_Dialogue;
+}
 
 export interface UI_Compiler_Choice {
   content: Choice[];

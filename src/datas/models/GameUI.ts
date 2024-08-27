@@ -2,19 +2,12 @@ import {
   UI_Compiler_Choice,
   UI_Compiler_Dialogue,
   Choice,
-  arena,
+  Arena,
+  Update,
 } from "@customs/Interface";
 import { CHOICES, UI_STYLE, UI_TYPE } from "@customs/Enum";
 import { PkmModel } from "@models/Pkm";
 import { DexEntry } from "@models/Dex";
-
-// todo deplacer
-export interface update {
-  newType?: string;
-  newChoice?: UI_Compiler_Choice;
-  newStyle?: string;
-  newDialogues?: UI_Compiler_Dialogue;
-}
 
 export class GameUIModel {
   private _dialogues: string[];
@@ -22,7 +15,7 @@ export class GameUIModel {
   private _type: string;
   private _style: string;
   private _notification: string[];
-  private _arena: arena;
+  private _arena: Arena;
   private _dex: DexEntry[];
 
   constructor() {
@@ -75,7 +68,7 @@ export class GameUIModel {
   set type(type: string) {
     this._type = type;
   }
-  set arena(newArena: arena) {
+  set arena(newArena: Arena) {
     this._arena = newArena;
   }
   set dex(newDex: DexEntry[]) {
@@ -83,46 +76,44 @@ export class GameUIModel {
   }
 
   /* TOOLS */
-  public update(
-    newType?: string,
-    newChoice?: UI_Compiler_Choice,
-    newStyle?: string,
-    newDialogues?: UI_Compiler_Dialogue,
-  ) {
-    // Todo : refactor.
-    if (newType) {
-      this.type = newType;
+  // public update(
+  //   newType?: string,
+  //   newChoice?: UI_Compiler_Choice,
+  //   newStyle?: string,
+  //   newDialogues?: UI_Compiler_Dialogue,
+  // ) {
+  //   if (newType) {
+  //     this.type = newType;
+  //
+  //     if (newType === "ENTRY") {
+  //       this.updateChoices([]);
+  //     }
+  //   }
+  //
+  //   if (newStyle) {
+  //     this.style = newStyle;
+  //   }
+  //
+  //   if (newChoice) {
+  //     switch (this.type) {
+  //       case UI_TYPE.PRESS:
+  //         this.updateChoices(newChoice.content);
+  //         break;
+  //       case UI_TYPE.CHOICE:
+  //       case UI_TYPE.BATTLE:
+  //         this.updateChoices(newChoice.content, newChoice.push);
+  //         break;
+  //       default:
+  //         break;
+  //     }
+  //   }
+  //
+  //   if (newDialogues) {
+  //     this.updateDialogues(newDialogues.content, newDialogues.push);
+  //   }
+  // }
 
-      if (newType === "ENTRY") {
-        this.updateChoices([]);
-      }
-    }
-
-    if (newStyle) {
-      this.style = newStyle;
-    }
-
-    if (newChoice) {
-      switch (this.type) {
-        case UI_TYPE.PRESS:
-          this.updateChoices(newChoice.content);
-          break;
-        case UI_TYPE.CHOICE:
-        case UI_TYPE.BATTLE:
-          this.updateChoices(newChoice.content, newChoice.push);
-          break;
-        default:
-          break;
-      }
-    }
-
-    if (newDialogues) {
-      this.updateDialogues(newDialogues.content, newDialogues.push);
-    }
-  }
-
-  public update_V2(update: update) {
-    // Todo : refactor.
+  public update_V2(update: Update) {
     if (update.newType) {
       this.type = update.newType;
 

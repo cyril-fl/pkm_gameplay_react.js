@@ -5,7 +5,6 @@ import { MOCKUP_SAVE_MODEL } from "@/datas/mockup/save_model";
 export class SaveModel {
   /*
    *  Todo : Ajouter les Interface des attributs , bags
-   *  Todo : Trouver un moyen de rendre private avec getter et setter
    */
 
   player_name: string;

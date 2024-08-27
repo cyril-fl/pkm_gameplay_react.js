@@ -17,9 +17,6 @@ import { Choice, RAM_interface } from "@customs/Interface";
 import { DexEntry } from "@models/Dex";
 import { RAM } from "@services/RAM";
 
-// Todo: regarder la list des todo et voir ce qui peu être fait
-// Todo : bug dans les data des PKM je dois les mofier pour qu'il y a un max et un min
-
 export class GameController {
   private RAM_OG: RAM_interface;
   private RAM: RAM;
@@ -165,9 +162,7 @@ export class GameController {
         if (!randomEvent) {
           return;
         }
-        // todo Gerer le lvl autrement qu'en dure?
-        this.RAM.pkm = new PkmModel(this.world.randomPkm, 5);
-
+        this.generateRandomPkm();
         break;
       default:
         break;
@@ -184,7 +179,6 @@ export class GameController {
         break;
 
       case UI_MENU.CONSULT_LOG:
-        // Todo: Add a way to paginate the logs
         this.updateUI_MenuPkmcenter_Log();
         break;
 
@@ -252,7 +246,7 @@ export class GameController {
       this.menu_main(UI_MENU.TEAM);
       return;
     } else if (!temp_pkm) {
-      this.warning(this.menu_team);
+      this.updateUI_warning(this.menu_team);
       return;
     }
 
@@ -278,7 +272,7 @@ export class GameController {
       if (response === UI_BUTTON.BACK) {
         this.menu_main(UI_MENU.TEAM);
       } else {
-        this.warning(this.menu_team);
+        this.updateUI_warning(this.menu_team);
       }
       return;
     }
@@ -303,7 +297,7 @@ export class GameController {
           this.nextAction = this.menu_team;
           this.RAM.pkm = new PkmModel();
         } else {
-          this.warning(this.menu_team);
+          this.updateUI_warning(this.menu_team);
         }
         break;
       case UI_BUTTON.NO:
@@ -323,7 +317,7 @@ export class GameController {
       this.menu_main(UI_MENU.TEAM);
       return;
     } else if (!temp_pkm) {
-      this.warning(this.menu_team);
+      this.updateUI_warning(this.menu_team);
       return;
     }
 
@@ -363,7 +357,7 @@ export class GameController {
           this.RAM.pkm = new PkmModel();
           this.RAM.pkmNewName = "";
         } else {
-          this.warning(this.menu_team);
+          this.updateUI_warning(this.menu_team);
           this.menu_main(UI_MENU.TEAM);
         }
         break;
@@ -408,7 +402,7 @@ export class GameController {
   private battleInitPhase(response: string) {
     const playerChoice = this.findPkm(response);
     if (!playerChoice || !this.RAM.pkm) {
-      this.warning(this.menu_main);
+      this.updateUI_warning(this.menu_main);
       return;
     } else if (playerChoice.hp <= 0) {
       this.updateUI_BattleEvent_checkChoice(playerChoice);
@@ -449,7 +443,7 @@ export class GameController {
         break;
 
       default:
-        this.warning(this.menu_main);
+        this.updateUI_warning(this.menu_main);
         break;
     }
   }
@@ -462,7 +456,7 @@ export class GameController {
     );
 
     if (!p_move || !w_move) {
-      this.warning(this.menu_main);
+      this.updateUI_warning(this.menu_main);
       return;
     }
 
@@ -561,7 +555,7 @@ export class GameController {
 
     if (!w_move) {
       console.log("error in runFail");
-      this.warning(this.menu_main);
+      this.updateUI_warning(this.menu_main);
       return;
     }
 
@@ -655,6 +649,23 @@ export class GameController {
     return;
   }
 
+  private generateRandomPkm() {
+      const teamLvl = this.var_team((pkm: PkmModel) => pkm.lvl);
+      const teamLvlMoy = teamLvl.length > 0
+        ? Math.round(teamLvl.reduce((acc, cur) => acc + cur, 0) / teamLvl.length)
+        : 0;
+
+      const random = this.isRandomEvent(1, 2);
+      const randomDelta = Math.ceil(Math.random() * 3);
+      const lvl = {min: 1, max: 100};
+
+      const randomLvl = random
+        ? Math.min(Math.max(Math.round(teamLvlMoy + randomDelta), lvl.min), lvl.max)
+        : Math.min(Math.max(Math.round(teamLvlMoy - randomDelta), lvl.min), lvl.max);
+
+    this.RAM.pkm = new PkmModel(this.world.randomPkm, randomLvl);
+  }
+
   private findPkm(id: string): PkmModel | undefined {
     return this.world.player.team.find(
       (pkm: PkmModel) => pkm.id.toString() === id,
@@ -697,16 +708,6 @@ export class GameController {
     return;
   }
 
-  private warning(action: (...args: any) => void) {
-    // todo refactor ui.update
-
-    this.UI.update(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
-      content: [`Something went wrong, please try again !`],
-    });
-    this.nextAction = action;
-    return;
-  }
-
   /* GETTERS */
   get extractData() {
     return {
@@ -739,20 +740,14 @@ export class GameController {
   /* GAME ACTION */
   public async game_save() {
     await this.perform_saveData();
-    // todo refactor ui.update
-
-    this.UI.update(UI_TYPE.PRESS, { content: CHOICES.CONTINUE }, undefined, {
-      content: ["You have saved the game !"],
-    });
+    this.updateUI_Save();
     return;
   }
 
   public async game_quit(response: string = "") {
-    // todo refactor ui.update
-    this.UI.update(UI_TYPE.PRESS, { content: CHOICES.CONTINUE });
+    this.updateUI_Quit();
     this.nextAction = this.resetUI;
 
-    // todo refactor ui.update
     switch (response) {
       case UI_BUTTON.YES:
         this.UI.updateDialogues(["You saved the game! Have a good day!"]);
@@ -766,17 +761,7 @@ export class GameController {
         this.menu_main();
         break;
       default:
-        this.UI.update(
-          UI_TYPE.CHOICE,
-          { content: [...CHOICES.BOOLEANS, ...CHOICES.ACTION_BACK] },
-          undefined,
-          {
-            content: [
-              "If you quit now, your progress will be lost !",
-              "Do you want to save before ?",
-            ],
-          },
-        );
+        this.updateUI_Quit_Warning();
         this.nextAction = this.game_quit;
     }
     return;
@@ -806,7 +791,7 @@ export class GameController {
           this.world.dex = temp_dex;
           this.RAM.starter = temp_dex;
         } else {
-          this.warning(this.start);
+          this.updateUI_warning(this.start);
         }
       },
       "Dex pkm successfully initialized.",
@@ -935,6 +920,46 @@ export class GameController {
   }
 
   /* STORYBOARD */
+  public updateUI_Save() {
+    const update = {
+      newType: UI_TYPE.PRESS,
+      newChoice: { content: CHOICES.CONTINUE },
+      newStyle: undefined,
+      newDialogues: {
+        content: ["You have saved the game !"]
+      }
+    }
+
+    this.UI.update_V2(update);
+  }
+
+  public updateUI_Quit() {
+    const update = {
+      newType: UI_TYPE.PRESS,
+      newChoice: { content: CHOICES.CONTINUE },
+      newStyle: undefined,
+      newDialogues: undefined,
+    }
+
+    this.UI.update_V2(update);
+  }
+
+  public updateUI_Quit_Warning() {
+    const update = {
+      newType: UI_TYPE.CHOICE,
+      newChoice: { content: [...CHOICES.BOOLEANS, ...CHOICES.ACTION_BACK] },
+      newStyle: undefined,
+      newDialogues: {
+        content: [
+          "If you quit now, your progress will be lost !",
+          "Do you want to save before ?",
+        ],
+      },
+    }
+
+    this.UI.update_V2(update);
+  }
+
   private updateUI_NewGame() {
     const update = {
       newType: UI_TYPE.CHOICE,
@@ -1548,5 +1573,22 @@ export class GameController {
     };
 
     this.UI.update_V2(update);
+  }
+
+
+  private updateUI_warning(action: (...args: any) => void) {
+    const update = {
+      newType: UI_TYPE.PRESS,
+      newChoice: { content: CHOICES.CONTINUE },
+      newStyle: undefined,
+      newDialogues: {
+        content: ["Something went wrong, please try again !"],
+      },
+      }
+
+    this.UI.update_V2(update);
+
+    this.nextAction = action;
+    return;
   }
 }

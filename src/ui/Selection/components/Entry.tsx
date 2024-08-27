@@ -27,7 +27,6 @@ export const EntryInput = () => {
         >
           <IoMdArrowRoundUp />
         </button>
-        {/* Todo : mettre en place un systeme de retour         */}
         <button
           // type="submit"
           onClick={handleAbortAction}

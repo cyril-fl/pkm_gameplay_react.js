@@ -19,7 +19,7 @@ export class PkmModel {
   private _hp: number;
   private _hp_max: number;
   private _moves: move[];
-  protected declare _id: string; // format : 0000 (dex entry) - 0000 (type1 type2 ) - 0000 (static ID) // readonly todo
+  protected declare _id: string; // format : 0000 (dex entry) - 0000 (type1 type2 ) - 0000 (static ID)
 
   constructor(pkm: DexEntry = new DexEntry(), level: number = 1) {
     this._dex_entry = pkm.id;
@@ -195,10 +195,15 @@ export class PkmModel {
     this._experience_current += xp;
 
     while (this._experience_current >= this._experience_nextLvL) {
-      this.lvl++;
-      this._experience_current -= this._experience_nextLvL;
-      this.riseStats();
-      this.setNextLevel();
+      if (this._level < 100) {
+        this.lvl++;
+        this._experience_current -= this._experience_nextLvL;
+        this.riseStats();
+        this.setNextLevel();
+      } else {
+        this._experience_current = 9999;
+        this._experience_nextLvL = 10_000;
+      }
     }
   }
   private riseStats() {
