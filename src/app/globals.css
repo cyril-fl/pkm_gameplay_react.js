@@ -49,8 +49,6 @@ main {
   @apply flex justify-start items-center gap-4 text-lg;
 }
 
-
-
 /* Styles pour la scrollbar */
 .scrollbar-custom {
   /*scrollbar-color: red blue; !* Couleur de la barre et de son arrière-plan *!*/
@@ -72,11 +70,6 @@ main {
 .scrollbar-always-visible {
   overflow-y: scroll;
 }
-
-
-
-
-
 
 /*!* Pour les navigateurs qui supportent les scrollbars personnalisées *!*/
 /*.scrollbar::-webkit-scrollbar {*/

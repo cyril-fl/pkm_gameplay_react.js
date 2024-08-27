@@ -1,5 +1,4 @@
-import { Choice } from "@customs/Interface";
-
+// noinspection ES6UnusedImports
 export enum UI_TYPE {
   CHOICE = "CHOICE",
   PRESS = "PRESS",

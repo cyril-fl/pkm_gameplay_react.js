@@ -1,7 +1,5 @@
 import { PkmModel } from "@models/Pkm";
-import { DexController } from "@controllers/Dex";
 import { DexEntry } from "@models/Dex";
-import entry from "next/dist/server/typescript/rules/entry";
 
 export class PlayerModel {
   private _name: string;
@@ -74,8 +72,8 @@ export class PlayerModel {
       this._team.splice(index, 1);
     }
   }
-  public addEntry(pkdex: DexEntry) {
-    this._pkdex.push(pkdex.id);
+  public addEntry(pkdexEntry: number) {
+    this._pkdex.push(pkdexEntry);
   }
   public revive() {
     this._team.forEach((pkm) => {

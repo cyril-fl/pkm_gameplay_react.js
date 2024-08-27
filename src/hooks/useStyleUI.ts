@@ -1,3 +1,5 @@
+// noinspection UnnecessaryLocalVariableJS
+
 import { useMemo } from "react";
 import { GameUIModel } from "@models/GameUI";
 import { UI_STYLE } from "@customs/Enum";
@@ -67,7 +69,7 @@ export const useStyleUI = (ref: GameUIModel | null) => {
           ...style,
           scroll: "scrollbar-custom scrollbar-always-visible",
         };
-        break
+        break;
       default:
         break;
     }

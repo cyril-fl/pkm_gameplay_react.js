@@ -13,14 +13,11 @@ import {
   UI_STYLE,
   UI_TYPE,
 } from "@customs/Enum";
-import { Choice, move, RAM_interface } from "@customs/Interface";
+import { Choice, RAM_interface } from "@customs/Interface";
 import { DexEntry } from "@models/Dex";
 import { RAM } from "@services/RAM";
-import { Simulate } from "react-dom/test-utils";
-import keyDown = Simulate.keyDown;
 
 // Todo: regarder la list des todo et voir ce qui peu être fait
-// Todo : ajouter un PKDEX P e faire une vue special.
 // Todo : bug dans les data des PKM je dois les mofier pour qu'il y a un max et un min
 
 export class GameController {
@@ -146,6 +143,7 @@ export class GameController {
   /* MENU */
   private menu_main(response: string = "") {
     // this.upToSix();
+    console.log(this.world.player.team);
     this.updateUI_MainMenu();
 
     switch (response) {
@@ -242,9 +240,8 @@ export class GameController {
   // Dex
   private dexDisplay() {
     const dex = this.world.player.dex;
-    this.UI.dex = this.world.dex.filter((entry) => dex.includes(entry.id))
+    this.UI.dex = this.world.dex.filter((entry) => dex.includes(entry.id));
     this.nextAction = this.menu_main;
-
   }
 
   // Heal
@@ -460,7 +457,9 @@ export class GameController {
   private battlePhase(response: string) {
     const randomIndex = Math.ceil(Math.random() * 4) - 1;
     const p_move = this.UI.p_pkm.calculator_atk(response);
-    const w_move = this.UI.w_pkm.calculator_atk(this.UI.w_pkm.moves[randomIndex].name);
+    const w_move = this.UI.w_pkm.calculator_atk(
+      this.UI.w_pkm.moves[randomIndex].name,
+    );
 
     if (!p_move || !w_move) {
       this.warning(this.menu_main);
@@ -482,7 +481,7 @@ export class GameController {
     let a_move = p_pkm.spd > w_pkm.spd ? p_move : w_move;
     let d_move = p_pkm.spd < w_pkm.spd ? p_move : w_move;
 
-    this.damageStep_calculator(atker, dfser, a_move);
+        this.damageStep_calculator(atker, dfser, a_move);
     const roundOne = this.damageStep_outcome(atker, dfser);
 
     if (roundOne) {
@@ -518,7 +517,6 @@ export class GameController {
 
   private damageStep_outcome(attacker: PkmModel, defender: PkmModel) {
     if (attacker.hp <= 0 || defender.hp <= 0) {
-      const KO = attacker.hp <= 0 ? attacker : defender;
       const isPlayerKO = this.UI.arena.playerPkm.hp <= 0;
 
       if (isPlayerKO) {
@@ -540,7 +538,9 @@ export class GameController {
   private battle_Win() {
     this.postBattle_gainXP(this.UI.p_pkm, this.UI.w_pkm);
     this.updateUI_BattleEvent_damageStepCCL(this.UI.w_pkm);
-    this.world.addLog([`Congrats you win against wild ${this.UI.w_pkm.name} !`]);
+    this.world.addLog([
+      `Congrats you win against wild ${this.UI.w_pkm.name} !`,
+    ]);
     this.nextAction = this.menu_main;
     return;
   }
@@ -557,9 +557,7 @@ export class GameController {
 
   private battleAction_Fail() {
     const randomIndex = Math.ceil(Math.random() * 4) - 1;
-    const p_pkm = this.UI.arena.playerPkm;
-    const w_pkm = this.UI.arena.wildPkm;
-    const w_move = w_pkm.calculator_atk(w_pkm.moves[randomIndex].name);
+    const w_move = this.UI.w_pkm.calculator_atk(this.UI.w_pkm.moves[randomIndex].name);
 
     if (!w_move) {
       console.log("error in runFail");
@@ -572,12 +570,14 @@ export class GameController {
   }
 
   private tryToCatch() {
-    const ballCaptureRate = 1;this.UI.w_pkm
+    const ballCaptureRate = 1;
+    this.UI.w_pkm;
     const randomFactor = Math.random();
     const captureRate =
-      ((this.UI.p_pkm.hpMax - this.UI.w_pkm.hp) / this.UI.w_pkm.hpMax) * ballCaptureRate;
+      ((this.UI.p_pkm.hpMax - this.UI.w_pkm.hp) / this.UI.w_pkm.hpMax) *
+      ballCaptureRate;
 
-      // 0 at debug else :  CaptureRate >= randomFactor
+    // 0 at debug else :  CaptureRate >= randomFactor
     if (captureRate >= randomFactor) {
       if (this.world.player.team.length >= 6) {
         this.updateUI_BattleEvent_CaptureFail();
@@ -603,12 +603,34 @@ export class GameController {
   }
 
   private postBattle_gainXP(winner: PkmModel, loser: PkmModel) {
-    const prevLvl = winner.lvl;
-    winner.gainXP(loser.experienceGiver);
-    const newLvl = winner.lvl;
+    console.log("winner", winner);
+    const prev_lvl = winner.lvl;
+    const prev_name = winner.name;
+    const prev_evolution = { lvl: winner.evolutionLvl, id: winner.evolutionId };
 
-    if (newLvl > prevLvl) {
-      this.world.addLog([`${winner.name} has leveled up to lvl ${newLvl} !`]);
+    winner.gainXP(loser.experienceGiver);
+
+    if (winner.lvl > prev_lvl) {
+      this.world.addLog([
+        `${winner.name} has leveled up to lvl ${winner.lvl} !`,
+      ]);
+
+      if (
+        prev_evolution.lvl &&
+        prev_evolution.id &&
+        prev_evolution.lvl <= winner.lvl
+      ) {
+        winner.evolve(this.world.dex);
+        this.world.addLog([
+          `${winner.name} is evolving !`,
+          `${prev_name} has evolved into ${winner.name} !`,
+        ]);
+        this.world.player.addEntry(winner.dexEntry);
+        this.UI.updateNotification(
+          [`${prev_name} has evolved into ${winner.name} !`],
+          true,
+        );
+      }
     }
   }
 
@@ -651,7 +673,7 @@ export class GameController {
         ? `You have chosen ${dexEntry.name} as your first pkm !`
         : `You have caught ${dexEntry.name} !`;
 
-      this.world.player.addEntry(dexEntry);
+      this.world.player.addEntry(dexEntry.id);
       this.world.addLog([log]);
     }
     return;
@@ -906,7 +928,7 @@ export class GameController {
       "Here are some basic :",
       "1) You can monitor your team",
       "2) You can go to the PkmCenter",
-      "3) You can go forward and eventually Reach the next town or encounter some Wild SQL",
+      "3) You can go forward and eventually Reach the next town or encounter some Wild Pkm",
     ];
 
     return this.tuto(temps_d, temp_p, "tuto_CG");
@@ -1250,20 +1272,6 @@ export class GameController {
     return;
   }
 
-  private updateUI_MenuTeam_Heal() {
-    const update = {
-      newType: undefined,
-      newChoice: undefined,
-      newStyle: undefined,
-      newDialogues: {
-        content: [UI_CHARACTER.PROF, `You have chosen to heal your team !`],
-      },
-    };
-
-    this.UI.update_V2(update);
-    return;
-  }
-
   private updateUI_MenuTeam_Choice(props: string) {
     // MIX NAME HEAL
     const update = {
@@ -1313,7 +1321,7 @@ export class GameController {
           `You can consult the dex to see all the pkm you have encountered !`,
         ],
       },
-    }
+    };
 
     this.UI.update_V2(update);
   }

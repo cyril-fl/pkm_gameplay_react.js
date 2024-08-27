@@ -1,6 +1,5 @@
-import { IoMdArrowRoundUp, IoMdClose, IoMdExit } from "react-icons/io";
+import { IoMdArrowRoundUp, IoMdExit } from "react-icons/io";
 import { useAppContext, useFormContext } from "@/hooks/useContext";
-import { NotificationCard } from "./Notification";
 import { useStyleUI } from "@/hooks/useStyleUI";
 
 export const EntryInput = () => {

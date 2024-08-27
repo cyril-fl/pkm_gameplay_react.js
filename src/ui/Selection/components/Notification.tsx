@@ -11,8 +11,6 @@ export const NotificationCard = () => {
     [ui.notification],
   );
 
-  const notif = ["Notif 1", "Notif 2", "Notif 3"];
-
   useEffect(() => {
     if (notification.length > 0) {
       setIsNotified(true);

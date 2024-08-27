@@ -6,7 +6,7 @@ import {
 } from "@customs/Interface";
 import { CHOICES, UI_STYLE, UI_TYPE } from "@customs/Enum";
 import { PkmModel } from "@models/Pkm";
-import {DexEntry} from "@models/Dex";
+import { DexEntry } from "@models/Dex";
 
 // todo deplacer
 export interface update {
@@ -81,7 +81,6 @@ export class GameUIModel {
   set dex(newDex: DexEntry[]) {
     this._dex = newDex;
   }
-
 
   /* TOOLS */
   public update(

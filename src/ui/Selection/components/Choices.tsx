@@ -1,9 +1,10 @@
+// noinspection ES6UnusedImports
+
 import { RiArrowLeftSFill, RiArrowGoBackLine } from "react-icons/ri";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useAppContext, useFormContext } from "@/hooks/useContext";
 import { Choice } from "@/customs/Interface";
-import { NotificationCard } from "@/ui/Selection/components/Notification";
-import { CHOICES, UI_BUTTON, UI_MENU } from "@customs/Enum";
+import { CHOICES, UI_BUTTON } from "@customs/Enum";
 
 export const ChoiceInput = () => {
   const { ui } = useAppContext();

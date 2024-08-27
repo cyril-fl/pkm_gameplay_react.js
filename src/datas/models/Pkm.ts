@@ -3,20 +3,22 @@ import { Choice, move, type } from "@customs/Interface";
 
 export class PkmModel {
   static ID = 0;
-  private readonly _dex_entry: number;
+  private _dex_entry: number;
   private _name: string;
   private _level: number;
-  private readonly _types: type[];
-  private readonly _isShiny: boolean;
+  private _types: type[];
+  private _isShiny: boolean;
   private _experience_current: number;
   private _experience_nextLvL: number;
-  private readonly _experienceGiver: number;
+  private _experienceGiver: number;
+  private _evolution_id: number | null;
+  private _evolution_lvl: number | null;
   private _atk: number;
   private _dfs: number;
   private _spd: number;
   private _hp: number;
   private _hp_max: number;
-  private readonly _moves: move[];
+  private _moves: move[];
   protected declare _id: string; // format : 0000 (dex entry) - 0000 (type1 type2 ) - 0000 (static ID) // readonly todo
 
   constructor(pkm: DexEntry = new DexEntry(), level: number = 1) {
@@ -28,6 +30,8 @@ export class PkmModel {
     this._experience_current = 0;
     this._experience_nextLvL = 20 * level;
     this._experienceGiver = this.getRandomNumber({ min: 10, max: 20 }) * level;
+    this._evolution_id = pkm.evolutionId;
+    this._evolution_lvl = pkm.evolutionLvl;
     this._atk = this.getRandomNumber({
       min: pkm.atkMin,
       max: pkm.atkMax,
@@ -94,6 +98,12 @@ export class PkmModel {
   }
   get experienceGiver() {
     return this._experienceGiver;
+  }
+  get evolutionId() {
+    return this._evolution_id;
+  }
+  get evolutionLvl() {
+    return this._evolution_lvl;
   }
   get atk() {
     return this._atk;
@@ -185,7 +195,7 @@ export class PkmModel {
     this._experience_current += xp;
 
     while (this._experience_current >= this._experience_nextLvL) {
-      this._level++;
+      this.lvl++;
       this._experience_current -= this._experience_nextLvL;
       this.riseStats();
       this.setNextLevel();
@@ -197,5 +207,32 @@ export class PkmModel {
     this._spd += this.getRandomNumber({ min: 1, max: 3 });
     this._hp_max += this.getRandomNumber({ min: 5, max: 10 });
     this._hp = this._hp + 3;
+  }
+
+  public evolve(dex: DexEntry[]) {
+    const evolution = dex.find(
+      (pkm: DexEntry) => pkm.id === this._evolution_id,
+    );
+    console.log(evolution);
+    if (!evolution) {
+      throw new Error("Evolution not found");
+    }
+
+    const evolvedPkm = new PkmModel(evolution);
+
+    console.log("evolvedPkm", evolvedPkm);
+
+    this.name = evolvedPkm.name;
+    this._dex_entry = evolvedPkm.dexEntry;
+    this._types = evolvedPkm.types;
+    this._atk = evolvedPkm.atk;
+    this._dfs = evolvedPkm.dfs;
+    this._spd = evolvedPkm.spd;
+    this._hp = evolvedPkm.hp;
+    this._hp_max = evolvedPkm.hpMax;
+    this._moves = evolvedPkm.moves;
+    this._evolution_id = evolvedPkm._evolution_id;
+    this._evolution_lvl = evolvedPkm._evolution_lvl;
+    this._id = evolvedPkm.id;
   }
 }
