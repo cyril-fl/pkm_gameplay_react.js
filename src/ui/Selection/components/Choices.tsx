@@ -1,17 +1,18 @@
-import { RiArrowLeftSFill } from "react-icons/ri";
+// noinspection ES6UnusedImports
+
+import { RiArrowLeftSFill, RiArrowGoBackLine } from "react-icons/ri";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useAppContext, useFormContext } from "@/hooks/useContext";
 import { Choice } from "@/customs/Interface";
-
-const DEFAULT_CHOICE: Choice = { label: "Invalid", value: "null" };
+import { CHOICES, UI_BUTTON } from "@customs/Enum";
 
 export const ChoiceInput = () => {
   const { ui } = useAppContext();
   const { submit } = useFormContext();
-  const [selected, setSelected] = useState<Choice>(DEFAULT_CHOICE);
+  const [selected, setSelected] = useState<Choice>(CHOICES.DEFAULT_CHOICE[0]);
 
   const choices = useMemo<Choice[]>(
-    () => ui?.choices || [DEFAULT_CHOICE],
+    () => ui?.choices || CHOICES.DEFAULT_CHOICE,
     [ui.choices],
   );
 
@@ -69,22 +70,6 @@ export const ChoiceInput = () => {
     };
   }, [handleKeyDown]);
 
-  // Dynamic CCS class
-  const choiceClass = useMemo(() => {
-    switch (choices.length) {
-      case 2:
-      case 4:
-        return "w-1/3";
-      case 3:
-      case 6:
-        return "w-[24%]";
-      case 5:
-        return "w-1/2 last:w-full";
-      default:
-        return "basis-full";
-    }
-  }, [choices.length]);
-
   const selectedChoiceClass =
     "bg-GameBoy-black text-GameBoy-white hover:bg-zinc-700";
   const unselectedChoiceClass =
@@ -97,18 +82,26 @@ export const ChoiceInput = () => {
           key={index}
           className={`${
             selected === choice ? selectedChoiceClass : unselectedChoiceClass
-          } flex grow cursor-pointer items-center justify-between rounded-sm border-2 border-GameBoy-black px-4 py-2 transition duration-200 ease-in-out ${choiceClass} ${
-            index === choices.length - 1 && choices.length === 5
-              ? "basis-full"
-              : ""
-          }`}
+          } ${choice.value === UI_BUTTON.BACK ? "w-fit shrink-0" : "grow"} flex cursor-pointer items-center justify-between rounded-sm border-2 border-GameBoy-black px-4 py-2 transition duration-200 ease-in-out `}
           onClick={(e) => handleClick(e, choice)}
           onMouseEnter={() => setSelected(choice)}
         >
-          {choice.label}
-          <span className={`${selected === choice ? "" : "opacity-0"} text-xl`}>
-            <RiArrowLeftSFill />
-          </span>
+          {choice.value !== UI_BUTTON.BACK && (
+            <>
+              {choice.label}
+              <span
+                className={`${selected === choice ? "" : "opacity-0"} text-xl`}
+              >
+                <RiArrowLeftSFill />
+              </span>
+            </>
+          )}
+
+          {choice.value === UI_BUTTON.BACK && (
+            <span className={`text-xl`}>
+              <RiArrowGoBackLine />
+            </span>
+          )}
         </li>
       ))}
       <input type="hidden" name="selected" value={selected.value} />

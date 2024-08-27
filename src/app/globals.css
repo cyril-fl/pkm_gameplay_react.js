@@ -36,7 +36,6 @@ body {
   width: 100vw;
   overflow: hidden;
   display: flex;
-  @apply p-4;
 }
 
 main {
@@ -49,3 +48,52 @@ main {
 .arena__card__progressBar {
   @apply flex justify-start items-center gap-4 text-lg;
 }
+
+/* Styles pour la scrollbar */
+.scrollbar-custom {
+  /*scrollbar-color: red blue; !* Couleur de la barre et de son arrière-plan *!*/
+}
+
+.scrollbar-custom::-webkit-scrollbar {
+  width: 0.75rem; /* Largeur de la scrollbar */
+}
+
+.scrollbar-custom::-webkit-scrollbar-track {
+  background: #fff; /* Couleur de fond de la scrollbar */
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb {
+  background-color: #000; /* Couleur de la barre de défilement */
+}
+
+/* Toujours visible (overflow-y: scroll force l'affichage même sans scroll) */
+.scrollbar-always-visible {
+  overflow-y: scroll;
+}
+
+/*!* Pour les navigateurs qui supportent les scrollbars personnalisées *!*/
+/*.scrollbar::-webkit-scrollbar {*/
+/*  width: 0.75rem; !* Largeur de la scrollbar *!*/
+/*}*/
+
+/*.scrollbar::-webkit-scrollbar-track {*/
+/*  background: #fff; !* Couleur de fond de la scrollbar *!*/
+/*}*/
+
+/*.scrollbar::-webkit-scrollbar-thumb {*/
+/*  background-color: #000; !* Couleur de la barre de défilement *!*/
+/*}*/
+
+/* Pour les navigateurs Firefox*/
+/*.scrollbar::-moz-scrollbar {*/
+/*  width: 0.75rem;*/
+/*}*/
+
+/*.scrollbar::-moz-scrollbar-track {*/
+/*  background: #000;*/
+/*}*/
+
+/*.scrollbar::-moz-scrollbar-thumb {*/
+/*  background-color: #000;*/
+/*  border-radius: 0.375rem;*/
+/*}*/

@@ -1,7 +1,7 @@
-import { PkdDexEntry } from "@models/PkmDex";
+import { DexEntry } from "@models/Dex";
 
-export class PkDexController {
-  private static instance: PkDexController | null = null;
+export class DexController {
+  private static instance: DexController | null = null;
   private dex: any[] = [];
   private dataLoaded: Promise<void>;
 
@@ -9,11 +9,11 @@ export class PkDexController {
     this.dataLoaded = this.set();
   }
 
-  public static getInstance(): PkDexController {
-    if (!PkDexController.instance) {
-      PkDexController.instance = new PkDexController();
+  public static getInstance(): DexController {
+    if (!DexController.instance) {
+      DexController.instance = new DexController();
     }
-    return PkDexController.instance;
+    return DexController.instance;
   }
 
   public async getDex(): Promise<any[]> {
@@ -25,7 +25,7 @@ export class PkDexController {
     if (this.dex.length > 0) return;
     try {
       const data = await this.fetch();
-      this.dex = data.map((Pkm: any) => new PkdDexEntry(Pkm));
+      this.dex = data.map((Pkm: any) => new DexEntry(Pkm));
     } catch (error) {
       console.error("Error fetching data:", error);
       this.dex = [];

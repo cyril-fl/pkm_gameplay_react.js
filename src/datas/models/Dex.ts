@@ -1,12 +1,12 @@
 import { type, move } from "@customs/Interface";
 import { MOCKUP_DEX_ENTRY } from "@/datas/mockup/dex_entry";
 
-export class PkdDexEntry {
+export class DexEntry {
   private readonly _name: string;
   private readonly _id: number;
   private readonly _description: string;
   private readonly _types: type[];
-  private readonly _evolution_id: string | null;
+  private readonly _evolution_id: number | null;
   private readonly _evolution_lvl: number | null;
   private readonly _atk_min: number;
   private readonly _atk_max: number;
@@ -51,7 +51,7 @@ export class PkdDexEntry {
   get types(): type[] {
     return this._types;
   }
-  get evolutionId(): string | null {
+  get evolutionId(): number | null {
     return this._evolution_id;
   }
   get evolutionLvl(): number | null {

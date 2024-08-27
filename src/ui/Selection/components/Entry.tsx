@@ -1,6 +1,5 @@
-import { IoMdArrowRoundUp, IoMdClose, IoMdExit } from "react-icons/io";
+import { IoMdArrowRoundUp, IoMdExit } from "react-icons/io";
 import { useAppContext, useFormContext } from "@/hooks/useContext";
-import { NotificationCard } from "./Notification";
 import { useStyleUI } from "@/hooks/useStyleUI";
 
 export const EntryInput = () => {
@@ -14,8 +13,7 @@ export const EntryInput = () => {
   };
 
   return (
-    <div className="fixed top-0 z-20 w-full h-full flex grow flex-col items-center bg-zinc-500 bg-opacity-80 backdrop-filter backdrop-blur-sm">
-      <NotificationCard />
+    <div className="fixed top-0 z-10 w-full h-full flex grow flex-col items-center bg-zinc-500 bg-opacity-80 backdrop-filter backdrop-blur-sm">
       <div className="flex flex-row gap-1 grow justify-self-center items-center">
         <input
           type="text"
@@ -29,7 +27,6 @@ export const EntryInput = () => {
         >
           <IoMdArrowRoundUp />
         </button>
-        {/* Todo : mettre en place un systeme de retour         */}
         <button
           // type="submit"
           onClick={handleAbortAction}

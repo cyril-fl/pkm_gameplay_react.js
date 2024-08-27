@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo } from "react";
 import { useAppContext, useFormContext } from "@/hooks/useContext";
-import { ChoiceInput } from "@/ui/Selection/components/Choices";
 import { Choice } from "@customs/Interface";
 
 export const PressInput = () => {
@@ -20,14 +19,15 @@ export const PressInput = () => {
       case "*":
         return "any key";
       default:
-        return text;
+        console.log("display PressInput text", text);
+        return "any key";
     }
   };
 
   const choices = useMemo(
     () =>
       ui?.choices.map((text: Choice, index: number) => (
-        <span key={index}>{display(text.value)}</span>
+        <span key={index}>{display(text.label)}</span>
       )),
     [ui.choices],
   );
@@ -39,5 +39,11 @@ export const PressInput = () => {
     };
   }, [submit]);
 
-  return <p className=""> Press {choices} to continue</p>;
+  return (
+    <p className="cursor-pointer" onClick={handleKeyDown}>
+      {" "}
+      {/*Press {choices} to continue*/}
+      Press any key to continue
+    </p>
+  );
 };

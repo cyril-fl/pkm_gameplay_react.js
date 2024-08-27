@@ -2,16 +2,15 @@ import React, {
   createContext,
   ReactNode,
   useCallback,
-  useMemo,
   useState,
   useEffect,
-  FormEvent,
+
 } from "react";
 import { GameController } from "@controllers/Game";
 import { GameUIModel } from "@models/GameUI";
 import { useSave } from "@/hooks/useSave";
 import { PkmModel } from "@models/Pkm";
-import { MOCKUP_DEX_ENTRY } from "@/datas/mockup/dex_entry";
+import { NotificationCard } from "@/ui/Selection/components/Notification";
 
 export const AppContext = createContext<any>({});
 
@@ -19,7 +18,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [Game, setGame] = useState<GameController | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [GameUI, setGameUI] = useState(new GameUIModel());
   const { data, loading, error } = useSave();
 
@@ -76,7 +74,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
         ui: GameUI,
       }}
     >
-      <main className="w-full h-full flex flex-col gap-4 justify-between font-jersey-25">
+      <NotificationCard />
+
+      <main className="w-11/12 h-5/6 flex flex-col gap-4 justify-between font-jersey-25 max-h-full overflow-hidden">
         {children}
       </main>
     </AppContext.Provider>

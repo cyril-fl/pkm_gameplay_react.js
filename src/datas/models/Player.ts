@@ -1,12 +1,11 @@
 import { PkmModel } from "@models/Pkm";
-import { PkDexController } from "@controllers/PkmDex";
-import { PkdDexEntry } from "@models/PkmDex";
+import { DexEntry } from "@models/Dex";
 
 export class PlayerModel {
   private _name: string;
   private readonly _team: PkmModel[];
   private readonly _bag: any[]; // Todo: Gérer le type bagItem
-  private readonly _pkdex: number[];
+  private _pkdex: number[];
 
   constructor(name: string, team: PkmModel[], bag: any[], pkdex: number[]) {
     this._name = name;
@@ -35,7 +34,7 @@ export class PlayerModel {
   }
 
   /* Tools */
-  public setUpToSix(dex: PkdDexEntry[]) {
+  public setUpToSix(dex: DexEntry[]) {
     const teamMaxLength = 6;
     const starterNumber = 9; // 3 starters * 3 evolutions
     const addedPkmName = [];
@@ -60,19 +59,25 @@ export class PlayerModel {
     }
     return addedPkmName;
   }
-
   public catch(pkm: PkmModel) {
     this._team.push(pkm);
-  }
 
+    if (!this._pkdex.includes(pkm.dexEntry)) {
+      this._pkdex.push(pkm.dexEntry);
+    }
+  }
   public release(pkm: PkmModel) {
     const index = this._team.indexOf(pkm);
     if (index > -1) {
       this._team.splice(index, 1);
     }
   }
-
-  public addEntry(pkdex: PkdDexEntry) {
-    this._pkdex.push(pkdex.id);
+  public addEntry(pkdexEntry: number) {
+    this._pkdex.push(pkdexEntry);
+  }
+  public revive() {
+    this._team.forEach((pkm) => {
+      pkm.hp = pkm.hpMax;
+    });
   }
 }

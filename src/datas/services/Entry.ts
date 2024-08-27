@@ -5,21 +5,6 @@ export class Entry {
     this.content = entry.trim();
   }
 
-  public HTMLSpecialChars_encode() {
-    const map: { [key: string]: string } = {
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#039;",
-      _: "&#95;",
-    };
-
-    this.content = this.content.replace(/[&<>"']/g, function (m) {
-      return map[m];
-    });
-  }
-
   public HTMLSpecialChars_test() {
     const specialCharsRegex = /[&<>"'_]/;
     return specialCharsRegex.test(this.content);

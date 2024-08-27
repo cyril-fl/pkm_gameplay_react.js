@@ -1,18 +1,17 @@
+// noinspection ES6UnusedImports
+
 "use client";
 import React, {
   createContext,
-  useContext,
   ReactNode,
   useRef,
-  FormEvent,
   useCallback,
   useMemo,
-  useEffect,
 } from "react";
 import { useAppContext } from "@/hooks/useContext";
 import { GameController } from "@controllers/Game";
 import { FormContextType } from "@customs/Interface";
-import { UI_BUTTON, UI_MENU, UI_TYPE } from "@customs/Enum";
+import { UI_BUTTON, UI_TYPE } from "@customs/Enum";
 
 export const FormContext = createContext<FormContextType | null>(null);
 

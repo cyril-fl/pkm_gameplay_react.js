@@ -24,6 +24,7 @@ export const SelectMenu = () => {
         return <ChoiceInput />;
       case UI_TYPE.ENTRY:
         return <EntryInput />;
+      case UI_TYPE.SCROLL:
       case UI_TYPE.PRESS:
         return <PressInput />;
       default:

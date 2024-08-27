@@ -1,13 +1,11 @@
 import { PkmModel } from "@models/Pkm";
-import { PkdDexEntry } from "@models/PkmDex";
-import { arena } from "@customs/Interface";
+import { DexEntry } from "@models/Dex";
 
 export class RAM {
   private declare _last_save: any;
   private declare _tuto_continueGame: boolean;
   private declare _starter_choices?: PkmModel[];
-  private declare dex: PkdDexEntry[];
-  private declare pkmName_old: string;
+  private declare dex: DexEntry[];
   private declare _pkmName_new: string;
   private declare _pkm: PkmModel;
 
