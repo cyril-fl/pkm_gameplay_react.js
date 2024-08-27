@@ -17,11 +17,7 @@
 #### Pokémon Center
 
 - **Revive Pokémon**: Restore your Pokémon's health when they're knocked out.
-<<<<<<< HEAD
 - **View Logs**: Check your activity logs. 
-=======
-- **View Logs**: Check your activity logs. _(Coming Soon...)_
->>>>>>> refs/heads/Before-merge
 
 #### Team Management
 
